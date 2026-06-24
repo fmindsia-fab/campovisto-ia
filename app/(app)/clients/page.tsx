@@ -1,8 +1,22 @@
+import { PageHeader } from '@/components/shared/page-header'
+import { EmptyState } from '@/components/shared/empty-state'
+import { Button } from '@/components/ui/button'
+import { Users } from 'lucide-react'
+
 export default function ClientsPage() {
   return (
-    <main className="p-6">
-      <h1 className="text-2xl font-bold">Clientes</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Implementado no M3</p>
-    </main>
+    <>
+      <PageHeader
+        title="Clientes"
+        description="Gerencie os clientes da plataforma"
+        action={<Button>Novo cliente</Button>}
+      />
+      <EmptyState
+        icon={Users}
+        title="Nenhum cliente cadastrado"
+        description="Adicione o primeiro cliente para começar a criar propriedades e vistorias."
+        action={<Button>Adicionar cliente</Button>}
+      />
+    </>
   )
 }

@@ -10,7 +10,7 @@
 
 | # | Nome | Branch | Foco |
 |---|---|---|---|
-| M0 | Setup & Infraestrutura | `main` | Base do projeto |
+| ~~M0~~ | ~~Setup & Infraestrutura~~ | `main` | ✅ **Concluído** |
 | M1 | Design System & Layout | `feat/design-system` | Componentes, tema, navegação |
 | M2 | Autenticação | `feat/auth` | Login, signup, roles, sessão |
 | M3 | Clientes & Propriedades | `feat/clients-properties` | CRUD principal |
@@ -29,45 +29,47 @@
 
 ---
 
-## M0 — Setup & Infraestrutura
+## ✅ M0 — Setup & Infraestrutura — CONCLUÍDO
 
-**Branch:** `main`
+**Branch:** `main` | **Commits:** `5f373f8`, `151febe`
 
-**Objetivo:** Projeto funcionando localmente com stack completa configurada, estrutura de pastas criada e pronto para desenvolver.
+**Build:** ✅ `npm run build` — exit code 0, 13 rotas, zero erros TypeScript
 
 ### Entregas
 
 **Projeto**
-- [ ] `npx create-next-app` com TypeScript, Tailwind CSS, App Router
-- [ ] `tsconfig.json` com `strict: true`
-- [ ] ESLint + Prettier configurados
-- [ ] Estrutura de pastas criada conforme `CLAUDE.md`
+- [x] Next.js 15 com TypeScript, Tailwind CSS v3, App Router — setup manual (diretório não vazio)
+- [x] `tsconfig.json` com `strict: true`
+- [x] ESLint + Prettier + `prettier-plugin-tailwindcss` configurados
+- [x] Estrutura de pastas criada conforme `CLAUDE.md`
+- [x] `.gitattributes` com normalização LF
 
 **shadcn/ui**
-- [ ] `shadcn/ui` inicializado (`npx shadcn@latest init`)
-- [ ] Componentes base instalados: `button`, `card`, `input`, `form`, `dialog`, `badge`, `dropdown-menu`, `separator`, `avatar`, `toast`
+- [x] `components.json` configurado (RSC, TSX, aliases corretos)
+- [x] 12 componentes instalados: `button`, `card`, `input`, `label`, `textarea`, `select`, `dialog`, `dropdown-menu`, `badge`, `separator`, `avatar`, `sonner`
 
 **Supabase**
-- [ ] Projeto criado no Supabase Dashboard
-- [ ] `.env.local` com `SUPABASE_URL` e `SUPABASE_ANON_KEY`
-- [ ] `lib/supabase/client.ts` — cliente browser
-- [ ] `lib/supabase/server.ts` — cliente server (Server Components / Server Actions)
-- [ ] `lib/supabase/middleware.ts` — refresh de sessão
-- [ ] `middleware.ts` na raiz com proteção de rotas autenticadas
+- [x] `lib/supabase/client.ts` — cliente browser
+- [x] `lib/supabase/server.ts` — cliente server com tipos corretos
+- [x] `lib/supabase/middleware.ts` — refresh de sessão com tipagem `NonNullable<CookieMethodsServer['setAll']>`
+- [x] `middleware.ts` na raiz com proteção de rotas autenticadas
+- [ ] ⏳ Projeto criado no Supabase Dashboard (ação do usuário)
+- [ ] ⏳ `.env.local` com `SUPABASE_URL` e `SUPABASE_ANON_KEY` (ação do usuário)
 
 **Tipos TypeScript**
-- [ ] `types/database.ts` — interfaces de todas as entidades do banco
-- [ ] `types/index.ts` — re-exports centralizados
+- [x] `types/index.ts` — interfaces completas de todas as 18 entidades do PRD
+- [x] `types/database.ts` — placeholder aguardando `supabase gen types typescript`
 
-**Vercel**
-- [ ] Repositório no GitHub criado
-- [ ] Projeto conectado na Vercel
-- [ ] Variáveis de ambiente configuradas na Vercel
-- [ ] Deploy automático no push para `main` funcionando
+**Vercel / GitHub**
+- [ ] ⏳ Repositório no GitHub criado (ação do usuário)
+- [ ] ⏳ Remote adicionado e push para `main`
+- [ ] ⏳ Projeto conectado na Vercel
+- [ ] ⏳ Variáveis de ambiente configuradas na Vercel
 
-### Commit final
+### Commits
 ```
-feat: project setup — Next.js, Supabase, shadcn/ui, TypeScript strict, Vercel
+5f373f8  feat: M0 — project setup, Next.js, Supabase, shadcn/ui, TypeScript strict, Vercel-ready
+151febe  fix: TypeScript strict types for Supabase SSR cookie callbacks
 ```
 
 ---

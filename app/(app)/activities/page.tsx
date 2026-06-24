@@ -1,8 +1,22 @@
+import { PageHeader } from '@/components/shared/page-header'
+import { EmptyState } from '@/components/shared/empty-state'
+import { Button } from '@/components/ui/button'
+import { CheckSquare } from 'lucide-react'
+
 export default function ActivitiesPage() {
   return (
-    <main className="p-6">
-      <h1 className="text-2xl font-bold">Atividades</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Kanban — implementado no M8</p>
-    </main>
+    <>
+      <PageHeader
+        title="Atividades"
+        description="Kanban de atividades recomendadas nas vistorias"
+        action={<Button>Nova atividade</Button>}
+      />
+      <EmptyState
+        icon={CheckSquare}
+        title="Nenhuma atividade registrada"
+        description="As atividades são geradas a partir das recomendações dos relatórios de vistoria."
+        action={<Button>Criar atividade</Button>}
+      />
+    </>
   )
 }
