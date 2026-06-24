@@ -11,7 +11,7 @@
 | # | Nome | Branch | Foco |
 |---|---|---|---|
 | ~~M0~~ | ~~Setup & Infraestrutura~~ | `main` | ✅ **Concluído** |
-| M1 | Design System & Layout | `feat/design-system` | Componentes, tema, navegação |
+| ~~M1~~ | ~~Design System & Layout~~ | `feat/design-system` | ✅ **Concluído** |
 | M2 | Autenticação | `feat/auth` | Login, signup, roles, sessão |
 | M3 | Clientes & Propriedades | `feat/clients-properties` | CRUD principal |
 | M4 | Vistorias & Upload de Imagens | `feat/inspections` | Fluxo central de dados |
@@ -53,18 +53,18 @@
 - [x] `lib/supabase/server.ts` — cliente server com tipos corretos
 - [x] `lib/supabase/middleware.ts` — refresh de sessão com tipagem `NonNullable<CookieMethodsServer['setAll']>`
 - [x] `middleware.ts` na raiz com proteção de rotas autenticadas
-- [ ] ⏳ Projeto criado no Supabase Dashboard (ação do usuário)
-- [ ] ⏳ `.env.local` com `SUPABASE_URL` e `SUPABASE_ANON_KEY` (ação do usuário)
+- [x] ⏳ Projeto criado no Supabase Dashboard (ação do usuário)
+- [x] ⏳ `.env.local` com `SUPABASE_URL` e `SUPABASE_ANON_KEY` (ação do usuário)
 
 **Tipos TypeScript**
 - [x] `types/index.ts` — interfaces completas de todas as 18 entidades do PRD
 - [x] `types/database.ts` — placeholder aguardando `supabase gen types typescript`
 
 **Vercel / GitHub**
-- [ ] ⏳ Repositório no GitHub criado (ação do usuário)
-- [ ] ⏳ Remote adicionado e push para `main`
-- [ ] ⏳ Projeto conectado na Vercel
-- [ ] ⏳ Variáveis de ambiente configuradas na Vercel
+- [x] Repositório `fmindsia-fab/campovisto-ia` criado no GitHub
+- [x] Remote adicionado e push para `main`
+- [ ] ⏳ Projeto conectado na Vercel (ação do usuário)
+- [ ] ⏳ Variáveis de ambiente configuradas na Vercel (ação do usuário)
 
 ### Commits
 ```
@@ -74,44 +74,45 @@
 
 ---
 
-## M1 — Design System & Layout Base
+## ✅ M1 — Design System & Layout Base — CONCLUÍDO
 
-**Branch:** `feat/design-system`
+**Branch:** `feat/design-system` | **Commit:** `a0f64f1`
 
-**Objetivo:** Sistema visual definido e layout principal da aplicação funcionando com navegação, sem nenhum dado real ainda.
+**Build:** ✅ `npm run build` — exit code 0, 15 rotas, zero erros TypeScript
 
 ### Entregas
 
 **Tema & Tokens**
-- [ ] Cores definidas em `tailwind.config.ts`: brand-green, brand-purple, brand-blue, neutros
-- [ ] Fonte configurada (Inter ou Geist)
-- [ ] `globals.css` com CSS variables do shadcn customizadas para o tema CampoVisto
+- [x] Cores definidas em `tailwind.config.ts`: brand-green `#16a34a`, brand-purple `#7c3aed`, brand-blue `#2563eb`
+- [x] Fonte Inter configurada em `app/layout.tsx`
+- [x] `globals.css` com CSS variables do shadcn — primary = green (`142.1 76.2% 36.3%`)
 
 **Layout da Aplicação**
-- [ ] `components/shared/app-layout.tsx` — wrapper com sidebar + topbar
-- [ ] `components/shared/sidebar.tsx` — navegação lateral com links e ícones
-- [ ] `components/shared/topbar.tsx` — header com avatar do usuário, notificações
-- [ ] `components/shared/page-header.tsx` — título + breadcrumb + ação principal
-- [ ] `components/shared/empty-state.tsx` — estado vazio reutilizável
-- [ ] `components/shared/loading-skeleton.tsx` — skeletons genéricos
+- [x] `components/shared/app-layout.tsx` — wrapper com sidebar + topbar + main
+- [x] `components/shared/sidebar.tsx` — navegação lateral com `usePathname`, highlight de rota ativa, logo + 7 itens + settings no rodapé
+- [x] `components/shared/topbar.tsx` — sino de notificação + avatar (logo mobile responsivo)
+- [x] `components/shared/page-header.tsx` — título, descrição e slot de ação
+- [x] `components/shared/empty-state.tsx` — ícone, título, descrição e ação opcional
+- [x] `components/shared/loading-skeleton.tsx` — `Skeleton`, `CardSkeleton`, `ListSkeleton`, `StatGridSkeleton`
 
 **Componentes de Cards**
-- [ ] `components/shared/stat-card.tsx` — card de métrica para o dashboard
-- [ ] `components/shared/entity-card.tsx` — card reutilizável para clientes, propriedades, vistorias
+- [x] `components/shared/stat-card.tsx` — card de métrica com ícone, valor, descrição
+- [x] `components/shared/entity-card.tsx` — card genérico com badge, meta e onClick
 
 **Navegação funcional (mock)**
-- [ ] Todas as rotas da `(app)/` criadas com páginas placeholder
-- [ ] Sidebar com links ativos e estados hover/selected
-- [ ] Rotas: `/dashboard`, `/clients`, `/properties`, `/inspections`, `/reports`, `/activities`, `/calendar`, `/settings`
+- [x] Todas as rotas da `(app)/` criadas com `PageHeader` + `EmptyState` reais
+- [x] Sidebar com links ativos e estados hover/selected
+- [x] Rotas: `/dashboard`, `/clients`, `/properties`, `/inspections`, `/reports`, `/activities`, `/calendar`, `/settings`
+- [x] `app/(app)/layout.tsx` atualizado para usar `AppLayout`
 
 **Páginas de erro e estado**
-- [ ] `app/not-found.tsx`
-- [ ] `app/error.tsx`
-- [ ] `app/loading.tsx`
+- [x] `app/not-found.tsx` — 404 com link para dashboard
+- [x] `app/error.tsx` — erro com botão de reset (`'use client'`)
+- [x] `app/loading.tsx` — spinner centralizado
 
-### Commit final
+### Commits
 ```
-feat: design system — theme, layout, sidebar, shared components
+a0f64f1  feat(M1): design system & layout base
 ```
 
 ---
