@@ -63,8 +63,8 @@
 **Vercel / GitHub**
 - [x] Repositório `fmindsia-fab/campovisto-ia` criado no GitHub
 - [x] Remote adicionado e push para `main`
-- [ ] ⏳ Projeto conectado na Vercel (ação do usuário)
-- [ ] ⏳ Variáveis de ambiente configuradas na Vercel (ação do usuário)
+- [x] Projeto conectado na Vercel
+- [x] Variáveis de ambiente configuradas na Vercel (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
 
 ### Commits
 ```
