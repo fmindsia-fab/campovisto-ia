@@ -12,7 +12,7 @@
 |---|---|---|---|
 | ~~M0~~ | ~~Setup & Infraestrutura~~ | `main` | ✅ **Concluído** |
 | ~~M1~~ | ~~Design System & Layout~~ | `feat/design-system` | ✅ **Concluído** |
-| M2 | Autenticação | `feat/auth` | Login, signup, roles, sessão |
+| ~~M2~~ | ~~Autenticação~~ | `feat/auth` | ✅ **Concluído** |
 | M3 | Clientes & Propriedades | `feat/clients-properties` | CRUD principal |
 | M4 | Vistorias & Upload de Imagens | `feat/inspections` | Fluxo central de dados |
 | M5 | Editor Visual de Anotações | `feat/image-editor` | Canvas, marcadores, exportação |
@@ -117,45 +117,44 @@ a0f64f1  feat(M1): design system & layout base
 
 ---
 
-## M2 — Autenticação
+## ✅ M2 — Autenticação — CONCLUÍDO
 
-**Branch:** `feat/auth`
+**Branch:** `feat/auth` → mergeado em `main` | **Commit:** `1194e9a`
 
-**Objetivo:** Usuário consegue criar conta, fazer login, ser redirecionado para área autenticada e ter roles atribuídos.
+**Build:** ✅ `npm run build` — exit code 0, 16 rotas, zero erros TypeScript
 
 ### Entregas
 
 **UI**
-- [ ] `app/(auth)/login/page.tsx` — formulário login (e-mail + senha)
-- [ ] `app/(auth)/signup/page.tsx` — formulário cadastro
-- [ ] `app/(auth)/forgot-password/page.tsx` — solicitar reset de senha
-- [ ] `app/(auth)/reset-password/page.tsx` — nova senha via link de e-mail
-- [ ] Layout visual das páginas de auth (logo CampoVisto, split screen ou card centralizado)
+- [x] `app/(auth)/login/page.tsx` + `login-form.tsx` — formulário e-mail + senha com feedback de erro
+- [x] `app/(auth)/signup/page.tsx` + `signup-form.tsx` — formulário de cadastro com confirmação
+- [x] `app/(auth)/forgot-password/page.tsx` + form — solicitar reset de senha
+- [x] `app/(auth)/reset-password/page.tsx` + form — nova senha via link
+- [x] `app/(auth)/layout.tsx` — split-screen: painel verde com branding à esquerda, formulário à direita
 
 **Backend — Banco**
-- [ ] Migration `001_auth_roles.sql`:
-  - Tabela `profiles` (id, full_name, avatar_url, phone, created_at)
+- [x] Migration `001_auth_roles.sql` executada no Supabase:
+  - Tabela `profiles` (id, full_name, avatar_url, phone, onboarding_step, created_at)
   - Tabela `roles` (id, name, description)
   - Tabela `user_roles` (user_id, role_id) — many-to-many
-  - Seed: roles iniciais (`admin`, `field_operator`, `drone_pilot`, `human_reviewer`, `client`)
-- [ ] RLS em `profiles`: usuário só lê/edita o próprio perfil; admin lê todos
-- [ ] RLS em `user_roles`: admin gerencia; usuário lê os próprios
+  - Seed: 5 roles (`admin`, `field_operator`, `drone_pilot`, `human_reviewer`, `client`)
+  - Trigger `on_auth_user_created` — cria profile + atribui `field_operator` automaticamente
+- [x] RLS em `profiles`, `roles` e `user_roles`
 
 **Backend — Integração**
-- [ ] Server Action `auth/sign-up` — cria usuário + perfil + role padrão
-- [ ] Server Action `auth/sign-in` — autentica e redireciona
-- [ ] Server Action `auth/sign-out`
-- [ ] Server Action `auth/reset-password`
-- [ ] `middleware.ts` — redireciona `/` para `/dashboard` se autenticado, para `/login` se não
-- [ ] Hook `lib/auth/use-current-user.ts` — retorna usuário + roles da sessão
-- [ ] Helper `lib/auth/has-role.ts` — checa se usuário tem determinado role
+- [x] `lib/auth/actions.ts` — `signIn`, `signUp`, `signOut`, `forgotPassword`, `resetPassword`
+- [x] `middleware.ts` — redireciona para `/login` se não autenticado, `/dashboard` se autenticado em rota pública
+- [x] `lib/auth/get-current-user.ts` — retorna user + profile + roles
+- [x] `lib/auth/has-role.ts` — helper de verificação de roles
+- [x] `components/shared/topbar.tsx` — dropdown com iniciais, e-mail, link settings e botão sair
+- [ ] `app/(app)/settings/profile/page.tsx` — editar perfil (adiado para M14)
 
-**Página de perfil**
-- [ ] `app/(app)/settings/profile/page.tsx` — editar nome, telefone, avatar
+**Vercel**
+- [x] `NEXT_PUBLIC_SITE_URL=https://campovisto-ia.vercel.app` adicionado na Vercel
 
-### Commit final
+### Commits
 ```
-feat: authentication — Supabase Auth, roles system, protected routes
+1194e9a  feat(M2): authentication — Supabase Auth, roles system, protected routes
 ```
 
 ---
