@@ -42,6 +42,19 @@ const PRIORITY_COLORS = {
 
 const PRIORITY_LABELS = { high: 'Alta', medium: 'Média', low: 'Baixa' }
 const CONFIDENCE_LABELS = { confirmed: 'Confirmado', probable: 'Provável', uncertain: 'Incerto' }
+const CATEGORY_LABELS: Record<string, string> = {
+  bovine: 'Bovino',
+  pasture: 'Pastagem',
+  bare_soil: 'Solo exposto',
+  cattle_trail: 'Trilha de gado',
+  wetland: 'Área úmida',
+  fence: 'Cerca',
+  waterer: 'Bebedouro',
+  shade: 'Sombra',
+  crop: 'Lavoura',
+  structure: 'Estrutura',
+  attention_point: 'Ponto de atenção',
+}
 
 interface Props {
   analysis: Analysis
@@ -118,7 +131,7 @@ export function AnalysisResult({ analysis }: Props) {
                 className={`rounded-lg border p-3 text-xs ${PRIORITY_COLORS[pt.priority]}`}
               >
                 <div className="flex items-center justify-between gap-2 mb-1">
-                  <span className="font-semibold capitalize">{pt.category.replace('_', ' ')}</span>
+                  <span className="font-semibold">{CATEGORY_LABELS[pt.category] ?? pt.category}</span>
                   <div className="flex gap-1">
                     <span className="opacity-75">{PRIORITY_LABELS[pt.priority]}</span>
                     <span className="opacity-50">·</span>
