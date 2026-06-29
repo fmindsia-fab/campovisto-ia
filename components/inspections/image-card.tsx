@@ -63,6 +63,7 @@ export function ImageCard({ image, publicUrl, onDeleted, onUpdated }: ImageCardP
   return (
     <div className="group rounded-lg border bg-card overflow-hidden">
       <div className="relative aspect-video bg-muted overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={publicUrl}
           alt={image.original_name}

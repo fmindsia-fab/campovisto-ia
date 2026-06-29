@@ -45,7 +45,7 @@ export function InspectionCard({ inspection, onEdit, onDeleted }: InspectionCard
     if (result.error) {
       alert(`Erro ao excluir: ${result.error}`)
     } else {
-      onDeleted ? onDeleted() : router.refresh()
+      if (onDeleted) { onDeleted() } else { router.refresh() }
     }
   }
 

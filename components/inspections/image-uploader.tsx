@@ -132,6 +132,7 @@ export function ImageUploader({ inspectionId, onUploaded }: ImageUploaderProps) 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {files.map((f, i) => (
               <div key={i} className="relative group rounded-lg overflow-hidden border bg-muted aspect-square">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={f.preview} alt={f.file.name} className="h-full w-full object-cover" />
                 {f.uploading && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/40">

@@ -25,7 +25,7 @@ export function PropertyCard({ property, onEdit, onDeleted }: PropertyCardProps)
     if (result.error) {
       alert(`Erro ao excluir: ${result.error}`)
     } else {
-      onDeleted ? onDeleted() : router.refresh()
+      if (onDeleted) { onDeleted() } else { router.refresh() }
     }
   }
 

@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { createInspection, updateInspection } from '@/lib/inspections/actions'
-import type { Inspection, Property, Client } from '@/types'
+import type { Inspection } from '@/types'
 
 interface PropertyOption {
   id: string
