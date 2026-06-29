@@ -33,8 +33,6 @@ export async function updateProperty(id: string, formData: FormData) {
   }).eq('id', id)
 
   if (error) return { error: error.message }
-  revalidatePath('/properties')
-  revalidatePath(`/properties/${id}`)
   return { success: true }
 }
 
@@ -44,7 +42,6 @@ export async function deleteProperty(id: string) {
   const { error } = await (supabase as any).from('properties').delete().eq('id', id)
 
   if (error) return { error: error.message }
-  revalidatePath('/properties')
   return { success: true }
 }
 

@@ -12,15 +12,19 @@ interface PropertyCardProps {
   property: Property & { clients?: Pick<Client, 'id' | 'name' | 'city'> }
   clients: Pick<Client, 'id' | 'name'>[]
   onEdit: () => void
+  onDeleted?: () => void
 }
 
-export function PropertyCard({ property, onEdit }: PropertyCardProps) {
+export function PropertyCard({ property, onEdit, onDeleted }: PropertyCardProps) {
   const router = useRouter()
 
   async function handleDelete(e: React.MouseEvent) {
     e.stopPropagation()
     if (!confirm('Excluir esta propriedade?')) return
-    await deleteProperty(property.id)
+    const result = await deleteProperty(property.id)
+    if (!result.error) {
+      onDeleted ? onDeleted() : router.refresh()
+    }
   }
 
   return (

@@ -36,8 +36,6 @@ export async function updateClient(id: string, formData: FormData) {
   }).eq('id', id)
 
   if (error) return { error: error.message }
-  revalidatePath('/clients')
-  revalidatePath(`/clients/${id}`)
   return { success: true }
 }
 
@@ -47,7 +45,6 @@ export async function deleteClient(id: string) {
   const { error } = await (supabase as any).from('clients').delete().eq('id', id)
 
   if (error) return { error: error.message }
-  revalidatePath('/clients')
   return { success: true }
 }
 

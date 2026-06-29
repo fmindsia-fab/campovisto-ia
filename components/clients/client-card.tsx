@@ -12,16 +12,21 @@ import type { Client } from '@/types'
 
 interface ClientCardProps {
   client: Client & { properties?: { count: number }[] }
+  onDeleted?: () => void
 }
 
-export function ClientCard({ client }: ClientCardProps) {
+export function ClientCard({ client, onDeleted }: ClientCardProps) {
   const router = useRouter()
   const [editing, setEditing] = useState(false)
   const propertiesCount = client.properties?.[0]?.count ?? 0
 
-  async function handleDelete() {
+  async function handleDelete(e: React.MouseEvent) {
+    e.stopPropagation()
     if (!confirm('Excluir este cliente? As propriedades vinculadas também serão removidas.')) return
-    await deleteClient(client.id)
+    const result = await deleteClient(client.id)
+    if (!result.error) {
+      onDeleted ? onDeleted() : router.refresh()
+    }
   }
 
   return (
@@ -66,7 +71,7 @@ export function ClientCard({ client }: ClientCardProps) {
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 text-destructive hover:text-destructive"
-                onClick={(e) => { e.stopPropagation(); handleDelete() }}
+                onClick={handleDelete}
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
@@ -75,7 +80,11 @@ export function ClientCard({ client }: ClientCardProps) {
         </CardContent>
       </Card>
 
-      <ClientForm open={editing} onClose={() => setEditing(false)} client={client} />
+      <ClientForm
+        open={editing}
+        onClose={() => { setEditing(false); router.refresh() }}
+        client={client}
+      />
     </>
   )
 }
