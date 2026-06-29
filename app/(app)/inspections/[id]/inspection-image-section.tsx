@@ -83,6 +83,7 @@ export function InspectionImageSection({ inspectionId, initialImages }: Props) {
               key={image.id}
               image={image}
               publicUrl={getPublicUrl(image.storage_path)}
+              inspectionId={inspectionId}
               onDeleted={reload}
               onUpdated={reload}
             />

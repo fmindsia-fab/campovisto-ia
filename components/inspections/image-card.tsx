@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Pencil, Trash2, Tag, MessageSquare } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Pencil, Trash2, Tag, MessageSquare, Crosshair } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
@@ -28,11 +29,13 @@ const IMAGE_TYPES = Object.entries(IMAGE_TYPE_LABELS).map(([value, label]) => ({
 interface ImageCardProps {
   image: InspectionImage
   publicUrl: string
+  inspectionId: string
   onDeleted: () => void
   onUpdated: () => void
 }
 
-export function ImageCard({ image, publicUrl, onDeleted, onUpdated }: ImageCardProps) {
+export function ImageCard({ image, publicUrl, inspectionId, onDeleted, onUpdated }: ImageCardProps) {
+  const router = useRouter()
   const [editing, setEditing] = useState(false)
   const [imageType, setImageType] = useState(image.image_type ?? '')
   const [saving, setSaving] = useState(false)
@@ -70,6 +73,15 @@ export function ImageCard({ image, publicUrl, onDeleted, onUpdated }: ImageCardP
           className="h-full w-full object-cover transition-transform group-hover:scale-105"
         />
         <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button
+            variant="secondary"
+            size="icon"
+            className="h-7 w-7"
+            title="Anotar imagem"
+            onClick={() => router.push(`/inspections/${inspectionId}/images/${image.id}/editor`)}
+          >
+            <Crosshair className="h-3 w-3" />
+          </Button>
           <Button
             variant="secondary"
             size="icon"
