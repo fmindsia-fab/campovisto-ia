@@ -324,3 +324,16 @@ export interface Notification {
   read_at: ISODateString | null
   created_at: ISODateString
 }
+
+// ─── Editor ───────────────────────────────────────────────────────────────────
+
+export interface MarkerData {
+  id?: string
+  marker_number: number
+  x_percent: number
+  y_percent: number
+  category: string
+  description: string | null
+  priority: string
+  confidence: string
+}

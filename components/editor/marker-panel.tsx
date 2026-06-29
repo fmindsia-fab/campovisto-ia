@@ -3,7 +3,7 @@
 import { Trash2, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import type { MarkerData } from '@/app/(app)/inspections/[id]/images/[imageId]/editor/annotation-editor'
+import type { MarkerData } from '@/types'
 
 const CATEGORY_LABELS: Record<string, string> = {
   bovine: 'Bovino',

@@ -8,24 +8,13 @@ import { AnnotationCanvas } from '@/components/editor/annotation-canvas'
 import { MarkerPanel } from '@/components/editor/marker-panel'
 import { MarkerForm } from '@/components/editor/marker-form'
 import { saveAnnotations } from '@/lib/annotations/actions'
-import type { ImageAnnotation, InspectionImage } from '@/types'
+import type { ImageAnnotation, InspectionImage, MarkerData } from '@/types'
 
 interface Props {
   inspectionId: string
   image: InspectionImage
   publicUrl: string
   initialAnnotations: ImageAnnotation[]
-}
-
-export type MarkerData = {
-  id?: string
-  marker_number: number
-  x_percent: number
-  y_percent: number
-  category: string
-  description: string | null
-  priority: string
-  confidence: string
 }
 
 export function AnnotationEditor({ inspectionId, image, publicUrl, initialAnnotations }: Props) {

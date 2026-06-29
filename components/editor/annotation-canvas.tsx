@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Stage, Layer, Image as KonvaImage, Circle, Text, Group } from 'react-konva'
-import type { MarkerData } from '@/app/(app)/inspections/[id]/images/[imageId]/editor/annotation-editor'
+import type { MarkerData } from '@/types'
 
 const PRIORITY_COLORS: Record<string, string> = {
   high: '#ef4444',
