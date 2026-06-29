@@ -105,7 +105,6 @@ export default async function ImageDetailPage({ params }: Props) {
                   imageUrl={publicUrl}
                   imageType={image.image_type}
                   fieldObservations={image.field_observations}
-                  onSuccess={() => { window.location.reload() }}
                 />
               </div>
             )}

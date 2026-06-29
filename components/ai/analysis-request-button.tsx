@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Sparkles, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -10,7 +11,6 @@ interface Props {
   imageUrl: string
   imageType: string | null
   fieldObservations: string | null
-  onSuccess: () => void
 }
 
 export function AnalysisRequestButton({
@@ -19,8 +19,8 @@ export function AnalysisRequestButton({
   imageUrl,
   imageType,
   fieldObservations,
-  onSuccess,
 }: Props) {
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -38,7 +38,7 @@ export function AnalysisRequestButton({
         setError(json.error ?? 'Erro ao solicitar análise')
         return
       }
-      onSuccess()
+      router.refresh()
     } catch {
       setError('Erro de conexão')
     } finally {
