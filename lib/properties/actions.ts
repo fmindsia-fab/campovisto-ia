@@ -19,7 +19,6 @@ export async function createProperty(formData: FormData) {
   })
 
   if (error) return { error: error.message }
-  revalidatePath('/properties')
   return { success: true }
 }
 
