@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Pencil, Trash2, Tag, MessageSquare, Crosshair } from 'lucide-react'
+import { Pencil, Trash2, Tag, MessageSquare, Crosshair, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
@@ -73,6 +73,15 @@ export function ImageCard({ image, publicUrl, inspectionId, onDeleted, onUpdated
           className="h-full w-full object-cover transition-transform group-hover:scale-105"
         />
         <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button
+            variant="secondary"
+            size="icon"
+            className="h-7 w-7"
+            title="Ver detalhes e análise IA"
+            onClick={() => router.push(`/inspections/${inspectionId}/images/${image.id}`)}
+          >
+            <Sparkles className="h-3 w-3" />
+          </Button>
           <Button
             variant="secondary"
             size="icon"
