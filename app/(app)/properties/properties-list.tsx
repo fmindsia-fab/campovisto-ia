@@ -69,6 +69,7 @@ export function PropertiesList() {
               property={property as any}
               clients={clients}
               onEdit={() => setEditingProperty(property)}
+              onDeleted={() => load(search)}
             />
           ))}
         </div>

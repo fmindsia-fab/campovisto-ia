@@ -61,7 +61,11 @@ export function ClientsList() {
       ) : (
         <div className="space-y-3">
           {clients.map((client) => (
-            <ClientCard key={client.id} client={client as any} />
+            <ClientCard
+              key={client.id}
+              client={client as any}
+              onDeleted={() => load(search)}
+            />
           ))}
         </div>
       )}
