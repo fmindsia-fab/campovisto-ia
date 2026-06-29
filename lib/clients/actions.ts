@@ -1,7 +1,6 @@
 'use server'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 
 export async function createClient_(formData: FormData) {
@@ -20,7 +19,6 @@ export async function createClient_(formData: FormData) {
   })
 
   if (error) return { error: error.message }
-  revalidatePath('/clients')
   return { success: true }
 }
 

@@ -94,14 +94,12 @@ export interface Client {
 
 // ─── Properties ──────────────────────────────────────────────────────────────
 
-export type ActivityType = 'pecuaria' | 'agricultura' | 'mista' | 'outro'
-
 export interface Property {
   id: UUID
   client_id: UUID
   name: string
   location: string | null
-  activity_type: ActivityType | null
+  activity_type: string | null
   notes: string | null
   created_by: UUID
   created_at: ISODateString
