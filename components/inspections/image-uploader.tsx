@@ -4,7 +4,6 @@ import { useRef, useState } from 'react'
 import { Upload, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createBrowserClient } from '@supabase/ssr'
-import { saveImageRecord } from '@/lib/inspection-images/actions'
 
 interface ImageUploaderProps {
   inspectionId: string
@@ -70,15 +69,17 @@ export function ImageUploader({ inspectionId, onUploaded }: ImageUploaderProps) 
         continue
       }
 
-      const result = await saveImageRecord({
-        inspectionId,
-        storagePath: `drone-images/${path}`,
-        originalName: file.name,
-        orderIndex: i,
-      })
+      const { error: dbError } = await supabase
+        .from('inspection_images')
+        .insert({
+          inspection_id: inspectionId,
+          storage_path: `drone-images/${path}`,
+          original_name: file.name,
+          order_index: i,
+        })
 
-      if (result.error) {
-        setFiles((prev) => prev.map((f, idx) => idx === i ? { ...f, uploading: false, error: result.error } : f))
+      if (dbError) {
+        setFiles((prev) => prev.map((f, idx) => idx === i ? { ...f, uploading: false, error: dbError.message } : f))
         continue
       }
 
