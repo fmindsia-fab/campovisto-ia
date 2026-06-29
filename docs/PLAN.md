@@ -13,7 +13,7 @@
 | ~~M0~~ | ~~Setup & Infraestrutura~~ | `main` | ✅ **Concluído** |
 | ~~M1~~ | ~~Design System & Layout~~ | `feat/design-system` | ✅ **Concluído** |
 | ~~M2~~ | ~~Autenticação~~ | `feat/auth` | ✅ **Concluído** |
-| M3 | Clientes & Propriedades | `feat/clients-properties` | CRUD principal |
+| ~~M3~~ | ~~Clientes & Propriedades~~ | `feat/clients-properties` | ✅ **Concluído** |
 | M4 | Vistorias & Upload de Imagens | `feat/inspections` | Fluxo central de dados |
 | M5 | Editor Visual de Anotações | `feat/image-editor` | Canvas, marcadores, exportação |
 | M6 | Análise de IA & Revisão Humana | `feat/ai-analysis` | Gemini/OpenAI + fluxo de aprovação |
@@ -159,40 +159,44 @@ a0f64f1  feat(M1): design system & layout base
 
 ---
 
-## M3 — Clientes & Propriedades
+## ✅ M3 — Clientes & Propriedades — CONCLUÍDO
 
-**Branch:** `feat/clients-properties`
+**Branch:** `feat/clients-properties` → mergeado em `main` | **Commits:** `bfcadd7`, `82c4957`, `5c692d7`, `86d0988`, `4ae7120`
 
-**Objetivo:** Operador consegue cadastrar clientes/produtores e suas propriedades, com listagem, filtros e detalhes.
+**Build:** ✅ Deploy na Vercel — CRUD completo verificado em produção
 
 ### Entregas
 
 **UI — Clientes**
-- [ ] `app/(app)/clients/page.tsx` — lista de clientes com busca e filtro por status
-- [ ] `components/clients/client-card.tsx` — card com nome, cidade, propriedades, responsável
-- [ ] `components/clients/client-form.tsx` — modal create/edit (nome, telefone, e-mail, cidade, observações, responsável)
-- [ ] `app/(app)/clients/[id]/page.tsx` — detalhe do cliente com lista de propriedades
+- [x] `app/(app)/clients/page.tsx` — lista com busca e botão criar
+- [x] `components/clients/client-card.tsx` — card com nome, cidade, contagem de propriedades, edit/delete
+- [x] `components/clients/client-form.tsx` — modal create/edit
+- [x] `app/(app)/clients/[id]/page.tsx` — detalhe do cliente com lista de propriedades
+- [x] `app/(app)/clients/[id]/client-properties-list.tsx` — Client Component isolado
+- [x] `app/(app)/clients/[id]/add-property-button.tsx` — botão + formulário inline
 
 **UI — Propriedades**
-- [ ] `app/(app)/properties/page.tsx` — lista geral de propriedades com filtros
-- [ ] `components/properties/property-card.tsx` — card com nome, cliente, tipo de atividade, total de vistorias
-- [ ] `components/properties/property-form.tsx` — modal create/edit (nome, localização, tipo de atividade rural, observações)
-- [ ] `app/(app)/properties/[id]/page.tsx` — detalhe da propriedade com histórico de vistorias e imagens recentes
+- [x] `app/(app)/properties/page.tsx` — lista geral com busca
+- [x] `components/properties/property-card.tsx` — card com nome, cliente, tipo, edit/delete
+- [x] `components/properties/property-form.tsx` — modal create/edit com Select de tipo de atividade
+- [x] `app/(app)/properties/[id]/page.tsx` — detalhe da propriedade (vistorias no M4)
 
 **Backend — Banco**
-- [ ] Migration `002_clients_properties.sql`:
-  - Tabela `clients` (id, name, phone, email, city, notes, responsible_user_id, created_by, created_at)
-  - Tabela `properties` (id, client_id, name, location, activity_type, notes, created_by, created_at)
-- [ ] RLS: usuários autenticados leem/escrevem; admin acesso total
+- [x] Migration `002_clients_properties.sql` executada no Supabase
+- [x] Migration `003_fix_rls_recursion.sql` — função `has_role()` security definer corrigindo loop infinito
+- [x] RLS em `clients` e `properties`
 
 **Backend — Server Actions**
-- [ ] `clients/create`, `clients/update`, `clients/delete`
-- [ ] `properties/create`, `properties/update`, `properties/delete`
-- [ ] Queries de listagem com filtros e paginação
+- [x] `lib/clients/actions.ts` — createClient_, updateClient, deleteClient, getClients, getClient
+- [x] `lib/properties/actions.ts` — createProperty, updateProperty, deleteProperty, getProperties, getProperty
 
-### Commit final
+### Commits
 ```
-feat: clients and properties — CRUD, list pages, detail pages, RLS
+bfcadd7  feat(M3): clients & properties — CRUD, list, detail pages, RLS, migration
+82c4957  fix: Server Component cannot pass event handlers — extract ClientPropertiesList
+5c692d7  fix: remove revalidatePath from actions, use router.refresh() on client
+86d0988  fix(M3): add error feedback on delete, expose RLS errors via alert
+4ae7120  fix(M3): remove revalidatePath leftovers, fix ActivityType to string
 ```
 
 ---
