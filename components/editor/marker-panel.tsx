@@ -62,7 +62,7 @@ export function MarkerPanel({ markers, onSelectMarker, onDeleteMarker }: Props) 
               {m.description && (
                 <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{m.description}</p>
               )}
-              <Badge variant={PRIORITY_COLORS[m.priority] as any ?? 'secondary'} className="mt-1 text-[10px] h-4">
+              <Badge variant={(PRIORITY_COLORS[m.priority] ?? 'secondary') as 'destructive' | 'default' | 'secondary' | 'outline'} className="mt-1 text-[10px] h-4">
                 {m.priority === 'high' ? 'Alta' : m.priority === 'medium' ? 'Média' : 'Baixa'}
               </Badge>
             </div>

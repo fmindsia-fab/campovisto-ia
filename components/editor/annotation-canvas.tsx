@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Stage, Layer, Image as KonvaImage, Circle, Text, Group } from 'react-konva'
 import type { MarkerData } from '@/app/(app)/inspections/[id]/images/[imageId]/editor/annotation-editor'
 
@@ -38,6 +38,7 @@ export function AnnotationCanvas({
     }
   }, [imageUrl])
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function handleStageClick(e: any) {
     if (!addingMode) return
     const stage = e.target.getStage()

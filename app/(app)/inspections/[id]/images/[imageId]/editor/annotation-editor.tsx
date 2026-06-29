@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Save, Plus, Trash2, ZoomIn, ZoomOut } from 'lucide-react'
+import { ArrowLeft, Save, Plus, ZoomIn, ZoomOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AnnotationCanvas } from '@/components/editor/annotation-canvas'
 import { MarkerPanel } from '@/components/editor/marker-panel'
