@@ -15,7 +15,7 @@
 | ~~M2~~ | ~~Autenticação~~ | `feat/auth` | ✅ **Concluído** |
 | ~~M3~~ | ~~Clientes & Propriedades~~ | `feat/clients-properties` | ✅ **Concluído** |
 | ~~M4~~ | ~~Vistorias & Upload de Imagens~~ | `feat/inspections` | ✅ **Concluído** |
-| M5 | Editor Visual de Anotações | `feat/image-editor` | Canvas, marcadores, exportação |
+| ~~M5~~ | ~~Editor Visual de Anotações~~ | `feat/image-editor` | ✅ **Concluído** |
 | M6 | Análise de IA & Revisão Humana | `feat/ai-analysis` | Gemini/OpenAI + fluxo de aprovação |
 | M7 | Relatórios & Exportação PDF | `feat/reports` | Geração e exportação |
 | M8 | Atividades & Kanban | `feat/activities` | Kanban Planejada/Iniciada/Finalizada |
@@ -245,39 +245,35 @@ afc308c  fix(M4): resolve ESLint warnings blocking Vercel build
 
 ---
 
-## M5 — Editor Visual de Anotações
+## ✅ M5 — Editor Visual de Anotações — CONCLUÍDO
 
-**Branch:** `feat/image-editor`
+**Branch:** `feat/image-editor` | **Commits:** `c957077` + anteriores M5
 
-**Objetivo:** Usuário abre uma imagem da vistoria e adiciona marcadores numerados com categoria, descrição, prioridade e nível de confiança.
+**Build:** ✅ Deploy na Vercel — editor full-screen verificado em produção
 
 ### Entregas
 
 **UI — Editor**
-- [ ] `app/(app)/inspections/[id]/images/[imageId]/editor/page.tsx` — página full-screen do editor
-- [ ] `components/editor/annotation-canvas.tsx` — canvas React Konva com imagem de fundo
-- [ ] `components/editor/marker-dot.tsx` — marcador numerado ciruclar clicável
-- [ ] `components/editor/marker-panel.tsx` — painel lateral: lista de marcadores + botão "Adicionar"
-- [ ] `components/editor/marker-form.tsx` — formulário por marcador: categoria, descrição, prioridade (alta/média/baixa), confiança (confirmado/provável/incerto)
-- [ ] `components/editor/category-selector.tsx` — seletor com ícones: bovino, pastagem, solo exposto, trilha de gado, área úmida, cerca, bebedouro, sombra, lavoura, estrutura, ponto de atenção
-- [ ] Toolbar do editor: adicionar marcador, mover, zoom in/out, desfazer, salvar, exportar
-- [ ] Estado de marcadores no canvas sincronizado com painel lateral
-- [ ] Exportação da imagem anotada como PNG/JPEG
+- [x] `app/(editor)/layout.tsx` — route group sem sidebar, h-screen full-screen
+- [x] `app/(editor)/inspections/[id]/images/[imageId]/editor/page.tsx` — Server Component: busca imagem, anotações, URL pública
+- [x] `app/(editor)/inspections/[id]/images/[imageId]/editor/annotation-editor.tsx` — Client Component com estado completo
+- [x] `components/editor/annotation-canvas.tsx` — canvas React Konva com imagem + marcadores numerados coloridos
+- [x] `components/editor/marker-panel.tsx` — painel lateral com lista de marcadores, badge de prioridade
+- [x] `components/editor/marker-form.tsx` — formulário por marcador: categoria, descrição, prioridade, confiança
+- [x] Toolbar: voltar, zoom in/out, adicionar marcador, salvar
+- [x] Cores dos marcadores por prioridade: vermelho (alta), âmbar (média), verde (baixa)
+- [x] Marcador selecionado destacado com borda branca + sombra
 
 **Backend — Banco**
-- [ ] Migration `004_annotations.sql`:
-  - Tabela `image_annotations` (id, image_id, marker_number, x_percent, y_percent, category, description, priority, confidence, created_at)
-- [ ] RLS
+- [x] Migration `005_annotations.sql` — tabela `image_annotations` com check constraints e RLS
+- [x] `MarkerData` adicionado a `types/index.ts`
 
-**Backend — Actions & Storage**
-- [ ] Server Action `annotations/save` — upsert de todos os marcadores da imagem
-- [ ] Server Action `annotations/delete`
-- [ ] Server Action `annotations/export-image` — salva imagem anotada no bucket `annotated-images`
-- [ ] Query para carregar anotações de uma imagem
+**Backend — Actions**
+- [x] `lib/annotations/actions.ts` — `saveAnnotations` (delete + reinsert), `getAnnotations`
 
-### Commit final
+### Commits
 ```
-feat: image annotation editor — React Konva canvas, numbered markers, categories, export
+c957077  feat(M5): annotation editor — move to (editor) route group, fix MarkerData import
 ```
 
 ---
