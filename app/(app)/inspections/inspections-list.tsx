@@ -2,8 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState, useEffect, useTransition } from 'react'
-import { Search, ClipboardList } from 'lucide-react'
-import { Input } from '@/components/ui/input'
+import { ClipboardList } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { InspectionCard } from '@/components/inspections/inspection-card'

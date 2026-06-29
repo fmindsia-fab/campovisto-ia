@@ -1,8 +1,8 @@
 'use client'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useState, useCallback } from 'react'
-import { ImageIcon, ChevronDown, ChevronUp } from 'lucide-react'
+import { useState } from 'react'
+import { ImageIcon, ChevronUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ImageUploader } from '@/components/inspections/image-uploader'
 import { ImageCard } from '@/components/inspections/image-card'

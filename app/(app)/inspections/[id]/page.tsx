@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { CalendarDays, MapPin, Tractor, FileText } from 'lucide-react'
+import { CalendarDays, Tractor } from 'lucide-react'
 import { PageHeader } from '@/components/shared/page-header'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'

@@ -27,7 +27,7 @@ export function ClientCard({ client, onDeleted }: ClientCardProps) {
     if (result.error) {
       alert(`Erro ao excluir: ${result.error}`)
     } else {
-      onDeleted ? onDeleted() : router.refresh()
+      if (onDeleted) { onDeleted() } else { router.refresh() }
     }
   }
 

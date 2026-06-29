@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Upload, X, ImageIcon } from 'lucide-react'
+import { Upload, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createBrowserClient } from '@supabase/ssr'
 import { saveImageRecord } from '@/lib/inspection-images/actions'
@@ -18,19 +18,6 @@ interface FilePreview {
   error?: string
 }
 
-const IMAGE_TYPES = [
-  { value: 'overview', label: 'Visão geral' },
-  { value: 'pasture', label: 'Pastagem' },
-  { value: 'livestock', label: 'Rebanho' },
-  { value: 'bare_soil', label: 'Solo exposto' },
-  { value: 'water', label: 'Água' },
-  { value: 'fence', label: 'Cerca' },
-  { value: 'waterer', label: 'Bebedouro' },
-  { value: 'crop', label: 'Lavoura' },
-  { value: 'structure', label: 'Estrutura' },
-  { value: 'wetland', label: 'Área úmida' },
-  { value: 'other', label: 'Outro' },
-]
 
 export function ImageUploader({ inspectionId, onUploaded }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null)

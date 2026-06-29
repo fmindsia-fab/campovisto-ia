@@ -1,11 +1,10 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { MapPin, Tractor, CalendarDays, Plus } from 'lucide-react'
+import { MapPin, Tractor, CalendarDays } from 'lucide-react'
 import { PageHeader } from '@/components/shared/page-header'
 import { EmptyState } from '@/components/shared/empty-state'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { getProperty } from '@/lib/properties/actions'
 import { getInspections } from '@/lib/inspections/actions'
 import { AddInspectionButton } from './add-inspection-button'
@@ -72,6 +71,7 @@ export default async function PropertyDetailPage({ params }: Props) {
         />
       ) : (
         <div className="space-y-3">
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {inspections.map((inspection: any) => {
             const formattedDate = new Date(inspection.visit_date + 'T00:00:00').toLocaleDateString('pt-BR', {
               day: '2-digit', month: '2-digit', year: 'numeric',
