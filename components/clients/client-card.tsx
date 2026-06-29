@@ -24,7 +24,9 @@ export function ClientCard({ client, onDeleted }: ClientCardProps) {
     e.stopPropagation()
     if (!confirm('Excluir este cliente? As propriedades vinculadas também serão removidas.')) return
     const result = await deleteClient(client.id)
-    if (!result.error) {
+    if (result.error) {
+      alert(`Erro ao excluir: ${result.error}`)
+    } else {
       onDeleted ? onDeleted() : router.refresh()
     }
   }

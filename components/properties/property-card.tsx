@@ -22,7 +22,9 @@ export function PropertyCard({ property, onEdit, onDeleted }: PropertyCardProps)
     e.stopPropagation()
     if (!confirm('Excluir esta propriedade?')) return
     const result = await deleteProperty(property.id)
-    if (!result.error) {
+    if (result.error) {
+      alert(`Erro ao excluir: ${result.error}`)
+    } else {
       onDeleted ? onDeleted() : router.refresh()
     }
   }
