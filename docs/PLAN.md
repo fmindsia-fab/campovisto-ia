@@ -14,7 +14,7 @@
 | ~~M1~~ | ~~Design System & Layout~~ | `feat/design-system` | ✅ **Concluído** |
 | ~~M2~~ | ~~Autenticação~~ | `feat/auth` | ✅ **Concluído** |
 | ~~M3~~ | ~~Clientes & Propriedades~~ | `feat/clients-properties` | ✅ **Concluído** |
-| M4 | Vistorias & Upload de Imagens | `feat/inspections` | Fluxo central de dados |
+| ~~M4~~ | ~~Vistorias & Upload de Imagens~~ | `feat/inspections` | ✅ **Concluído** |
 | M5 | Editor Visual de Anotações | `feat/image-editor` | Canvas, marcadores, exportação |
 | M6 | Análise de IA & Revisão Humana | `feat/ai-analysis` | Gemini/OpenAI + fluxo de aprovação |
 | M7 | Relatórios & Exportação PDF | `feat/reports` | Geração e exportação |
@@ -201,44 +201,46 @@ bfcadd7  feat(M3): clients & properties — CRUD, list, detail pages, RLS, migra
 
 ---
 
-## M4 — Vistorias & Upload de Imagens
+## ✅ M4 — Vistorias & Upload de Imagens — CONCLUÍDO
 
-**Branch:** `feat/inspections`
+**Branch:** `main` | **Commits:** `1ed83c1`, `afc308c`, `5c90c89`, `41a4c22`
 
-**Objetivo:** Usuário cria uma vistoria, faz upload de imagens de drone e fotos de campo, classifica por tipo e adiciona observações por imagem.
+**Build:** ✅ Deploy na Vercel — CRUD e upload verificados em produção
 
 ### Entregas
 
 **UI — Vistorias**
-- [ ] `app/(app)/inspections/page.tsx` — lista de vistorias com filtros (status, propriedade, período)
-- [ ] `components/inspections/inspection-card.tsx` — card com propriedade, data, operador, status, total de imagens
-- [ ] `components/inspections/inspection-form.tsx` — modal create/edit (propriedade, data, operador, objetivo, status, observações gerais)
-- [ ] `app/(app)/inspections/[id]/page.tsx` — detalhe da vistoria (abas: Imagens / Análise / Relatório)
+- [x] `app/(app)/inspections/page.tsx` — lista com filtro por status
+- [x] `components/inspections/inspection-card.tsx` — card com propriedade, data, status, edit/delete
+- [x] `components/inspections/inspection-form.tsx` — modal create/edit
+- [x] `app/(app)/inspections/[id]/page.tsx` — detalhe com painel de próximas etapas
+- [x] `app/(app)/inspections/[id]/inspection-image-section.tsx` — Client Component de galeria + upload
 
 **UI — Upload & Galeria**
-- [ ] `components/inspections/image-uploader.tsx` — drag & drop com preview, múltiplos arquivos
-- [ ] `components/inspections/image-gallery.tsx` — grid de imagens com filtro por tipo
-- [ ] `components/inspections/image-card.tsx` — thumbnail com tipo, observações, ícone de anotação
-- [ ] `components/inspections/image-type-selector.tsx` — dropdown de tipo: visão geral, pastagem, rebanho, solo exposto, água, cerca, bebedouro, lavoura, estrutura, área úmida, outro
-- [ ] `components/inspections/image-observations-form.tsx` — textarea de observações de campo por imagem
+- [x] `components/inspections/image-uploader.tsx` — drag & drop, preview, múltiplos arquivos, insert via browser client
+- [x] `components/inspections/image-card.tsx` — thumbnail com tipo, observações, edit inline, delete
+
+**UI — Propriedade**
+- [x] `app/(app)/properties/[id]/page.tsx` — lista vistorias reais da propriedade
+- [x] `app/(app)/properties/[id]/add-inspection-button.tsx` — botão + modal inline
 
 **Backend — Banco**
-- [ ] Migration `003_inspections.sql`:
-  - Tabela `inspections` (id, property_id, operator_id, visit_date, objective, status, general_observations, created_at)
-  - Tabela `inspection_images` (id, inspection_id, storage_path, original_name, image_type, field_observations, order_index, created_at)
-- [ ] RLS nas duas tabelas
+- [x] Migration `004_inspections.sql` — tabelas `inspections` e `inspection_images` com RLS
+- [x] RLS corrigida para usar `auth.uid() is not null`
 
-**Backend — Storage & Actions**
-- [ ] Buckets criados no Supabase Storage: `drone-images`, `field-photos`
-- [ ] Políticas de storage: upload autenticado, leitura autenticada
-- [ ] Server Action `inspections/create`, `update`, `delete`
-- [ ] Server Action `inspection-images/upload` — faz upload para Storage + salva registro no banco
-- [ ] Server Action `inspection-images/update` — atualiza tipo e observações
-- [ ] Server Action `inspection-images/delete` — remove do Storage + banco
+**Backend — Storage**
+- [x] Buckets `drone-images` e `field-photos` criados com políticas SELECT + INSERT para authenticated
 
-### Commit final
+**Backend — Actions**
+- [x] `lib/inspections/actions.ts` — create, update, delete, getInspections, getInspection
+- [x] `lib/inspection-images/actions.ts` — updateImageMeta, deleteImage, getInspectionImages
+
+### Commits
 ```
-feat: inspections — CRUD, image upload to Supabase Storage, gallery, field observations
+1ed83c1  feat(M4): inspections & image upload — CRUD, Supabase Storage, gallery, field observations
+afc308c  fix(M4): resolve ESLint warnings blocking Vercel build
+5c90c89  fix(M4): remove unused imports and fix ternary expressions for Vercel build
+41a4c22  fix(M4): insert inspection_images via browser client to respect auth session
 ```
 
 ---
