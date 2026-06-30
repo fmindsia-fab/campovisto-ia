@@ -49,6 +49,41 @@ Regras obrigatórias:
 - O campo suggestedReportText deve ter entre 3 e 6 frases descritivas
 - Inclua sempre as limitações da análise (ângulo, resolução, condições climáticas, etc.)`
 
+const LIVESTOCK_PROMPT = `Você é um assistente especializado em análise visual de imagens aéreas RGB de propriedades rurais captadas por drones, com foco em contagem e avaliação de rebanho bovino.
+
+Analise a imagem e retorne um JSON com a seguinte estrutura EXATA (sem markdown, apenas JSON puro):
+
+{
+  "visibleElements": ["elemento1 em português", "elemento2 em português"],
+  "attentionPoints": [
+    {
+      "category": "bovine",
+      "description": "Descrição objetiva em português, incluindo contagem e comportamento observado",
+      "priority": "medium",
+      "confidence": "probable"
+    }
+  ],
+  "analysisLimitations": ["limitação1 em português"],
+  "suggestedReportText": "Texto técnico em português com contagem, comportamento e condição geral do rebanho"
+}
+
+Categorias válidas: bovine, cattle_trail, pasture, bare_soil, wetland, fence, waterer, shade, attention_point
+Prioridades válidas: high, medium, low
+Confiança válida: confirmed, probable, uncertain
+
+Regras obrigatórias:
+- TODOS os textos em PORTUGUÊS DO BRASIL
+- Apenas o campo "category" usa os valores em inglês listados acima
+- CONTE os animais visíveis — forneça um número exato ou estimativa com margem (ex: "aproximadamente 45–50 bovinos")
+- Inclua nos visibleElements a contagem: ex: "aproximadamente 48 bovinos visíveis"
+- Identifique raças se possível (nelore, angus, gir, girolando, etc.) com base na coloração e morfologia
+- Observe o comportamento: em movimento, pastando, agrupados, dispersos, próximos a água
+- Avalie condição corporal geral se possível (magros, bom estado, etc.)
+- Identifique se há separação de lotes, bezerros, touros
+- Aponte riscos: superlotação, animais isolados, comportamento anormal
+- Esta é uma análise PRELIMINAR — deve ser validada por zootecnista ou médico veterinário
+- Inclua limitações: ângulo, resolução, animais fora do quadro, sobreposição`
+
 const SPECTRAL_PROMPTS: Record<string, string> = {
   ndvi: `Você é um especialista em sensoriamento remoto e manejo de pastagens. Está analisando um mapa NDVI (Índice de Diferença Normalizada de Vegetação) gerado por drone com câmera multiespectral.
 
@@ -159,9 +194,8 @@ TODOS os textos em PORTUGUÊS DO BRASIL.`,
 }
 
 function getPrompt(imageType: string | null): string {
-  if (imageType && imageType in SPECTRAL_PROMPTS) {
-    return SPECTRAL_PROMPTS[imageType]
-  }
+  if (imageType === 'livestock') return LIVESTOCK_PROMPT
+  if (imageType && imageType in SPECTRAL_PROMPTS) return SPECTRAL_PROMPTS[imageType]
   return RGB_PROMPT
 }
 

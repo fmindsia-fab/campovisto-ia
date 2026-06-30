@@ -7,6 +7,7 @@ import { AnalysisRequestButton } from '@/components/ai/analysis-request-button'
 import { AnalysisResult } from '@/components/ai/analysis-result'
 import { getAnalysisByImage } from '@/lib/ai-analyses/actions'
 import { createClient } from '@/lib/supabase/server'
+import { ALL_IMAGE_TYPE_LABELS } from '@/components/inspections/image-type-selector'
 import type { InspectionImage } from '@/types'
 
 interface Props {
@@ -74,7 +75,7 @@ export default async function ImageDetailPage({ params }: Props) {
               {image.image_type && (
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Tipo</p>
-                  <p className="text-sm capitalize">{image.image_type.replace('_', ' ')}</p>
+                  <p className="text-sm">{ALL_IMAGE_TYPE_LABELS[image.image_type] ?? image.image_type}</p>
                 </div>
               )}
               {image.field_observations && (
