@@ -65,8 +65,10 @@ export function AnnotationCanvas({
     const stage = e.target.getStage()
     const pos = stage.getPointerPosition()
     if (!pos) return
-    const xPercent = (pos.x / scale) / size.w
-    const yPercent = (pos.y / scale) / size.h
+    // converte a posição do ponteiro (tela) para coordenadas do conteúdo,
+    // descontando o deslocamento de pan (stage.x/y) e a escala aplicada
+    const xPercent = ((pos.x - stage.x()) / scale) / size.w
+    const yPercent = ((pos.y - stage.y()) / scale) / size.h
     onCanvasClick(xPercent, yPercent)
   }
 
