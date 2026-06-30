@@ -35,6 +35,25 @@ const CONFIDENCES = [
   { value: 'uncertain', label: 'Incerto' },
 ]
 
+const CATEGORY_DOT_COLORS: Record<string, string> = {
+  bovine: '#f97316',
+  pasture: '#22c55e',
+  bare_soil: '#a78b5c',
+  cattle_trail: '#8b5cf6',
+  wetland: '#06b6d4',
+  fence: '#6b7280',
+  waterer: '#3b82f6',
+  shade: '#84cc16',
+  crop: '#10b981',
+  structure: '#64748b',
+  attention_point: '#ef4444',
+  pasture_degradation: '#ef4444',
+  water_stress: '#f97316',
+  low_biomass: '#eab308',
+  nutrient_deficiency: '#a78b5c',
+  healthy_vegetation: '#22c55e',
+}
+
 const PRIORITY_COLORS: Record<string, string> = {
   high: 'destructive',
   medium: 'default',
@@ -143,7 +162,10 @@ export function MarkerPanel({ markers, template, addingMode, onTemplateChange, o
                 className="flex items-start gap-2 rounded-lg border p-3 cursor-pointer hover:bg-muted/50 transition-colors"
                 onClick={() => onSelectMarker(m)}
               >
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+                <div
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
+                  style={{ backgroundColor: CATEGORY_DOT_COLORS[m.category] ?? '#f59e0b' }}
+                >
                   {m.marker_number}
                 </div>
                 <div className="min-w-0 flex-1">

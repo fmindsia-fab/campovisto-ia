@@ -74,8 +74,10 @@ Confiança válida: confirmed, probable, uncertain
 Regras obrigatórias:
 - TODOS os textos em PORTUGUÊS DO BRASIL
 - Apenas o campo "category" usa os valores em inglês listados acima
-- CONTE os animais visíveis — forneça um número exato ou estimativa com margem (ex: "aproximadamente 45–50 bovinos")
-- Inclua nos visibleElements a contagem: ex: "aproximadamente 48 bovinos visíveis"
+- CONTE TODOS os animais visíveis — independente de cor, raça ou tamanho (brancos, marrons, pretos, pintados, bezerros, etc.)
+- NÃO conte apenas animais de uma cor — procure sistematicamente todo o quadro
+- Forneça contagem total e por grupo de coloração: ex: "62 bovinos — aprox. 35 brancos (Nelore), 20 marrons (Gir/Girolando), 7 pintados"
+- Inclua nos visibleElements a contagem total: ex: "aproximadamente 62 bovinos visíveis no total"
 - Identifique raças se possível (nelore, angus, gir, girolando, etc.) com base na coloração e morfologia
 - Observe o comportamento: em movimento, pastando, agrupados, dispersos, próximos a água
 - Avalie condição corporal geral se possível (magros, bom estado, etc.)

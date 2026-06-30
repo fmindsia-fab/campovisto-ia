@@ -4,7 +4,27 @@ import { useEffect, useState } from 'react'
 import { Stage, Layer, Image as KonvaImage, Circle, Text, Group } from 'react-konva'
 import type { MarkerData } from '@/types'
 
-const PRIORITY_COLORS: Record<string, string> = {
+const CATEGORY_COLORS: Record<string, string> = {
+  bovine: '#f97316',        // laranja
+  pasture: '#22c55e',       // verde
+  bare_soil: '#a78b5c',     // marrom claro
+  cattle_trail: '#8b5cf6',  // roxo
+  wetland: '#06b6d4',       // ciano
+  fence: '#6b7280',         // cinza
+  waterer: '#3b82f6',       // azul
+  shade: '#84cc16',         // verde limão
+  crop: '#10b981',          // esmeralda
+  structure: '#64748b',     // azul acinzentado
+  attention_point: '#ef4444', // vermelho
+  // categorias espectrais
+  pasture_degradation: '#ef4444',
+  water_stress: '#f97316',
+  low_biomass: '#eab308',
+  nutrient_deficiency: '#a78b5c',
+  healthy_vegetation: '#22c55e',
+}
+
+const PRIORITY_BORDER: Record<string, string> = {
   high: '#ef4444',
   medium: '#f59e0b',
   low: '#22c55e',
@@ -73,9 +93,9 @@ export function AnnotationCanvas({
           {markers.map((marker) => {
             const x = marker.x_percent * size.w
             const y = marker.y_percent * size.h
-            const color = PRIORITY_COLORS[marker.priority] ?? '#f59e0b'
+            const color = CATEGORY_COLORS[marker.category] ?? '#f59e0b'
+            const borderColor = PRIORITY_BORDER[marker.priority] ?? '#f59e0b'
             const isSelected = marker.marker_number === selectedMarkerNumber
-            // ponto pequeno: selecionado fica um pouco maior para feedback visual
             const r = isSelected ? 9 : 6
 
             return (
@@ -97,14 +117,14 @@ export function AnnotationCanvas({
                   fill="white"
                   opacity={0.85}
                 />
-                {/* ponto colorido por prioridade */}
+                {/* ponto colorido por categoria, borda por prioridade */}
                 <Circle
                   x={0}
                   y={0}
                   radius={r}
                   fill={color}
-                  stroke={isSelected ? '#ffffff' : 'rgba(0,0,0,0.3)'}
-                  strokeWidth={isSelected ? 2 : 1}
+                  stroke={isSelected ? '#ffffff' : borderColor}
+                  strokeWidth={isSelected ? 2 : 1.5}
                   shadowColor="black"
                   shadowBlur={isSelected ? 6 : 3}
                   shadowOpacity={0.5}
