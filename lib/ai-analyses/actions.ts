@@ -14,7 +14,20 @@ export async function getAnalysisByImage(imageId: string) {
     .maybeSingle()
 
   if (error) return { data: null, error: error.message }
-  return { data, error: null }
+  if (!data) return { data: null, error: null }
+
+  // busca nome do revisor se houver
+  let reviewerName: string | null = null
+  if (data.reviewed_by) {
+    const { data: profile } = await (supabase as any)
+      .from('profiles')
+      .select('full_name')
+      .eq('id', data.reviewed_by)
+      .single()
+    reviewerName = profile?.full_name ?? null
+  }
+
+  return { data: { ...data, reviewer_name: reviewerName }, error: null }
 }
 
 export async function approveAnalysis(analysisId: string, reviewerNotes?: string) {

@@ -25,6 +25,7 @@ interface Analysis {
   suggested_text: string | null
   reviewed_at: string | null
   reviewer_notes: string | null
+  reviewer_name: string | null
 }
 
 const STATUS_CONFIG = {
@@ -112,15 +113,25 @@ export function AnalysisResult({ analysis }: Props) {
   return (
     <div className="space-y-4">
       {/* Status */}
-      <div className="flex items-center gap-2">
-        <Badge variant={statusConfig.color} className="gap-1.5">
-          <StatusIcon className="h-3 w-3" />
-          {statusConfig.label}
-        </Badge>
+      <div className="space-y-1">
+        <div className="flex items-center gap-2">
+          <Badge variant={statusConfig.color} className="gap-1.5">
+            <StatusIcon className="h-3 w-3" />
+            {statusConfig.label}
+          </Badge>
+        </div>
         {analysis.reviewed_at && (
-          <span className="text-xs text-muted-foreground">
-            {new Date(analysis.reviewed_at).toLocaleDateString('pt-BR')}
-          </span>
+          <p className="text-xs text-muted-foreground">
+            {isApproved ? 'Aprovado' : 'Revisado'} por{' '}
+            <span className="font-medium text-foreground">
+              {analysis.reviewer_name ?? 'usuário'}
+            </span>
+            {' · '}
+            {new Date(analysis.reviewed_at).toLocaleString('pt-BR', {
+              day: '2-digit', month: '2-digit', year: 'numeric',
+              hour: '2-digit', minute: '2-digit',
+            })}
+          </p>
         )}
       </div>
 
