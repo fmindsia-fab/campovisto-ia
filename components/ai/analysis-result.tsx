@@ -35,9 +35,15 @@ const STATUS_CONFIG = {
 }
 
 const PRIORITY_COLORS = {
-  high: 'text-red-600 bg-red-50 border-red-200',
-  medium: 'text-amber-600 bg-amber-50 border-amber-200',
-  low: 'text-green-600 bg-green-50 border-green-200',
+  high: 'border-l-4 border-l-red-500 border border-border bg-card',
+  medium: 'border-l-4 border-l-amber-400 border border-border bg-card',
+  low: 'border-l-4 border-l-green-500 border border-border bg-card',
+}
+
+const PRIORITY_DOT_COLORS = {
+  high: 'text-red-500',
+  medium: 'text-amber-500',
+  low: 'text-green-500',
 }
 
 const PRIORITY_LABELS = { high: 'Alta', medium: 'Média', low: 'Baixa' }
@@ -128,17 +134,17 @@ export function AnalysisResult({ analysis }: Props) {
             {(analysis.attention_points as AttentionPoint[]).map((pt, i) => (
               <div
                 key={i}
-                className={`rounded-lg border p-3 text-xs ${PRIORITY_COLORS[pt.priority]}`}
+                className={`rounded-lg p-3 text-xs ${PRIORITY_COLORS[pt.priority]}`}
               >
                 <div className="flex items-center justify-between gap-2 mb-1">
-                  <span className="font-semibold">{CATEGORY_LABELS[pt.category] ?? pt.category}</span>
-                  <div className="flex gap-1">
-                    <span className="opacity-75">{PRIORITY_LABELS[pt.priority]}</span>
-                    <span className="opacity-50">·</span>
-                    <span className="opacity-75">{CONFIDENCE_LABELS[pt.confidence]}</span>
+                  <span className="font-semibold text-foreground">{CATEGORY_LABELS[pt.category] ?? pt.category}</span>
+                  <div className={`flex gap-1 ${PRIORITY_DOT_COLORS[pt.priority]}`}>
+                    <span>{PRIORITY_LABELS[pt.priority]}</span>
+                    <span className="text-muted-foreground">·</span>
+                    <span>{CONFIDENCE_LABELS[pt.confidence]}</span>
                   </div>
                 </div>
-                <p className="leading-relaxed opacity-90">{pt.description}</p>
+                <p className="leading-relaxed text-muted-foreground">{pt.description}</p>
               </div>
             ))}
           </div>
