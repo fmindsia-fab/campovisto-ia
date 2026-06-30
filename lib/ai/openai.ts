@@ -71,20 +71,25 @@ Categorias válidas: bovine, cattle_trail, pasture, bare_soil, wetland, fence, w
 Prioridades válidas: high, medium, low
 Confiança válida: confirmed, probable, uncertain
 
+MÉTODO DE CONTAGEM OBRIGATÓRIO (siga rigorosamente, não estime "no olho"):
+1. Divida mentalmente a imagem em uma grade de 3x3 setores (9 regiões: superior-esquerda, superior-centro, superior-direita, meio-esquerda, meio-centro, meio-direita, inferior-esquerda, inferior-centro, inferior-direita)
+2. Em CADA um dos 9 setores, conte individualmente cada animal visível, mesmo parcialmente — inclua animais sobrepostos, agrupados, atrás de outros, na sombra, ou parcialmente cortados pela borda
+2.1. Preste atenção redobrada em aglomerados densos: nesses grupos os animais se sobrepõem e é fácil contar de menos — procure por padrões de orelhas, lombos e patas para diferenciar indivíduos colados uns aos outros
+3. Some a contagem dos 9 setores para chegar ao total — NÃO arredonde para baixo, prefira superestimar levemente a subestimar em aglomerados densos
+4. Conte TODOS os animais independente de cor, raça ou tamanho (brancos, marrons, pretos, pintados, bezerros, etc.) — não conte apenas os mais visíveis/claros
+
 Regras obrigatórias:
 - TODOS os textos em PORTUGUÊS DO BRASIL
 - Apenas o campo "category" usa os valores em inglês listados acima
-- CONTE TODOS os animais visíveis — independente de cor, raça ou tamanho (brancos, marrons, pretos, pintados, bezerros, etc.)
-- NÃO conte apenas animais de uma cor — procure sistematicamente todo o quadro
-- Forneça contagem total e por grupo de coloração: ex: "62 bovinos — aprox. 35 brancos (Nelore), 20 marrons (Gir/Girolando), 7 pintados"
-- Inclua nos visibleElements a contagem total: ex: "aproximadamente 62 bovinos visíveis no total"
+- Forneça a contagem total resultante da soma dos setores e a contagem por grupo de coloração: ex: "85 bovinos — aprox. 45 brancos (Nelore), 32 marrons (Gir/Girolando), 8 pintados"
+- Inclua nos visibleElements a contagem total: ex: "aproximadamente 85 bovinos visíveis no total"
 - Identifique raças se possível (nelore, angus, gir, girolando, etc.) com base na coloração e morfologia
 - Observe o comportamento: em movimento, pastando, agrupados, dispersos, próximos a água
 - Avalie condição corporal geral se possível (magros, bom estado, etc.)
 - Identifique se há separação de lotes, bezerros, touros
 - Aponte riscos: superlotação, animais isolados, comportamento anormal
 - Esta é uma análise PRELIMINAR — deve ser validada por zootecnista ou médico veterinário
-- Inclua limitações: ângulo, resolução, animais fora do quadro, sobreposição`
+- Inclua limitações: ângulo, resolução, animais fora do quadro, sobreposição, e que aglomerados muito densos podem gerar margem de erro na contagem`
 
 const SPECTRAL_PROMPTS: Record<string, string> = {
   ndvi: `Você é um especialista em sensoriamento remoto e manejo de pastagens. Está analisando um mapa NDVI (Índice de Diferença Normalizada de Vegetação) gerado por drone com câmera multiespectral.
