@@ -50,10 +50,12 @@ export function ImageUploader({ inspectionId, onUploaded }: ImageUploaderProps) 
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
+    // captura snapshot dos arquivos antes do loop — evita bug de índice ao modificar estado
+    const snapshot = [...files]
     let uploadedCount = 0
-    for (let i = 0; i < files.length; i++) {
-      const { file } = files[i]
-      setFiles((prev) => prev.map((f, idx) => idx === i ? { ...f, uploading: true } : f))
+
+    for (let i = 0; i < snapshot.length; i++) {
+      const { file } = snapshot[i]
 
       const ext = file.name.split('.').pop()
       const path = `${inspectionId}/${crypto.randomUUID()}.${ext}`
@@ -63,7 +65,7 @@ export function ImageUploader({ inspectionId, onUploaded }: ImageUploaderProps) 
         .upload(path, file, { upsert: false })
 
       if (storageError) {
-        setFiles((prev) => prev.map((f, idx) => idx === i ? { ...f, uploading: false, error: storageError.message } : f))
+        console.error('Storage error:', storageError.message)
         continue
       }
 
@@ -79,16 +81,18 @@ export function ImageUploader({ inspectionId, onUploaded }: ImageUploaderProps) 
         })
 
       if (dbError) {
-        setFiles((prev) => prev.map((f, idx) => idx === i ? { ...f, uploading: false, error: dbError.message } : f))
+        console.error('DB error:', dbError.message)
         continue
       }
 
       uploadedCount++
-      setFiles((prev) => prev.filter((_, idx) => idx !== i))
     }
 
-    if (uploadedCount > 0) onUploaded()
-    else setStep('select-type')
+    if (uploadedCount > 0) {
+      onUploaded()
+    } else {
+      setStep('select-type')
+    }
   }
 
   // Step 1: selecionar arquivos
