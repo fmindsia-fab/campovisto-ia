@@ -41,7 +41,7 @@ export function ImageUploader({ inspectionId, onUploaded }: ImageUploaderProps) 
     })
   }
 
-  async function handleUpload() {
+  async function handleUploadWithType(type: string) {
     if (files.length === 0) return
     setStep('uploading')
 
@@ -74,7 +74,7 @@ export function ImageUploader({ inspectionId, onUploaded }: ImageUploaderProps) 
           inspection_id: inspectionId,
           storage_path: `drone-images/${path}`,
           original_name: file.name,
-          image_type: imageType || null,
+          image_type: type || null,
           order_index: i,
         })
 
@@ -174,11 +174,11 @@ export function ImageUploader({ inspectionId, onUploaded }: ImageUploaderProps) 
         <ImageTypeSelector value={imageType} onChange={setImageType} />
 
         <div className="flex gap-2 pt-2 border-t">
-          <Button variant="outline" size="sm" onClick={() => { setImageType(''); handleUpload() }} className="text-xs">
+          <Button variant="outline" size="sm" onClick={() => { setImageType(''); setStep('uploading'); handleUploadWithType('') }} className="text-xs">
             Pular (sem tipo)
           </Button>
-          <Button size="sm" onClick={handleUpload} disabled={!imageType} className="flex-1">
-            Enviar {files.length} imagem(ns)
+          <Button size="sm" onClick={() => handleUploadWithType(imageType)} className="flex-1">
+            {imageType ? `Enviar como ${imageType.toUpperCase()}` : 'Selecione um tipo acima'}
           </Button>
         </div>
       </div>
