@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Save, Plus, ZoomIn, ZoomOut } from 'lucide-react'
+import { ArrowLeft, Save, Plus, ZoomIn, ZoomOut, Hand } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AnnotationCanvas } from '@/components/editor/annotation-canvas'
 import { MarkerPanel } from '@/components/editor/marker-panel'
@@ -29,6 +29,7 @@ export function AnnotationEditor({ inspectionId, image, publicUrl, initialAnnota
   const [markers, setMarkers] = useState<MarkerData[]>(initialAnnotations)
   const [selectedMarker, setSelectedMarker] = useState<MarkerData | null>(null)
   const [addingMode, setAddingMode] = useState(false)
+  const [panMode, setPanMode] = useState(false)
   const [saving, setSaving] = useState(false)
   const [scale, setScale] = useState(1)
 
@@ -120,9 +121,18 @@ export function AnnotationEditor({ inspectionId, image, publicUrl, initialAnnota
           </Button>
 
           <Button
+            variant={panMode ? 'default' : 'outline'}
+            size="icon"
+            onClick={() => { setPanMode((v) => !v); setAddingMode(false) }}
+            title="Mover imagem"
+          >
+            <Hand className="h-4 w-4" />
+          </Button>
+
+          <Button
             variant={addingMode ? 'default' : 'outline'}
             size="sm"
-            onClick={() => { setAddingMode((v) => !v); setSelectedMarker(null) }}
+            onClick={() => { setAddingMode((v) => !v); setPanMode(false); setSelectedMarker(null) }}
           >
             <Plus className="h-4 w-4 mr-1.5" />
             {addingMode ? 'Clique na imagem' : 'Adicionar marcador'}
@@ -138,12 +148,13 @@ export function AnnotationEditor({ inspectionId, image, publicUrl, initialAnnota
       {/* Body */}
       <div className="flex flex-1 overflow-hidden">
         {/* Canvas */}
-        <div className="flex-1 overflow-auto bg-muted/30 flex items-center justify-center p-4">
+        <div className={`flex-1 bg-muted/30 flex items-center justify-center p-4 ${panMode ? 'overflow-hidden' : 'overflow-auto'}`}>
           <AnnotationCanvas
             imageUrl={publicUrl}
             markers={markers}
             selectedMarkerNumber={selectedMarker?.marker_number ?? null}
             addingMode={addingMode}
+            panMode={panMode}
             scale={scale}
             onCanvasClick={handleCanvasClick}
             onMarkerClick={(m) => { setSelectedMarker(m); setAddingMode(false) }}

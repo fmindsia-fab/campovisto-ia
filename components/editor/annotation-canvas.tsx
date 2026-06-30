@@ -35,13 +35,14 @@ interface Props {
   markers: MarkerData[]
   selectedMarkerNumber: number | null
   addingMode: boolean
+  panMode: boolean
   scale: number
   onCanvasClick: (xPercent: number, yPercent: number) => void
   onMarkerClick: (marker: MarkerData) => void
 }
 
 export function AnnotationCanvas({
-  imageUrl, markers, selectedMarkerNumber, addingMode, scale, onCanvasClick, onMarkerClick,
+  imageUrl, markers, selectedMarkerNumber, addingMode, panMode, scale, onCanvasClick, onMarkerClick,
 }: Props) {
   const [img, setImg] = useState<HTMLImageElement | null>(null)
   const [size, setSize] = useState({ w: 800, h: 600 })
@@ -60,7 +61,7 @@ export function AnnotationCanvas({
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function handleStageClick(e: any) {
-    if (!addingMode) return
+    if (!addingMode || panMode) return
     const stage = e.target.getStage()
     const pos = stage.getPointerPosition()
     if (!pos) return
@@ -74,7 +75,7 @@ export function AnnotationCanvas({
 
   return (
     <div
-      style={{ cursor: addingMode ? 'crosshair' : 'default' }}
+      style={{ cursor: panMode ? 'grab' : addingMode ? 'crosshair' : 'default' }}
       className="rounded-lg overflow-hidden shadow-lg"
     >
       <Stage
@@ -82,6 +83,7 @@ export function AnnotationCanvas({
         height={stageH}
         scaleX={scale}
         scaleY={scale}
+        draggable={panMode}
         onClick={handleStageClick}
       >
         <Layer>
