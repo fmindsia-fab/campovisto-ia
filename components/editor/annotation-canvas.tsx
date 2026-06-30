@@ -75,7 +75,8 @@ export function AnnotationCanvas({
             const y = marker.y_percent * size.h
             const color = PRIORITY_COLORS[marker.priority] ?? '#f59e0b'
             const isSelected = marker.marker_number === selectedMarkerNumber
-            const r = 16
+            // ponto pequeno: selecionado fica um pouco maior para feedback visual
+            const r = isSelected ? 9 : 6
 
             return (
               <Group
@@ -88,28 +89,37 @@ export function AnnotationCanvas({
                 }}
                 style={{ cursor: 'pointer' }}
               >
+                {/* anel branco externo para contraste sobre qualquer fundo */}
+                <Circle
+                  x={0}
+                  y={0}
+                  radius={r + 2}
+                  fill="white"
+                  opacity={0.85}
+                />
+                {/* ponto colorido por prioridade */}
                 <Circle
                   x={0}
                   y={0}
                   radius={r}
                   fill={color}
-                  stroke={isSelected ? '#ffffff' : 'rgba(0,0,0,0.4)'}
-                  strokeWidth={isSelected ? 3 : 1.5}
+                  stroke={isSelected ? '#ffffff' : 'rgba(0,0,0,0.3)'}
+                  strokeWidth={isSelected ? 2 : 1}
                   shadowColor="black"
-                  shadowBlur={isSelected ? 8 : 4}
-                  shadowOpacity={0.4}
+                  shadowBlur={isSelected ? 6 : 3}
+                  shadowOpacity={0.5}
                 />
+                {/* número pequeno acima do ponto */}
                 <Text
-                  x={-r}
-                  y={-r}
-                  width={r * 2}
-                  height={r * 2}
+                  x={r + 3}
+                  y={-(r + 2)}
                   text={String(marker.marker_number)}
-                  fontSize={13}
+                  fontSize={10}
                   fontStyle="bold"
                   fill="white"
-                  align="center"
-                  verticalAlign="middle"
+                  shadowColor="black"
+                  shadowBlur={3}
+                  shadowOpacity={0.9}
                   listening={false}
                 />
               </Group>
