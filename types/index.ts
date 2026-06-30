@@ -138,6 +138,13 @@ export type ImageType =
   | 'structure'
   | 'wetland'
   | 'other'
+  | 'ndvi'
+  | 'ndre'
+  | 'evi'
+  | 'savi'
+  | 'ndwi'
+
+export const SPECTRAL_IMAGE_TYPES: ImageType[] = ['ndvi', 'ndre', 'evi', 'savi', 'ndwi']
 
 export interface InspectionImage {
   id: UUID

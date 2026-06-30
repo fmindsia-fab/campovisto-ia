@@ -6,25 +6,14 @@ import { Pencil, Trash2, Tag, MessageSquare, Crosshair, Sparkles } from 'lucide-
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { deleteImage, updateImageMeta } from '@/lib/inspection-images/actions'
 import type { InspectionImage } from '@/types'
 
-const IMAGE_TYPE_LABELS: Record<string, string> = {
-  overview: 'Visão geral',
-  pasture: 'Pastagem',
-  livestock: 'Rebanho',
-  bare_soil: 'Solo exposto',
-  water: 'Água',
-  fence: 'Cerca',
-  waterer: 'Bebedouro',
-  crop: 'Lavoura',
-  structure: 'Estrutura',
-  wetland: 'Área úmida',
-  other: 'Outro',
-}
+import { ALL_IMAGE_TYPE_LABELS, RGB_TYPES, SPECTRAL_TYPES } from './image-type-selector'
 
-const IMAGE_TYPES = Object.entries(IMAGE_TYPE_LABELS).map(([value, label]) => ({ value, label }))
+const IMAGE_TYPE_LABELS = ALL_IMAGE_TYPE_LABELS
+const IMAGE_TYPES = [...RGB_TYPES, ...SPECTRAL_TYPES].map(({ value, label }) => ({ value, label }))
+const SPECTRAL_VALUES = new Set(SPECTRAL_TYPES.map((t) => t.value))
 
 const ANALYSIS_STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   draft:          { label: 'IA: Rascunho',  className: 'bg-muted text-muted-foreground border' },
@@ -118,7 +107,10 @@ export function ImageCard({ image, publicUrl, inspectionId, analysisStatus, onDe
         </div>
         {image.image_type && (
           <div className="absolute bottom-2 left-2">
-            <Badge variant="secondary" className="text-[10px]">
+            <Badge
+              variant="secondary"
+              className={`text-[10px] ${SPECTRAL_VALUES.has(image.image_type) ? 'bg-primary text-primary-foreground' : ''}`}
+            >
               {IMAGE_TYPE_LABELS[image.image_type] ?? image.image_type}
             </Badge>
           </div>
@@ -141,16 +133,23 @@ export function ImageCard({ image, publicUrl, inspectionId, analysisStatus, onDe
 
         {editing ? (
           <form action={handleSave} className="space-y-2">
-            <Select value={imageType} onValueChange={setImageType}>
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue placeholder="Tipo de imagem" />
-              </SelectTrigger>
-              <SelectContent>
-                {IMAGE_TYPES.map((t) => (
-                  <SelectItem key={t.value} value={t.value} className="text-xs">{t.label}</SelectItem>
+            <select
+              value={imageType}
+              onChange={(e) => setImageType(e.target.value)}
+              className="w-full h-8 rounded-md border border-input bg-background px-2 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+            >
+              <option value="">Tipo de imagem</option>
+              <optgroup label="Imagem RGB">
+                {RGB_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>{t.label}</option>
                 ))}
-              </SelectContent>
-            </Select>
+              </optgroup>
+              <optgroup label="Índice Vegetal (multiespectral)">
+                {SPECTRAL_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>{t.label} — {t.description}</option>
+                ))}
+              </optgroup>
+            </select>
             <Textarea
               name="field_observations"
               placeholder="Observações de campo..."
