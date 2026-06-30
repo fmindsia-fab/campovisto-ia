@@ -26,15 +26,23 @@ const IMAGE_TYPE_LABELS: Record<string, string> = {
 
 const IMAGE_TYPES = Object.entries(IMAGE_TYPE_LABELS).map(([value, label]) => ({ value, label }))
 
+const ANALYSIS_STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+  draft:          { label: 'IA: Rascunho',  className: 'bg-muted text-muted-foreground border' },
+  review_pending: { label: 'IA: Pendente',  className: 'bg-amber-50 text-amber-700 border-amber-200' },
+  approved:       { label: 'IA: Aprovado',  className: 'bg-green-50 text-green-700 border-green-200' },
+  rejected:       { label: 'IA: Rejeitado', className: 'bg-red-50 text-red-700 border-red-200' },
+}
+
 interface ImageCardProps {
   image: InspectionImage
   publicUrl: string
   inspectionId: string
+  analysisStatus: string | null
   onDeleted: () => void
   onUpdated: () => void
 }
 
-export function ImageCard({ image, publicUrl, inspectionId, onDeleted, onUpdated }: ImageCardProps) {
+export function ImageCard({ image, publicUrl, inspectionId, analysisStatus, onDeleted, onUpdated }: ImageCardProps) {
   const router = useRouter()
   const [editing, setEditing] = useState(false)
   const [imageType, setImageType] = useState(image.image_type ?? '')
@@ -118,7 +126,18 @@ export function ImageCard({ image, publicUrl, inspectionId, onDeleted, onUpdated
       </div>
 
       <div className="p-3">
-        <p className="truncate text-xs text-muted-foreground mb-2">{image.original_name}</p>
+        <p className="truncate text-xs text-muted-foreground mb-1">{image.original_name}</p>
+        {analysisStatus && (() => {
+          const cfg = ANALYSIS_STATUS_CONFIG[analysisStatus]
+          return cfg ? (
+            <button
+              className={`mb-2 inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium transition-opacity hover:opacity-80 ${cfg.className}`}
+              onClick={() => router.push(`/inspections/${inspectionId}/images/${image.id}`)}
+            >
+              {cfg.label}
+            </button>
+          ) : null
+        })()}
 
         {editing ? (
           <form action={handleSave} className="space-y-2">

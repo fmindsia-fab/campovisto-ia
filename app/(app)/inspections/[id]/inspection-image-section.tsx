@@ -14,9 +14,10 @@ import type { InspectionImage } from '@/types'
 interface Props {
   inspectionId: string
   initialImages: InspectionImage[]
+  analysisStatuses: Record<string, string>
 }
 
-export function InspectionImageSection({ inspectionId, initialImages }: Props) {
+export function InspectionImageSection({ inspectionId, initialImages, analysisStatuses }: Props) {
   const [images, setImages] = useState<InspectionImage[]>(initialImages)
   const [showUploader, setShowUploader] = useState(initialImages.length === 0)
 
@@ -84,6 +85,7 @@ export function InspectionImageSection({ inspectionId, initialImages }: Props) {
               image={image}
               publicUrl={getPublicUrl(image.storage_path)}
               inspectionId={inspectionId}
+              analysisStatus={analysisStatuses[image.id] ?? null}
               onDeleted={reload}
               onUpdated={reload}
             />

@@ -57,6 +57,22 @@ export async function rejectAnalysis(analysisId: string, reviewerNotes: string) 
   return { error: null }
 }
 
+export async function getAnalysisStatusByInspection(inspectionId: string): Promise<Record<string, string>> {
+  const supabase = await createClient()
+  const { data } = await (supabase as any)
+    .from('ai_analyses')
+    .select('image_id, status')
+    .eq('inspection_id', inspectionId)
+    .order('created_at', { ascending: false })
+
+  if (!data) return {}
+  const map: Record<string, string> = {}
+  for (const row of data as { image_id: string; status: string }[]) {
+    if (!map[row.image_id]) map[row.image_id] = row.status
+  }
+  return map
+}
+
 export async function updateSuggestedText(analysisId: string, suggestedText: string) {
   const supabase = await createClient()
   const { error } = await (supabase as any)

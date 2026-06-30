@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { getInspection } from '@/lib/inspections/actions'
 import { getInspectionImages } from '@/lib/inspection-images/actions'
+import { getAnalysisStatusByInspection } from '@/lib/ai-analyses/actions'
 import { InspectionImageSection } from './inspection-image-section'
 
 interface Props {
@@ -20,9 +21,10 @@ const STATUS_LABELS: Record<string, string> = {
 
 export default async function InspectionDetailPage({ params }: Props) {
   const { id } = await params
-  const [inspection, images] = await Promise.all([
+  const [inspection, images, analysisStatuses] = await Promise.all([
     getInspection(id),
     getInspectionImages(id),
+    getAnalysisStatusByInspection(id),
   ])
   if (!inspection) notFound()
 
@@ -95,7 +97,7 @@ export default async function InspectionDetailPage({ params }: Props) {
         </Card>
       </div>
 
-      <InspectionImageSection inspectionId={id} initialImages={images} />
+      <InspectionImageSection inspectionId={id} initialImages={images} analysisStatuses={analysisStatuses} />
     </>
   )
 }
