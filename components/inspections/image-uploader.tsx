@@ -4,7 +4,7 @@ import { useRef, useState } from 'react'
 import { Upload, X, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createBrowserClient } from '@supabase/ssr'
-import { ImageTypeSelector } from './image-type-selector'
+import { ImageTypeSelector, ALL_IMAGE_TYPE_LABELS } from './image-type-selector'
 
 interface ImageUploaderProps {
   inspectionId: string
@@ -181,8 +181,8 @@ export function ImageUploader({ inspectionId, onUploaded }: ImageUploaderProps) 
           <Button variant="outline" size="sm" onClick={() => { setImageType(''); setStep('uploading'); handleUploadWithType('') }} className="text-xs">
             Pular (sem tipo)
           </Button>
-          <Button size="sm" onClick={() => handleUploadWithType(imageType)} className="flex-1">
-            {imageType ? `Enviar como ${imageType.toUpperCase()}` : 'Selecione um tipo acima'}
+          <Button size="sm" onClick={() => handleUploadWithType(imageType)} disabled={!imageType} className="flex-1">
+            {imageType ? `Enviar como: ${ALL_IMAGE_TYPE_LABELS[imageType] ?? imageType}` : 'Selecione um tipo acima'}
           </Button>
         </div>
       </div>
