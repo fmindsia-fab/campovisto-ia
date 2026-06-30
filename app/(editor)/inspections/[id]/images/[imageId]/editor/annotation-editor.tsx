@@ -17,6 +17,13 @@ interface Props {
   initialAnnotations: ImageAnnotation[]
 }
 
+// template padrão que persiste entre marcadores
+interface MarkerTemplate {
+  category: string
+  priority: string
+  confidence: string
+}
+
 export function AnnotationEditor({ inspectionId, image, publicUrl, initialAnnotations }: Props) {
   const router = useRouter()
   const [markers, setMarkers] = useState<MarkerData[]>(initialAnnotations)
@@ -25,27 +32,40 @@ export function AnnotationEditor({ inspectionId, image, publicUrl, initialAnnota
   const [saving, setSaving] = useState(false)
   const [scale, setScale] = useState(1)
 
+  // template persistente — mantém as configs do último marcador aplicado
+  const [template, setTemplate] = useState<MarkerTemplate>({
+    category: 'attention_point',
+    priority: 'medium',
+    confidence: 'probable',
+  })
+
   function handleCanvasClick(xPercent: number, yPercent: number) {
     if (!addingMode) return
     const newMarker: MarkerData = {
       marker_number: markers.length + 1,
       x_percent: xPercent,
       y_percent: yPercent,
-      category: 'attention_point',
+      category: template.category,
       description: null,
-      priority: 'medium',
-      confidence: 'probable',
+      priority: template.priority,
+      confidence: template.confidence,
     }
     setMarkers((prev) => [...prev, newMarker])
-    setSelectedMarker(newMarker)
-    setAddingMode(false)
+    // mantém modo de adição ativo para continuar marcando
+    // não seleciona o marcador — usuário continua no fluxo de adicionar
   }
 
   function handleUpdateMarker(updated: MarkerData) {
     setMarkers((prev) =>
       prev.map((m) => m.marker_number === updated.marker_number ? updated : m)
     )
-    setSelectedMarker(updated)
+    // atualiza o template com as configs aplicadas
+    setTemplate({
+      category: updated.category,
+      priority: updated.priority,
+      confidence: updated.confidence,
+    })
+    setSelectedMarker(null)
   }
 
   function handleDeleteMarker(markerNumber: number) {
@@ -102,7 +122,7 @@ export function AnnotationEditor({ inspectionId, image, publicUrl, initialAnnota
           <Button
             variant={addingMode ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setAddingMode((v) => !v)}
+            onClick={() => { setAddingMode((v) => !v); setSelectedMarker(null) }}
           >
             <Plus className="h-4 w-4 mr-1.5" />
             {addingMode ? 'Clique na imagem' : 'Adicionar marcador'}
@@ -126,7 +146,7 @@ export function AnnotationEditor({ inspectionId, image, publicUrl, initialAnnota
             addingMode={addingMode}
             scale={scale}
             onCanvasClick={handleCanvasClick}
-            onMarkerClick={(m) => setSelectedMarker(m)}
+            onMarkerClick={(m) => { setSelectedMarker(m); setAddingMode(false) }}
           />
         </div>
 
@@ -142,7 +162,10 @@ export function AnnotationEditor({ inspectionId, image, publicUrl, initialAnnota
           ) : (
             <MarkerPanel
               markers={markers}
-              onSelectMarker={(m) => setSelectedMarker(m)}
+              template={template}
+              onTemplateChange={setTemplate}
+              addingMode={addingMode}
+              onSelectMarker={(m) => { setSelectedMarker(m); setAddingMode(false) }}
               onDeleteMarker={handleDeleteMarker}
             />
           )}
