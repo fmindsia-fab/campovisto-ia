@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
 import { deleteImage, updateImageMeta } from '@/lib/inspection-images/actions'
+import type { AnalysisSummary } from '@/lib/ai-analyses/actions'
 import type { InspectionImage } from '@/types'
 
 import { ALL_IMAGE_TYPE_LABELS, RGB_TYPES, SPECTRAL_TYPES } from './image-type-selector'
@@ -26,12 +27,13 @@ interface ImageCardProps {
   image: InspectionImage
   publicUrl: string
   inspectionId: string
-  analysisStatus: string | null
+  analysisSummary: AnalysisSummary | null
   onDeleted: () => void
   onUpdated: () => void
 }
 
-export function ImageCard({ image, publicUrl, inspectionId, analysisStatus, onDeleted, onUpdated }: ImageCardProps) {
+export function ImageCard({ image, publicUrl, inspectionId, analysisSummary, onDeleted, onUpdated }: ImageCardProps) {
+  const analysisStatus = analysisSummary?.status ?? null
   const router = useRouter()
   const [editing, setEditing] = useState(false)
   const [imageType, setImageType] = useState(image.image_type ?? '')
@@ -130,6 +132,12 @@ export function ImageCard({ image, publicUrl, inspectionId, analysisStatus, onDe
             </button>
           ) : null
         })()}
+
+        {!editing && analysisSummary?.suggestedText && (
+          <p className="mb-2 text-xs text-muted-foreground leading-relaxed line-clamp-3">
+            {analysisSummary.suggestedText}
+          </p>
+        )}
 
         {editing ? (
           <form action={handleSave} className="space-y-2">

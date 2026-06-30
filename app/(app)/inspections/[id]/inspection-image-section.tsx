@@ -9,15 +9,16 @@ import { ImageCard } from '@/components/inspections/image-card'
 import { EmptyState } from '@/components/shared/empty-state'
 import { createBrowserClient } from '@supabase/ssr'
 import { getInspectionImages } from '@/lib/inspection-images/actions'
+import type { AnalysisSummary } from '@/lib/ai-analyses/actions'
 import type { InspectionImage } from '@/types'
 
 interface Props {
   inspectionId: string
   initialImages: InspectionImage[]
-  analysisStatuses: Record<string, string>
+  analysisSummaries: Record<string, AnalysisSummary>
 }
 
-export function InspectionImageSection({ inspectionId, initialImages, analysisStatuses }: Props) {
+export function InspectionImageSection({ inspectionId, initialImages, analysisSummaries }: Props) {
   const [images, setImages] = useState<InspectionImage[]>(initialImages)
   const [showUploader, setShowUploader] = useState(initialImages.length === 0)
 
@@ -85,7 +86,7 @@ export function InspectionImageSection({ inspectionId, initialImages, analysisSt
               image={image}
               publicUrl={getPublicUrl(image.storage_path)}
               inspectionId={inspectionId}
-              analysisStatus={analysisStatuses[image.id] ?? null}
+              analysisSummary={analysisSummaries[image.id] ?? null}
               onDeleted={reload}
               onUpdated={reload}
             />

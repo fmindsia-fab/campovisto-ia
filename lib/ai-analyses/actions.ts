@@ -86,6 +86,27 @@ export async function getAnalysisStatusByInspection(inspectionId: string): Promi
   return map
 }
 
+export interface AnalysisSummary {
+  status: string
+  suggestedText: string | null
+}
+
+export async function getAnalysisSummariesByInspection(inspectionId: string): Promise<Record<string, AnalysisSummary>> {
+  const supabase = await createClient()
+  const { data } = await (supabase as any)
+    .from('ai_analyses')
+    .select('image_id, status, suggested_text')
+    .eq('inspection_id', inspectionId)
+    .order('created_at', { ascending: false })
+
+  if (!data) return {}
+  const map: Record<string, AnalysisSummary> = {}
+  for (const row of data as { image_id: string; status: string; suggested_text: string | null }[]) {
+    if (!map[row.image_id]) map[row.image_id] = { status: row.status, suggestedText: row.suggested_text }
+  }
+  return map
+}
+
 export async function updateSuggestedText(analysisId: string, suggestedText: string) {
   const supabase = await createClient()
   const { error } = await (supabase as any)
