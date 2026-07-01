@@ -134,7 +134,7 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
   const imagesWithAnalysis = images.filter((img) => analysisMap[img.id]).length
 
   return (
-    <div className="report-body bg-white text-gray-900" style={{ fontFamily: 'Georgia, serif' }}>
+    <div className="report-body bg-white text-gray-900" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
 
       {/* ════ CAPA ════ */}
       <div style={{
@@ -183,7 +183,7 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
             <h1 style={{
               fontSize: '52px', fontWeight: '800', color: '#0f172a',
               lineHeight: '1.05', margin: '0 0 20px 0',
-              fontFamily: 'Georgia, serif',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
             }}>
               {property?.name ?? '—'}
             </h1>
