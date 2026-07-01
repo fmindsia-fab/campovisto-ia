@@ -381,7 +381,6 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
                   }
 
                   const annotatedOnes = imgAnnotations.filter((a) => a.description)
-                  const analysis = analysisMap[image.id]
                   const reviewer = analysis?.reviewer_notes !== undefined ? reviewerName : null
 
                   return (

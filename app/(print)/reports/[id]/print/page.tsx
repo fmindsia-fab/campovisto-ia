@@ -34,6 +34,26 @@ export default async function ReportPrintPage({ params }: Props) {
         publicUrlMap={publicUrlMap}
         reviewerName={reviewerName}
       />
+      {/* dispara window.print() apenas após todas as imagens carregarem */}
+      <script dangerouslySetInnerHTML={{
+        __html: `
+          (function() {
+            function tryPrint() {
+              var imgs = document.querySelectorAll('img');
+              if (imgs.length === 0) { window.print(); return; }
+              var loaded = 0;
+              var total = imgs.length;
+              function onLoad() { loaded++; if (loaded >= total) window.print(); }
+              imgs.forEach(function(img) {
+                if (img.complete) { onLoad(); }
+                else { img.addEventListener('load', onLoad); img.addEventListener('error', onLoad); }
+              });
+            }
+            if (document.readyState === 'complete') { setTimeout(tryPrint, 300); }
+            else { window.addEventListener('load', function() { setTimeout(tryPrint, 300); }); }
+          })();
+        `
+      }} />
     </div>
   )
 }

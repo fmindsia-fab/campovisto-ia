@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { getInspection } from '@/lib/inspections/actions'
 import { getInspectionImages } from '@/lib/inspection-images/actions'
 import { getAnalysisSummariesByInspection } from '@/lib/ai-analyses/actions'
-import { getReports } from '@/lib/reports/actions'
+import { getReportByInspection } from '@/lib/reports/actions'
 import { InspectionImageSection } from './inspection-image-section'
 import { GenerateReportButton } from './generate-report-button'
 
@@ -23,16 +23,15 @@ const STATUS_LABELS: Record<string, string> = {
 
 export default async function InspectionDetailPage({ params }: Props) {
   const { id } = await params
-  const [inspection, images, analysisSummaries, allReports] = await Promise.all([
+  const [inspection, images, analysisSummaries, existingReport] = await Promise.all([
     getInspection(id),
     getInspectionImages(id),
     getAnalysisSummariesByInspection(id),
-    getReports(),
+    getReportByInspection(id),
   ])
   if (!inspection) notFound()
 
   const hasApprovedAnalysis = Object.values(analysisSummaries).some((s) => s.status === 'approved')
-  const existingReport = allReports.find((r) => r.inspection_id === id) ?? null
 
   const formattedDate = new Date(inspection.visit_date + 'T00:00:00').toLocaleDateString('pt-BR', {
     day: '2-digit', month: 'long', year: 'numeric',

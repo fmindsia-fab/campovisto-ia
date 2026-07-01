@@ -9,13 +9,7 @@ export function PrintButton() {
   const id = params?.id as string
 
   function handlePrint() {
-    const printUrl = `/reports/${id}/print`
-    const win = window.open(printUrl, '_blank')
-    if (win) {
-      win.onload = () => {
-        setTimeout(() => win.print(), 800)
-      }
-    }
+    window.open(`/reports/${id}/print`, '_blank')
   }
 
   return (

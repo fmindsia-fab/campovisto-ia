@@ -42,16 +42,18 @@ export function AnnotationEditor({ inspectionId, image, publicUrl, initialAnnota
 
   function handleCanvasClick(xPercent: number, yPercent: number) {
     if (!addingMode) return
-    const newMarker: MarkerData = {
-      marker_number: markers.length + 1,
-      x_percent: xPercent,
-      y_percent: yPercent,
-      category: template.category,
-      description: null,
-      priority: template.priority,
-      confidence: template.confidence,
-    }
-    setMarkers((prev) => [...prev, newMarker])
+    setMarkers((prev) => {
+      const newMarker: MarkerData = {
+        marker_number: prev.length + 1,
+        x_percent: xPercent,
+        y_percent: yPercent,
+        category: template.category,
+        description: null,
+        priority: template.priority,
+        confidence: template.confidence,
+      }
+      return [...prev, newMarker]
+    })
     // mantém modo de adição ativo para continuar marcando
     // não seleciona o marcador — usuário continua no fluxo de adicionar
   }

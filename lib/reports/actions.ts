@@ -105,6 +105,19 @@ export async function getReportFullData(reportId: string) {
   }
 }
 
+export async function getReportByInspection(inspectionId: string) {
+  const supabase = await createClient()
+  const { data } = await (supabase as any)
+    .from('reports')
+    .select('id, inspection_id')
+    .eq('inspection_id', inspectionId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  return data as { id: string; inspection_id: string } | null
+}
+
 export async function deleteReport(id: string) {
   const supabase = await createClient()
   const { error } = await (supabase as any).from('reports').delete().eq('id', id)

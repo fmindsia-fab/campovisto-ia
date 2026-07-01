@@ -18,8 +18,13 @@ export interface AnnotationInput {
 export async function saveAnnotations(imageId: string, annotations: AnnotationInput[]) {
   const supabase = await createClient()
 
-  // remove todas as anotações atuais e reinsere (upsert simples)
-  await (supabase as any).from('image_annotations').delete().eq('image_id', imageId)
+  // deleta primeiro — captura erro antes de prosseguir para evitar perda silenciosa de dados
+  const { error: delError } = await (supabase as any)
+    .from('image_annotations')
+    .delete()
+    .eq('image_id', imageId)
+
+  if (delError) return { error: delError.message }
 
   if (annotations.length === 0) return { success: true }
 
