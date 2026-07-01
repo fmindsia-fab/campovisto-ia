@@ -71,13 +71,8 @@
     font-size: 11pt;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
-  }
-
-  /* Remove overflow-hidden de todos os containers para o conteúdo fluir entre páginas */
-  * {
-    overflow: visible !important;
     height: auto !important;
-    max-height: none !important;
+    overflow: visible !important;
   }
 
   /* Garante que sidebar/topbar não apareçam */
@@ -88,11 +83,6 @@
   /* Imagens no relatório devem aparecer */
   img {
     max-width: 100% !important;
-    page-break-inside: avoid;
-  }
-
-  /* Cada bloco de imagem não quebra no meio */
-  [style*="pageBreakInside: avoid"] {
     page-break-inside: avoid;
   }
 }

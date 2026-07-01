@@ -61,6 +61,7 @@ interface Props {
   annotations: AnnotationData[]
   analysisMap: Record<string, AnalysisData>
   publicUrlMap: Record<string, string>
+  reviewerName?: string | null
 }
 
 // Deriva pontos fortes e fracos das análises aprovadas
@@ -107,7 +108,7 @@ function deriveInsights(images: ImageData[], analysisMap: Record<string, Analysi
   return { strengths, weaknesses }
 }
 
-export function ReportPreview({ report, images, annotations, analysisMap, publicUrlMap }: Props) {
+export function ReportPreview({ report, images, annotations, analysisMap, publicUrlMap, reviewerName }: Props) {
   const inspection = report.inspections
   const property = inspection?.properties
   const client = property?.clients
@@ -136,75 +137,97 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
     <div className="report-body bg-white text-gray-900" style={{ fontFamily: 'Georgia, serif' }}>
 
       {/* ════ CAPA ════ */}
-      <div className="print:break-after-page" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', paddingBottom: '3rem', marginBottom: '3rem', borderBottom: '3px solid #16a34a' }}>
+      <div style={{
+        pageBreakAfter: 'always',
+        height: '297mm',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
+        overflow: 'hidden',
+        background: 'white',
+      }}>
+        {/* Barra verde lateral esquerda */}
+        <div style={{
+          position: 'absolute', left: 0, top: 0, bottom: 0,
+          width: '6px', background: '#16a34a',
+        }} />
 
-        {/* Cabeçalho da capa */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-              <div style={{ width: '28px', height: '28px', background: '#16a34a', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', fontFamily: 'sans-serif' }}>CV</span>
-              </div>
-              <span style={{ fontSize: '14px', fontWeight: '700', fontFamily: 'sans-serif', letterSpacing: '0.02em' }}>CampoVisto.IA</span>
+        {/* Área de conteúdo com padding */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '48px 48px 40px 56px' }}>
+
+          {/* Logo topo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0' }}>
+            <div style={{
+              width: '32px', height: '32px', background: '#16a34a', borderRadius: '6px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <span style={{ color: 'white', fontSize: '12px', fontWeight: '800', fontFamily: 'sans-serif' }}>CV</span>
             </div>
-            <p style={{ fontSize: '10px', color: '#9ca3af', fontFamily: 'sans-serif', marginLeft: '36px' }}>by FMinds</p>
-          </div>
-          <div style={{ textAlign: 'right', fontSize: '11px', color: '#9ca3af', fontFamily: 'sans-serif' }}>
-            <p>Relatório de Vistoria Rural</p>
-            <p>Gerado em {generatedDate}</p>
-          </div>
-        </div>
-
-        {/* Conteúdo principal da capa */}
-        <div style={{ marginTop: '4rem' }}>
-          <p style={{ fontSize: '10px', fontWeight: '700', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#16a34a', fontFamily: 'sans-serif', marginBottom: '12px' }}>
-            Relatório de Vistoria Aérea
-          </p>
-          <h1 style={{ fontSize: '42px', fontWeight: '800', color: '#111827', lineHeight: '1.1', marginBottom: '8px' }}>
-            {property?.name ?? '—'}
-          </h1>
-          <p style={{ fontSize: '20px', color: '#6b7280', fontFamily: 'sans-serif', marginBottom: '24px' }}>{client?.name ?? '—'}</p>
-
-          <div style={{ display: 'flex', gap: '32px', marginTop: '16px' }}>
-            <div style={{ fontFamily: 'sans-serif' }}>
-              <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9ca3af', marginBottom: '2px' }}>Data da visita</p>
-              <p style={{ fontSize: '14px', fontWeight: '600', color: '#374151' }}>{visitDate}</p>
+            <div>
+              <p style={{ fontSize: '13px', fontWeight: '700', fontFamily: 'sans-serif', color: '#111827', margin: 0, lineHeight: 1 }}>CampoVisto.IA</p>
+              <p style={{ fontSize: '10px', color: '#9ca3af', fontFamily: 'sans-serif', margin: 0 }}>by FMinds</p>
             </div>
-            {property?.location && (
-              <div style={{ fontFamily: 'sans-serif' }}>
-                <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9ca3af', marginBottom: '2px' }}>Localização</p>
-                <p style={{ fontSize: '14px', fontWeight: '600', color: '#374151' }}>{property.location}</p>
-              </div>
-            )}
-            {property?.activity_type && (
-              <div style={{ fontFamily: 'sans-serif' }}>
-                <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9ca3af', marginBottom: '2px' }}>Atividade</p>
-                <p style={{ fontSize: '14px', fontWeight: '600', color: '#374151' }}>{property.activity_type}</p>
-              </div>
-            )}
           </div>
 
-          {/* Estatísticas em destaque */}
-          <div style={{ display: 'flex', gap: '16px', marginTop: '40px' }}>
-            {[
-              { value: images.length, label: 'Imagens analisadas' },
-              { value: imagesWithAnalysis, label: 'Com análise IA' },
-              { value: totalAnnotations, label: 'Marcadores' },
-              { value: highAnnotations.length, label: 'Pontos de alta prioridade' },
-            ].map((stat) => (
-              <div key={stat.label} style={{ flex: 1, background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px', textAlign: 'center' }}>
-                <p style={{ fontSize: '28px', fontWeight: '800', color: '#111827', lineHeight: '1' }}>{stat.value}</p>
-                <p style={{ fontSize: '10px', color: '#6b7280', fontFamily: 'sans-serif', marginTop: '4px' }}>{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+          {/* Bloco principal — posicionado no terço superior */}
+          <div style={{ marginTop: '64px' }}>
+            <p style={{
+              fontSize: '10px', fontWeight: '700', letterSpacing: '0.18em',
+              textTransform: 'uppercase', color: '#16a34a', fontFamily: 'sans-serif',
+              marginBottom: '16px',
+            }}>
+              Relatório de Vistoria Aérea
+            </p>
 
-        {/* Rodapé da capa */}
-        <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '16px', fontSize: '10px', color: '#9ca3af', fontFamily: 'sans-serif' }}>
-          <p>Análise preliminar assistida por IA · Revisada por humano · Não constitui laudo técnico</p>
+            <h1 style={{
+              fontSize: '52px', fontWeight: '800', color: '#0f172a',
+              lineHeight: '1.05', margin: '0 0 20px 0',
+              fontFamily: 'Georgia, serif',
+            }}>
+              {property?.name ?? '—'}
+            </h1>
+
+            {/* Linha divisória */}
+            <div style={{ width: '48px', height: '3px', background: '#16a34a', marginBottom: '24px' }} />
+
+            {/* Cliente e data lado a lado */}
+            <div style={{ display: 'flex', gap: '48px', alignItems: 'flex-start' }}>
+              <div>
+                <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#9ca3af', fontFamily: 'sans-serif', marginBottom: '4px' }}>Cliente / Produtor</p>
+                <p style={{ fontSize: '18px', fontWeight: '600', color: '#374151', fontFamily: 'sans-serif', margin: 0 }}>{client?.name ?? '—'}</p>
+              </div>
+              <div>
+                <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#9ca3af', fontFamily: 'sans-serif', marginBottom: '4px' }}>Data da visita</p>
+                <p style={{ fontSize: '18px', fontWeight: '600', color: '#374151', fontFamily: 'sans-serif', margin: 0 }}>{visitDate}</p>
+              </div>
+              {reviewerName && (
+                <div>
+                  <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#9ca3af', fontFamily: 'sans-serif', marginBottom: '4px' }}>Revisado por</p>
+                  <p style={{ fontSize: '18px', fontWeight: '600', color: '#374151', fontFamily: 'sans-serif', margin: 0 }}>{reviewerName}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Espaço flexível */}
+          <div style={{ flex: 1 }} />
+
+          {/* Rodapé da capa */}
+          <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <p style={{ fontSize: '10px', color: '#9ca3af', fontFamily: 'sans-serif', margin: 0, maxWidth: '60%', lineHeight: '1.5' }}>
+              Análise preliminar assistida por IA · Revisada por profissional humano<br />
+              Não constitui laudo técnico agronômico, veterinário ou ambiental
+            </p>
+            <p style={{ fontSize: '10px', color: '#d1d5db', fontFamily: 'sans-serif', margin: 0 }}>
+              Gerado em {generatedDate}
+            </p>
+          </div>
         </div>
       </div>
+
+      {/* ════ CORPO DO RELATÓRIO ════ */}
+      <div style={{ padding: '40px 48px 48px 56px' }}>
 
       {/* ════ DADOS DA PROPRIEDADE ════ */}
       <ReportSection number="1" title="Dados da Propriedade e Cliente">
@@ -422,6 +445,7 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
         </p>
       </div>
 
+      </div>{/* fim do corpo */}
     </div>
   )
 }

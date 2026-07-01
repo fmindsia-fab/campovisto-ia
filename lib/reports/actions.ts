@@ -82,11 +82,26 @@ export async function getReportFullData(reportId: string) {
     if (!analysisMap[a.image_id]) analysisMap[a.image_id] = a
   }
 
+  // busca nome do revisor humano (pega o primeiro encontrado)
+  let reviewerName: string | null = null
+  for (const a of Object.values(analysisMap)) {
+    if (a.reviewed_by) {
+      const { data: profile } = await (supabase as any)
+        .from('profiles')
+        .select('full_name')
+        .eq('id', a.reviewed_by)
+        .single()
+      reviewerName = profile?.full_name ?? null
+      break
+    }
+  }
+
   return {
     report,
     images: images ?? [],
     annotations: annotations ?? [],
     analysisMap,
+    reviewerName,
   }
 }
 
