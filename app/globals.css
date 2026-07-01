@@ -73,6 +73,13 @@
     print-color-adjust: exact;
   }
 
+  /* Remove overflow-hidden de todos os containers para o conteúdo fluir entre páginas */
+  * {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
   /* Garante que sidebar/topbar não apareçam */
   nav, header, aside {
     display: none !important;
