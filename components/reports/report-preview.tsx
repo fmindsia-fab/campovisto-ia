@@ -371,42 +371,74 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
                 )}
 
                 {/* Marcadores */}
-                {imgAnnotations.length > 0 && (
-                  <div>
-                    <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6b7280', fontWeight: '700', fontFamily: 'sans-serif', marginBottom: '6px' }}>
-                      Marcadores ({imgAnnotations.length})
-                    </p>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', fontFamily: 'sans-serif' }}>
-                      <thead>
-                        <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                          <th style={{ padding: '6px 8px', textAlign: 'left', color: '#6b7280', fontWeight: '600', fontSize: '10px' }}>#</th>
-                          <th style={{ padding: '6px 8px', textAlign: 'left', color: '#6b7280', fontWeight: '600', fontSize: '10px' }}>Categoria</th>
-                          <th style={{ padding: '6px 8px', textAlign: 'left', color: '#6b7280', fontWeight: '600', fontSize: '10px' }}>Descrição</th>
-                          <th style={{ padding: '6px 8px', textAlign: 'right', color: '#6b7280', fontWeight: '600', fontSize: '10px' }}>Prioridade</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {imgAnnotations.map((ann, i) => (
-                          <tr key={ann.id} style={{ borderBottom: '1px solid #f3f4f6', background: i % 2 === 0 ? 'white' : '#fafafa' }}>
-                            <td style={{ padding: '6px 8px', fontWeight: '700', color: '#374151' }}>{ann.marker_number}</td>
-                            <td style={{ padding: '6px 8px', color: '#374151' }}>{CATEGORY_LABELS[ann.category] ?? ann.category}</td>
-                            <td style={{ padding: '6px 8px', color: '#6b7280' }}>{ann.description ?? '—'}</td>
-                            <td style={{ padding: '6px 8px', textAlign: 'right' }}>
-                              <span style={{
-                                fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '99px',
-                                ...(ann.priority === 'high' ? { background: '#fef2f2', color: '#dc2626' } :
-                                    ann.priority === 'medium' ? { background: '#fffbeb', color: '#d97706' } :
-                                    { background: '#f0fdf4', color: '#16a34a' })
-                              }}>
-                                {PRIORITY_LABELS[ann.priority] ?? ann.priority}
-                              </span>
-                            </td>
-                          </tr>
+                {imgAnnotations.length > 0 && (() => {
+                  // agrupa por categoria para resumo
+                  const byCategory: Record<string, { count: number; withDesc: AnnotationData[] }> = {}
+                  for (const ann of imgAnnotations) {
+                    if (!byCategory[ann.category]) byCategory[ann.category] = { count: 0, withDesc: [] }
+                    byCategory[ann.category].count++
+                    if (ann.description) byCategory[ann.category].withDesc.push(ann)
+                  }
+
+                  const annotatedOnes = imgAnnotations.filter((a) => a.description)
+                  const analysis = analysisMap[image.id]
+                  const reviewer = analysis?.reviewer_notes !== undefined ? reviewerName : null
+
+                  return (
+                    <div>
+                      {/* Resumo compacto por categoria */}
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: annotatedOnes.length > 0 ? '14px' : 0 }}>
+                        {Object.entries(byCategory).map(([cat, { count }]) => (
+                          <div key={cat} style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '6px', padding: '8px 14px', fontFamily: 'sans-serif' }}>
+                            <p style={{ fontSize: '20px', fontWeight: '800', color: '#111827', margin: 0, lineHeight: 1 }}>{count}</p>
+                            <p style={{ fontSize: '10px', color: '#6b7280', margin: '2px 0 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                              {CATEGORY_LABELS[cat] ?? cat}{count > 1 && cat === 'bovine' ? 's' : ''}
+                            </p>
+                          </div>
                         ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                        <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', padding: '8px 14px', fontFamily: 'sans-serif' }}>
+                          <p style={{ fontSize: '10px', color: '#15803d', margin: 0, lineHeight: 1.5 }}>
+                            Marcado manualmente<br />
+                            {reviewer ? `Revisado por ${reviewer}` : 'Revisado por humano'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Apenas marcadores COM descrição na tabela */}
+                      {annotatedOnes.length > 0 && (
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', fontFamily: 'sans-serif' }}>
+                          <thead>
+                            <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+                              <th style={{ padding: '6px 8px', textAlign: 'left', color: '#6b7280', fontWeight: '600', fontSize: '10px' }}>#</th>
+                              <th style={{ padding: '6px 8px', textAlign: 'left', color: '#6b7280', fontWeight: '600', fontSize: '10px' }}>Categoria</th>
+                              <th style={{ padding: '6px 8px', textAlign: 'left', color: '#6b7280', fontWeight: '600', fontSize: '10px' }}>Observação</th>
+                              <th style={{ padding: '6px 8px', textAlign: 'right', color: '#6b7280', fontWeight: '600', fontSize: '10px' }}>Prioridade</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {annotatedOnes.map((ann, i) => (
+                              <tr key={ann.id} style={{ borderBottom: '1px solid #f3f4f6', background: i % 2 === 0 ? 'white' : '#fafafa' }}>
+                                <td style={{ padding: '6px 8px', fontWeight: '700', color: '#374151' }}>{ann.marker_number}</td>
+                                <td style={{ padding: '6px 8px', color: '#374151' }}>{CATEGORY_LABELS[ann.category] ?? ann.category}</td>
+                                <td style={{ padding: '6px 8px', color: '#6b7280' }}>{ann.description}</td>
+                                <td style={{ padding: '6px 8px', textAlign: 'right' }}>
+                                  <span style={{
+                                    fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '99px',
+                                    ...(ann.priority === 'high' ? { background: '#fef2f2', color: '#dc2626' } :
+                                        ann.priority === 'medium' ? { background: '#fffbeb', color: '#d97706' } :
+                                        { background: '#f0fdf4', color: '#16a34a' })
+                                  }}>
+                                    {PRIORITY_LABELS[ann.priority] ?? ann.priority}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
+                    </div>
+                  )
+                })()}
               </div>
             )
           })}
