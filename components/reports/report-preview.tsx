@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import type { ReportWithRelations } from '@/lib/reports/actions'
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -28,12 +27,6 @@ const PRIORITY_LABELS: Record<string, string> = {
   low: 'Baixa',
 }
 
-const PRIORITY_CLASSES: Record<string, string> = {
-  high: 'text-red-600 font-semibold',
-  medium: 'text-amber-600 font-semibold',
-  low: 'text-green-600 font-semibold',
-}
-
 interface AnnotationData {
   id: string
   image_id: string
@@ -52,7 +45,6 @@ interface AnalysisData {
   limitations: string[]
   suggested_text: string | null
   reviewer_notes: string | null
-  reviewed_at: string | null
 }
 
 interface ImageData {
@@ -71,6 +63,50 @@ interface Props {
   publicUrlMap: Record<string, string>
 }
 
+// Deriva pontos fortes e fracos das análises aprovadas
+function deriveInsights(images: ImageData[], analysisMap: Record<string, AnalysisData>, annotations: AnnotationData[]) {
+  const strengths: string[] = []
+  const weaknesses: string[] = []
+
+  for (const img of images) {
+    const analysis = analysisMap[img.id]
+    if (!analysis) continue
+
+    // pontos fortes = categorias positivas nos elementos visíveis
+    const positiveKeywords = ['saudável', 'boa cobertura', 'adequado', 'bem manejado', 'uniforme', 'boa condição', 'ativo', 'limpo', 'conservado']
+    for (const el of (analysis.visible_elements ?? [])) {
+      if (positiveKeywords.some((kw) => el.toLowerCase().includes(kw))) {
+        if (!strengths.includes(el)) strengths.push(el)
+      }
+    }
+
+    // pontos positivos = atenção de prioridade baixa com categoria de vegetação saudável
+    for (const ap of (analysis.attention_points ?? [])) {
+      if (ap.priority === 'low' && ['healthy_vegetation', 'pasture', 'waterer', 'shade'].includes(ap.category)) {
+        if (!strengths.includes(ap.description)) strengths.push(ap.description)
+      }
+    }
+
+    // pontos fracos = atenção de prioridade alta/média
+    for (const ap of (analysis.attention_points ?? [])) {
+      if (ap.priority === 'high' || ap.priority === 'medium') {
+        const label = `${CATEGORY_LABELS[ap.category] ?? ap.category}: ${ap.description}`
+        if (!weaknesses.includes(label)) weaknesses.push(label)
+      }
+    }
+  }
+
+  // complementa pontos fracos com anotações de prioridade alta que têm descrição
+  for (const ann of annotations) {
+    if (ann.priority === 'high' && ann.description) {
+      const label = `${CATEGORY_LABELS[ann.category] ?? ann.category}: ${ann.description}`
+      if (!weaknesses.includes(label)) weaknesses.push(label)
+    }
+  }
+
+  return { strengths, weaknesses }
+}
+
 export function ReportPreview({ report, images, annotations, analysisMap, publicUrlMap }: Props) {
   const inspection = report.inspections
   const property = inspection?.properties
@@ -86,213 +122,331 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
     day: '2-digit', month: 'long', year: 'numeric',
   })
 
-  // coleta todos os pontos de atenção de todas as análises aprovadas
-  const allAttentionPoints = images.flatMap((img) => {
-    const analysis = analysisMap[img.id]
-    if (!analysis) return []
-    return (analysis.attention_points ?? []).map((ap) => ({ ...ap, imageName: img.original_name }))
-  })
-
   const allLimitations = Array.from(
     new Set(images.flatMap((img) => analysisMap[img.id]?.limitations ?? []))
   )
 
-  const allAnnotations = annotations.filter((a) => a.description)
+  const { strengths, weaknesses } = deriveInsights(images, analysisMap, annotations)
+
+  const highAnnotations = annotations.filter((a) => a.priority === 'high' && a.description)
+  const totalAnnotations = annotations.length
+  const imagesWithAnalysis = images.filter((img) => analysisMap[img.id]).length
 
   return (
-    <div className="report-body bg-white text-gray-900 font-sans">
+    <div className="report-body bg-white text-gray-900" style={{ fontFamily: 'Georgia, serif' }}>
 
-      {/* ── CAPA ── */}
-      <section className="report-cover min-h-[60vh] flex flex-col justify-between border-b-4 border-green-600 pb-10 mb-10 print:min-h-screen print:pb-0 print:mb-0 print:border-b-0">
-        <div className="flex items-center justify-between mb-12">
+      {/* ════ CAPA ════ */}
+      <div className="print:break-after-page" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', paddingBottom: '3rem', marginBottom: '3rem', borderBottom: '3px solid #16a34a' }}>
+
+        {/* Cabeçalho da capa */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-green-700">CampoVisto.IA</p>
-            <p className="text-xs text-gray-400">by FMinds</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <div style={{ width: '28px', height: '28px', background: '#16a34a', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ color: 'white', fontSize: '11px', fontWeight: 'bold', fontFamily: 'sans-serif' }}>CV</span>
+              </div>
+              <span style={{ fontSize: '14px', fontWeight: '700', fontFamily: 'sans-serif', letterSpacing: '0.02em' }}>CampoVisto.IA</span>
+            </div>
+            <p style={{ fontSize: '10px', color: '#9ca3af', fontFamily: 'sans-serif', marginLeft: '36px' }}>by FMinds</p>
           </div>
-          <div className="text-right text-xs text-gray-400">
-            <p>Relatório gerado em {generatedDate}</p>
+          <div style={{ textAlign: 'right', fontSize: '11px', color: '#9ca3af', fontFamily: 'sans-serif' }}>
+            <p>Relatório de Vistoria Rural</p>
+            <p>Gerado em {generatedDate}</p>
           </div>
         </div>
 
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-green-700 mb-2">Relatório de Vistoria</p>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">{property?.name ?? '—'}</h1>
-          <p className="text-xl text-gray-500">{client?.name ?? '—'}</p>
-          <p className="mt-4 text-sm text-gray-500">Data da visita: {visitDate}</p>
+        {/* Conteúdo principal da capa */}
+        <div style={{ marginTop: '4rem' }}>
+          <p style={{ fontSize: '10px', fontWeight: '700', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#16a34a', fontFamily: 'sans-serif', marginBottom: '12px' }}>
+            Relatório de Vistoria Aérea
+          </p>
+          <h1 style={{ fontSize: '42px', fontWeight: '800', color: '#111827', lineHeight: '1.1', marginBottom: '8px' }}>
+            {property?.name ?? '—'}
+          </h1>
+          <p style={{ fontSize: '20px', color: '#6b7280', fontFamily: 'sans-serif', marginBottom: '24px' }}>{client?.name ?? '—'}</p>
+
+          <div style={{ display: 'flex', gap: '32px', marginTop: '16px' }}>
+            <div style={{ fontFamily: 'sans-serif' }}>
+              <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9ca3af', marginBottom: '2px' }}>Data da visita</p>
+              <p style={{ fontSize: '14px', fontWeight: '600', color: '#374151' }}>{visitDate}</p>
+            </div>
+            {property?.location && (
+              <div style={{ fontFamily: 'sans-serif' }}>
+                <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9ca3af', marginBottom: '2px' }}>Localização</p>
+                <p style={{ fontSize: '14px', fontWeight: '600', color: '#374151' }}>{property.location}</p>
+              </div>
+            )}
+            {property?.activity_type && (
+              <div style={{ fontFamily: 'sans-serif' }}>
+                <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9ca3af', marginBottom: '2px' }}>Atividade</p>
+                <p style={{ fontSize: '14px', fontWeight: '600', color: '#374151' }}>{property.activity_type}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Estatísticas em destaque */}
+          <div style={{ display: 'flex', gap: '16px', marginTop: '40px' }}>
+            {[
+              { value: images.length, label: 'Imagens analisadas' },
+              { value: imagesWithAnalysis, label: 'Com análise IA' },
+              { value: totalAnnotations, label: 'Marcadores' },
+              { value: highAnnotations.length, label: 'Pontos de alta prioridade' },
+            ].map((stat) => (
+              <div key={stat.label} style={{ flex: 1, background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px', textAlign: 'center' }}>
+                <p style={{ fontSize: '28px', fontWeight: '800', color: '#111827', lineHeight: '1' }}>{stat.value}</p>
+                <p style={{ fontSize: '10px', color: '#6b7280', fontFamily: 'sans-serif', marginTop: '4px' }}>{stat.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-gray-200 text-xs text-gray-400">
+        {/* Rodapé da capa */}
+        <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '16px', fontSize: '10px', color: '#9ca3af', fontFamily: 'sans-serif' }}>
           <p>Análise preliminar assistida por IA · Revisada por humano · Não constitui laudo técnico</p>
         </div>
-      </section>
+      </div>
 
-      {/* ── DADOS DA PROPRIEDADE ── */}
-      <section className="report-section mb-10 print:mb-8">
-        <h2 className="report-section-title">1. Dados da Propriedade e Cliente</h2>
-        <div className="grid grid-cols-2 gap-4 text-sm mt-4">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-gray-400 mb-1">Propriedade</p>
-            <p className="font-medium">{property?.name ?? '—'}</p>
-            {property?.location && <p className="text-gray-500">{property.location}</p>}
-            {property?.activity_type && <p className="text-gray-500">Atividade: {property.activity_type}</p>}
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-wide text-gray-400 mb-1">Cliente / Produtor</p>
-            <p className="font-medium">{client?.name ?? '—'}</p>
-            {client?.city && <p className="text-gray-500">{client.city}</p>}
-            {client?.phone && <p className="text-gray-500">{client.phone}</p>}
-            {client?.email && <p className="text-gray-500">{client.email}</p>}
-          </div>
+      {/* ════ DADOS DA PROPRIEDADE ════ */}
+      <ReportSection number="1" title="Dados da Propriedade e Cliente">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+          <InfoBlock label="Propriedade">
+            <p style={{ fontWeight: '600' }}>{property?.name ?? '—'}</p>
+            {property?.location && <p style={{ color: '#6b7280' }}>{property.location}</p>}
+            {property?.activity_type && <p style={{ color: '#6b7280' }}>Atividade: {property.activity_type}</p>}
+          </InfoBlock>
+          <InfoBlock label="Cliente / Produtor">
+            <p style={{ fontWeight: '600' }}>{client?.name ?? '—'}</p>
+            {client?.city && <p style={{ color: '#6b7280' }}>{client.city}</p>}
+            {client?.phone && <p style={{ color: '#6b7280' }}>{client.phone}</p>}
+            {client?.email && <p style={{ color: '#6b7280' }}>{client.email}</p>}
+          </InfoBlock>
         </div>
-      </section>
+      </ReportSection>
 
-      {/* ── OBJETIVO ── */}
+      {/* ════ OBJETIVO ════ */}
       {inspection?.objective && (
-        <section className="report-section mb-10 print:mb-8">
-          <h2 className="report-section-title">2. Objetivo da Vistoria</h2>
-          <p className="mt-3 text-sm text-gray-700 leading-relaxed">{inspection.objective}</p>
-        </section>
+        <ReportSection number="2" title="Objetivo da Vistoria">
+          <p style={{ color: '#374151', lineHeight: '1.7' }}>{inspection.objective}</p>
+        </ReportSection>
       )}
 
-      {/* ── IMAGENS ANOTADAS ── */}
-      <section className="report-section mb-10 print:mb-8">
-        <h2 className="report-section-title">{inspection?.objective ? '3' : '2'}. Imagens Anotadas</h2>
+      {/* ════ PANORAMA GERAL — PONTOS FORTES E FRACOS ════ */}
+      <ReportSection number={inspection?.objective ? '3' : '2'} title="Panorama Geral da Propriedade">
+        <p style={{ color: '#6b7280', fontSize: '12px', marginBottom: '20px', fontFamily: 'sans-serif' }}>
+          Síntese extraída das análises de IA revisadas por humano, consolidando os principais aspectos identificados nas imagens.
+        </p>
 
-        <div className="mt-4 space-y-10">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          {/* Pontos Fortes */}
+          <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+              <span style={{ fontSize: '16px' }}>✓</span>
+              <p style={{ fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#15803d', fontFamily: 'sans-serif' }}>Pontos Positivos</p>
+            </div>
+            {strengths.length > 0 ? (
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {strengths.slice(0, 8).map((s, i) => (
+                  <li key={i} style={{ display: 'flex', gap: '8px', paddingBottom: '6px', borderBottom: '1px solid #d1fae5', marginBottom: '6px', fontSize: '12px', color: '#166534', fontFamily: 'sans-serif' }}>
+                    <span style={{ color: '#16a34a', flexShrink: 0 }}>•</span>
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p style={{ fontSize: '12px', color: '#6b7280', fontFamily: 'sans-serif', fontStyle: 'italic' }}>
+                Nenhum ponto positivo identificado explicitamente nas análises.
+              </p>
+            )}
+          </div>
+
+          {/* Pontos Fracos */}
+          <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', padding: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+              <span style={{ fontSize: '16px' }}>⚠</span>
+              <p style={{ fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#c2410c', fontFamily: 'sans-serif' }}>Pontos de Atenção</p>
+            </div>
+            {weaknesses.length > 0 ? (
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {weaknesses.slice(0, 8).map((w, i) => (
+                  <li key={i} style={{ display: 'flex', gap: '8px', paddingBottom: '6px', borderBottom: '1px solid #fed7aa', marginBottom: '6px', fontSize: '12px', color: '#9a3412', fontFamily: 'sans-serif' }}>
+                    <span style={{ color: '#ea580c', flexShrink: 0 }}>•</span>
+                    {w}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p style={{ fontSize: '12px', color: '#6b7280', fontFamily: 'sans-serif', fontStyle: 'italic' }}>
+                Nenhum ponto crítico identificado nas análises.
+              </p>
+            )}
+          </div>
+        </div>
+      </ReportSection>
+
+      {/* ════ IMAGENS ANOTADAS ════ */}
+      <ReportSection number={inspection?.objective ? '4' : '3'} title="Imagens e Análises por Drone">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
           {images.map((image, idx) => {
             const imgAnnotations = annotations.filter((a) => a.image_id === image.id)
             const analysis = analysisMap[image.id]
             const publicUrl = publicUrlMap[image.id] ?? ''
+            const highCount = imgAnnotations.filter((a) => a.priority === 'high').length
+            const mediumCount = imgAnnotations.filter((a) => a.priority === 'medium').length
 
             return (
-              <div key={image.id} className="print:break-inside-avoid">
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">
-                  Imagem {idx + 1} — {image.original_name}
-                  {image.image_type && ` (${image.image_type.toUpperCase()})`}
-                </p>
+              <div key={image.id} style={{ pageBreakInside: 'avoid' }}>
+                {/* Cabeçalho da imagem */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', paddingBottom: '8px', borderBottom: '2px solid #e5e7eb' }}>
+                  <div>
+                    <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9ca3af', fontFamily: 'sans-serif' }}>
+                      Imagem {idx + 1}{image.image_type ? ` · ${image.image_type.toUpperCase()}` : ''}
+                    </p>
+                    <p style={{ fontSize: '14px', fontWeight: '700', color: '#111827', fontFamily: 'sans-serif' }}>{image.original_name}</p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', fontFamily: 'sans-serif' }}>
+                    {highCount > 0 && (
+                      <span style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '99px' }}>
+                        {highCount} alta prioridade
+                      </span>
+                    )}
+                    {mediumCount > 0 && (
+                      <span style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#d97706', fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '99px' }}>
+                        {mediumCount} média prioridade
+                      </span>
+                    )}
+                    {imgAnnotations.length === 0 && (
+                      <span style={{ background: '#f3f4f6', border: '1px solid #e5e7eb', color: '#6b7280', fontSize: '10px', padding: '2px 8px', borderRadius: '99px' }}>
+                        Sem marcadores
+                      </span>
+                    )}
+                  </div>
+                </div>
 
+                {/* Imagem */}
                 {publicUrl && (
-                  <div className="relative w-full aspect-video bg-gray-100 rounded overflow-hidden mb-3">
+                  <div style={{ width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: '6px', marginBottom: '12px', background: '#f3f4f6' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={publicUrl}
-                      alt={image.original_name}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={publicUrl} alt={image.original_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                 )}
 
-                {image.field_observations && (
-                  <p className="text-xs text-gray-500 mb-2 italic">Observações de campo: {image.field_observations}</p>
-                )}
-
+                {/* Análise textual */}
                 {analysis?.suggested_text && (
-                  <p className="text-sm text-gray-700 leading-relaxed mb-3">{analysis.suggested_text}</p>
+                  <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '14px', marginBottom: '12px' }}>
+                    <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#16a34a', fontWeight: '700', fontFamily: 'sans-serif', marginBottom: '6px' }}>
+                      Análise IA (revisada)
+                    </p>
+                    <p style={{ fontSize: '13px', color: '#374151', lineHeight: '1.7' }}>{analysis.suggested_text}</p>
+                  </div>
                 )}
 
+                {/* Observações de campo */}
+                {image.field_observations && (
+                  <p style={{ fontSize: '12px', color: '#6b7280', fontStyle: 'italic', marginBottom: '10px', fontFamily: 'sans-serif' }}>
+                    Observações de campo: {image.field_observations}
+                  </p>
+                )}
+
+                {/* Marcadores */}
                 {imgAnnotations.length > 0 && (
-                  <div className="mt-2">
-                    <p className="text-xs font-medium text-gray-500 mb-1">Marcadores ({imgAnnotations.length})</p>
-                    <div className="grid grid-cols-1 gap-1">
-                      {imgAnnotations.map((ann) => (
-                        <div key={ann.id} className="flex items-start gap-2 text-xs text-gray-600 py-1 border-b border-gray-100 last:border-0">
-                          <span className="shrink-0 font-bold text-gray-900 w-5">{ann.marker_number}.</span>
-                          <span className="shrink-0 text-gray-400">{CATEGORY_LABELS[ann.category] ?? ann.category}</span>
-                          {ann.description && <span>— {ann.description}</span>}
-                          <span className={`ml-auto shrink-0 ${PRIORITY_CLASSES[ann.priority] ?? ''}`}>
-                            {PRIORITY_LABELS[ann.priority] ?? ann.priority}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+                  <div>
+                    <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6b7280', fontWeight: '700', fontFamily: 'sans-serif', marginBottom: '6px' }}>
+                      Marcadores ({imgAnnotations.length})
+                    </p>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', fontFamily: 'sans-serif' }}>
+                      <thead>
+                        <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+                          <th style={{ padding: '6px 8px', textAlign: 'left', color: '#6b7280', fontWeight: '600', fontSize: '10px' }}>#</th>
+                          <th style={{ padding: '6px 8px', textAlign: 'left', color: '#6b7280', fontWeight: '600', fontSize: '10px' }}>Categoria</th>
+                          <th style={{ padding: '6px 8px', textAlign: 'left', color: '#6b7280', fontWeight: '600', fontSize: '10px' }}>Descrição</th>
+                          <th style={{ padding: '6px 8px', textAlign: 'right', color: '#6b7280', fontWeight: '600', fontSize: '10px' }}>Prioridade</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {imgAnnotations.map((ann, i) => (
+                          <tr key={ann.id} style={{ borderBottom: '1px solid #f3f4f6', background: i % 2 === 0 ? 'white' : '#fafafa' }}>
+                            <td style={{ padding: '6px 8px', fontWeight: '700', color: '#374151' }}>{ann.marker_number}</td>
+                            <td style={{ padding: '6px 8px', color: '#374151' }}>{CATEGORY_LABELS[ann.category] ?? ann.category}</td>
+                            <td style={{ padding: '6px 8px', color: '#6b7280' }}>{ann.description ?? '—'}</td>
+                            <td style={{ padding: '6px 8px', textAlign: 'right' }}>
+                              <span style={{
+                                fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '99px',
+                                ...(ann.priority === 'high' ? { background: '#fef2f2', color: '#dc2626' } :
+                                    ann.priority === 'medium' ? { background: '#fffbeb', color: '#d97706' } :
+                                    { background: '#f0fdf4', color: '#16a34a' })
+                              }}>
+                                {PRIORITY_LABELS[ann.priority] ?? ann.priority}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </div>
             )
           })}
         </div>
-      </section>
+      </ReportSection>
 
-      {/* ── PONTOS DE ATENÇÃO ── */}
-      {allAttentionPoints.length > 0 && (
-        <section className="report-section mb-10 print:mb-8 print:break-before-page">
-          <h2 className="report-section-title">Pontos de Atenção Consolidados</h2>
-          <div className="mt-4 space-y-2">
-            {allAttentionPoints
-              .sort((a, b) => {
-                const order = { high: 0, medium: 1, low: 2 }
-                return (order[a.priority as keyof typeof order] ?? 3) - (order[b.priority as keyof typeof order] ?? 3)
-              })
-              .map((ap, i) => (
-                <div key={i} className="flex items-start gap-3 py-2 border-b border-gray-100 last:border-0 text-sm">
-                  <span className={`shrink-0 font-semibold text-xs mt-0.5 ${PRIORITY_CLASSES[ap.priority] ?? ''}`}>
-                    {PRIORITY_LABELS[ap.priority] ?? ap.priority}
-                  </span>
-                  <div>
-                    <span className="text-gray-400 text-xs">{CATEGORY_LABELS[ap.category] ?? ap.category}</span>
-                    <p className="text-gray-800">{ap.description}</p>
-                    <p className="text-xs text-gray-400">{ap.imageName}</p>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </section>
-      )}
-
-      {/* ── ANOTAÇÕES DESCRITAS ── */}
-      {allAnnotations.length > 0 && (
-        <section className="report-section mb-10 print:mb-8">
-          <h2 className="report-section-title">Observações de Campo com Marcadores</h2>
-          <div className="mt-4 space-y-2">
-            {allAnnotations.map((ann) => (
-              <div key={ann.id} className="flex items-start gap-3 py-2 border-b border-gray-100 last:border-0 text-sm">
-                <span className="shrink-0 font-bold text-gray-900 w-6">{ann.marker_number}.</span>
-                <div>
-                  <span className="text-xs text-gray-400">{CATEGORY_LABELS[ann.category] ?? ann.category}</span>
-                  <p className="text-gray-800">{ann.description}</p>
-                </div>
-                <span className={`ml-auto shrink-0 text-xs ${PRIORITY_CLASSES[ann.priority] ?? ''}`}>
-                  {PRIORITY_LABELS[ann.priority] ?? ann.priority}
-                </span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ── LIMITAÇÕES ── */}
+      {/* ════ LIMITAÇÕES ════ */}
       {allLimitations.length > 0 && (
-        <section className="report-section mb-10 print:mb-8">
-          <h2 className="report-section-title">Limitações da Análise</h2>
-          <ul className="mt-3 space-y-1.5 text-sm text-gray-700">
+        <ReportSection number="—" title="Limitações da Análise">
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {allLimitations.map((lim, i) => (
-              <li key={i} className="flex items-start gap-2">
-                <span className="shrink-0 text-gray-300 mt-1">•</span>
+              <li key={i} style={{ display: 'flex', gap: '10px', paddingBottom: '8px', borderBottom: '1px solid #f3f4f6', marginBottom: '8px', fontSize: '13px', color: '#6b7280', fontFamily: 'sans-serif' }}>
+                <span style={{ color: '#d1d5db', flexShrink: 0, marginTop: '2px' }}>•</span>
                 {lim}
               </li>
             ))}
           </ul>
-        </section>
+        </ReportSection>
       )}
 
-      {/* ── OBSERVAÇÕES GERAIS ── */}
+      {/* ════ OBSERVAÇÕES GERAIS ════ */}
       {inspection?.general_observations && (
-        <section className="report-section mb-10 print:mb-8">
-          <h2 className="report-section-title">Observações Gerais do Campo</h2>
-          <p className="mt-3 text-sm text-gray-700 leading-relaxed">{inspection.general_observations}</p>
-        </section>
+        <ReportSection number="—" title="Observações Gerais do Campo">
+          <p style={{ color: '#374151', lineHeight: '1.7', fontFamily: 'sans-serif', fontSize: '13px' }}>{inspection.general_observations}</p>
+        </ReportSection>
       )}
 
-      {/* ── DISCLAIMER ── */}
-      <section className="report-section mt-12 pt-6 border-t border-gray-200 print:mt-8">
-        <p className="text-xs text-gray-400 leading-relaxed">
-          <strong>Aviso importante:</strong> Este relatório é resultado de uma análise preliminar assistida por inteligência artificial,
-          revisada por um profissional humano. Não constitui laudo técnico agronômico, veterinário ou ambiental.
-          As informações aqui contidas têm caráter orientativo e devem ser validadas por profissional habilitado antes de qualquer
-          tomada de decisão. CampoVisto.IA by FMinds · {generatedDate}
+      {/* ════ DISCLAIMER ════ */}
+      <div style={{ marginTop: '48px', padding: '16px', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', fontFamily: 'sans-serif' }}>
+        <p style={{ fontSize: '10px', color: '#9ca3af', lineHeight: '1.6' }}>
+          <strong style={{ color: '#6b7280' }}>Aviso importante:</strong>{' '}
+          Este relatório é resultado de uma análise preliminar assistida por inteligência artificial, revisada por um profissional humano.
+          Não constitui laudo técnico agronômico, veterinário ou ambiental. As informações aqui contidas têm caráter orientativo e devem ser
+          validadas por profissional habilitado antes de qualquer tomada de decisão.
+          CampoVisto.IA by FMinds · Gerado em {generatedDate}
         </p>
-      </section>
+      </div>
 
+    </div>
+  )
+}
+
+// ── Componentes auxiliares ──
+
+function ReportSection({ number, title, children }: { number: string; title: string; children: React.ReactNode }) {
+  return (
+    <div style={{ marginBottom: '40px' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '16px', paddingBottom: '10px', borderBottom: '2px solid #f3f4f6' }}>
+        <span style={{ fontSize: '11px', fontWeight: '700', color: '#16a34a', fontFamily: 'sans-serif', letterSpacing: '0.08em', textTransform: 'uppercase', minWidth: '20px' }}>
+          {number !== '—' ? number : ''}
+        </span>
+        <h2 style={{ fontSize: '16px', fontWeight: '700', color: '#111827', fontFamily: 'sans-serif', margin: 0 }}>{title}</h2>
+      </div>
+      <div style={{ fontSize: '13px' }}>{children}</div>
+    </div>
+  )
+}
+
+function InfoBlock({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#9ca3af', fontFamily: 'sans-serif', marginBottom: '6px' }}>{label}</p>
+      <div style={{ fontSize: '13px', color: '#374151', fontFamily: 'sans-serif', lineHeight: '1.6' }}>{children}</div>
     </div>
   )
 }
