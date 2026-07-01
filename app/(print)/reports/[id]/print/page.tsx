@@ -25,7 +25,7 @@ export default async function ReportPrintPage({ params }: Props) {
   }
 
   return (
-    <div style={{ background: 'white', minHeight: '100vh', padding: '0' }}>
+    <div style={{ background: 'white', padding: '0', margin: '0' }}>
       <ReportPreview
         report={report}
         images={images}
