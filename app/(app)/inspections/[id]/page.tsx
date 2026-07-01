@@ -6,7 +6,9 @@ import { Badge } from '@/components/ui/badge'
 import { getInspection } from '@/lib/inspections/actions'
 import { getInspectionImages } from '@/lib/inspection-images/actions'
 import { getAnalysisSummariesByInspection } from '@/lib/ai-analyses/actions'
+import { getReports } from '@/lib/reports/actions'
 import { InspectionImageSection } from './inspection-image-section'
+import { GenerateReportButton } from './generate-report-button'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -21,12 +23,16 @@ const STATUS_LABELS: Record<string, string> = {
 
 export default async function InspectionDetailPage({ params }: Props) {
   const { id } = await params
-  const [inspection, images, analysisSummaries] = await Promise.all([
+  const [inspection, images, analysisSummaries, allReports] = await Promise.all([
     getInspection(id),
     getInspectionImages(id),
     getAnalysisSummariesByInspection(id),
+    getReports(),
   ])
   if (!inspection) notFound()
+
+  const hasApprovedAnalysis = Object.values(analysisSummaries).some((s) => s.status === 'approved')
+  const existingReport = allReports.find((r) => r.inspection_id === id) ?? null
 
   const formattedDate = new Date(inspection.visit_date + 'T00:00:00').toLocaleDateString('pt-BR', {
     day: '2-digit', month: 'long', year: 'numeric',
@@ -37,6 +43,14 @@ export default async function InspectionDetailPage({ params }: Props) {
       <PageHeader
         title={inspection.properties?.name ?? 'Vistoria'}
         description={`${inspection.properties?.clients?.name ?? ''} · ${formattedDate}`}
+        action={hasApprovedAnalysis ? (
+          <GenerateReportButton
+            inspectionId={id}
+            propertyName={inspection.properties?.name ?? 'Vistoria'}
+            visitDate={inspection.visit_date}
+            existingReportId={existingReport?.id ?? null}
+          />
+        ) : undefined}
       />
 
       <div className="grid gap-4 md:grid-cols-3 mb-6">
@@ -73,26 +87,30 @@ export default async function InspectionDetailPage({ params }: Props) {
         <Card>
           <CardContent className="p-5">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Próximas etapas</p>
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <p className="flex items-center gap-2">
-                <span className={images.length > 0 ? 'text-primary' : ''}>
-                  {images.length > 0 ? '✓' : '○'}
-                </span>
-                Upload de imagens
-              </p>
-              <p className="flex items-center gap-2">
-                <span>○</span> Anotações visuais
-              </p>
-              <p className="flex items-center gap-2">
-                <span>○</span> Análise por IA
-              </p>
-              <p className="flex items-center gap-2">
-                <span>○</span> Revisão humana
-              </p>
-              <p className="flex items-center gap-2">
-                <span>○</span> Gerar relatório
-              </p>
-            </div>
+            {(() => {
+              const hasImages = images.length > 0
+              const hasAnalysis = Object.keys(analysisSummaries).length > 0
+              const hasReport = !!existingReport
+              const steps = [
+                { label: 'Upload de imagens', done: hasImages },
+                { label: 'Anotações visuais', done: hasImages },
+                { label: 'Análise por IA', done: hasAnalysis },
+                { label: 'Revisão humana', done: hasApprovedAnalysis },
+                { label: 'Relatório gerado', done: hasReport },
+              ]
+              return (
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  {steps.map((step) => (
+                    <p key={step.label} className="flex items-center gap-2">
+                      <span className={step.done ? 'text-primary' : ''}>
+                        {step.done ? '✓' : '○'}
+                      </span>
+                      {step.label}
+                    </p>
+                  ))}
+                </div>
+              )
+            })()}
           </CardContent>
         </Card>
       </div>
