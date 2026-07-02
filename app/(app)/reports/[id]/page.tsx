@@ -4,7 +4,9 @@ import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/shared/page-header'
 import { getReportFullData } from '@/lib/reports/actions'
+import { getAssignableProfiles } from '@/lib/activities/actions'
 import { ReportPreview } from '@/components/reports/report-preview'
+import { QuickActivitiesPanel } from '@/components/reports/quick-activities-panel'
 import { PrintButton } from './print-button'
 import { createClient } from '@/lib/supabase/server'
 
@@ -18,6 +20,11 @@ export default async function ReportDetailPage({ params }: Props) {
   if (!fullData) notFound()
 
   const { report, images, annotations, analysisMap } = fullData
+
+  const profiles = await getAssignableProfiles()
+  const attentionItems = (annotations as { id: string; category: string; description: string | null; priority: string }[])
+    .filter((a) => a.description)
+    .map((a) => ({ id: a.id, category: a.category, description: a.description as string, priority: a.priority }))
 
   // gera public URLs para as imagens
   const supabase = await createClient()
@@ -52,7 +59,13 @@ export default async function ReportDetailPage({ params }: Props) {
       </div>
 
       {/* Conteúdo do relatório */}
-      <div className="max-w-4xl mx-auto px-4 pb-16 print:px-0 print:pb-0 print:max-w-none">
+      <div className="max-w-4xl mx-auto px-4 pb-16 print:px-0 print:pb-0 print:max-w-none space-y-6">
+        <QuickActivitiesPanel
+          items={attentionItems}
+          inspectionId={report.inspection_id}
+          reportId={report.id}
+          profiles={profiles}
+        />
         <ReportPreview
           report={report}
           images={images}

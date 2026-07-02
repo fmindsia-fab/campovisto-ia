@@ -18,7 +18,7 @@
 | ~~M5~~ | ~~Editor Visual de Anotações~~ | `feat/image-editor` | ✅ **Concluído** |
 | ~~M6~~ | ~~Análise de IA & Revisão Humana~~ | `main` | ✅ **Concluído** |
 | ~~M7~~ | ~~Relatórios & Exportação PDF~~ | `main` | ✅ **Concluído** |
-| M8 | Atividades & Kanban | `feat/activities` | Kanban Planejada/Iniciada/Finalizada |
+| ~~M8~~ | ~~Atividades & Kanban~~ | `main` | ✅ **Concluído** |
 | M9 | Calendário | `feat/calendar` | Visitas, prazos, eventos |
 | M10 | Dashboard & Notificações | `feat/dashboard` | Painel operacional, alertas |
 | M11 | Busca & Filtros | `feat/search` | Busca global, filtros por página |
@@ -376,39 +376,38 @@ Duas falhas identificadas em análise de código, ambas corrigidas:
 
 ---
 
-## M8 — Atividades & Kanban
+## ✅ M8 — Atividades & Kanban — CONCLUÍDO
 
-**Branch:** `feat/activities`
+**Branch:** `main`
 
 **Objetivo:** Após a vistoria, pontos de atenção viram atividades gerenciadas em Kanban com colunas Planejada, Iniciada e Finalizada.
 
 ### Entregas
 
 **UI**
-- [ ] `app/(app)/activities/page.tsx` — Kanban board com 3 colunas
-- [ ] `components/activities/kanban-column.tsx` — coluna com header e lista de cards
-- [ ] `components/activities/activity-card.tsx` — card com título, prioridade, prazo, responsável, vínculo com vistoria
-- [ ] `components/activities/activity-form.tsx` — modal create/edit: título, descrição, categoria, prioridade, responsável, prazo, vínculo com imagem/marcador/relatório
-- [ ] `components/activities/activity-detail.tsx` — drawer lateral com detalhes + comentários
-- [ ] Drag & drop entre colunas (usando `@dnd-kit/core`)
-- [ ] Filtros no Kanban: por propriedade, responsável, prioridade, período
-- [ ] Criação rápida de atividade a partir de um marcador ou ponto de atenção do relatório
+- [x] `app/(app)/activities/page.tsx` — Server Component que busca atividades, perfis e propriedades e renderiza o board
+- [x] `components/activities/activities-board.tsx` — Client Component com `DndContext`, filtros e estado do board (não previsto como arquivo separado no plano original, mas necessário para isolar o client-side do Kanban)
+- [x] `components/activities/kanban-column.tsx` — coluna com header, contagem e `useDroppable`
+- [x] `components/activities/activity-card.tsx` — card com título, prioridade (borda colorida), prazo (destaque se atrasado), propriedade e responsável, via `useDraggable`
+- [x] `components/activities/activity-form.tsx` — modal create/edit: título, descrição, categoria, prioridade, responsável, prazo; aceita vínculo opcional com vistoria/relatório/marcador via prop `initial`
+- [x] `components/activities/activity-detail.tsx` — **implementado como Dialog, não como drawer lateral** (o projeto só tem o componente `dialog` do shadcn/ui instalado; adicionar `sheet` seria complexidade extra não essencial para o MVP). Contém detalhes + comentários com envio inline
+- [x] Drag & drop entre colunas via `@dnd-kit/core` (`DndContext`/`useDraggable`/`useDroppable`), com atualização otimista + rollback em caso de erro
+- [x] Filtros no Kanban: propriedade, prioridade, responsável, período (Atrasadas / Próximos 7 dias / Sem prazo) — filtragem client-side sobre os dados já carregados (dataset pequeno no estágio atual do MVP, evita queries server-side combinatórias)
+- [x] Criação rápida de atividade a partir de ponto de atenção do relatório — `components/reports/quick-activities-panel.tsx`, integrado em `app/(app)/reports/[id]/page.tsx` (oculto na impressão via `print:hidden`). Pré-preenche categoria/prioridade/descrição e vincula `inspection_id`/`report_id`/`annotation_id`. **Não implementado a partir do editor de marcadores** (`marker-panel.tsx`), pois lá as anotações ainda não têm `id` persistido antes de salvar — mover para o relatório (onde a anotação já existe no banco) evita essa complexidade
 
 **Backend — Banco**
-- [ ] Migration `007_activities.sql`:
-  - Tabela `activities` (id, inspection_id, report_id, annotation_id, title, description, category, priority, status, assigned_to, due_date, completed_at, created_by, created_at)
-  - Tabela `activity_comments` (id, activity_id, user_id, content, created_at)
-- [ ] RLS
+- [x] Migration `012_activities.sql` (numeração sequencial ao invés de `007`, já ocupado por spectral image types): tabela `activities` com todos os campos planejados + `assigned_to` referenciando `profiles(id)` (em vez de `auth.users(id)`) para permitir embed automático via PostgREST; tabela `activity_comments` com `user_id` também referenciando `profiles(id)` pelo mesmo motivo
+- [x] RLS em ambas as tabelas, seguindo o padrão já usado em `inspections`/`reports` (`auth.role() = 'authenticated'` para select/insert/update; delete restrito a `admin`/`field_operator` via `has_role()`)
 
 **Backend — Actions**
-- [ ] Server Action `activities/create`, `update`, `delete`
-- [ ] Server Action `activities/update-status` — move entre colunas
-- [ ] Server Action `activity-comments/create`
+- [x] `lib/activities/actions.ts` — `createActivity`, `updateActivity`, `deleteActivity`, `getActivities`, `getActivity`, `getAssignableProfiles`
+- [x] `updateActivityStatus` — move entre colunas, grava `completed_at` ao entrar em `done` e limpa ao sair
+- [x] `lib/activity-comments/actions.ts` — `createComment`, `getComments`
 
-### Commit final
-```
-feat: activities — Kanban board, drag & drop, create from markers, comments
-```
+### Observação
+`getAssignableProfiles()` depende da RLS de `profiles`: usuários sem papel `admin` só enxergam o próprio perfil (dado que a gestão de equipe é escopo do M14). Isso limita quem pode ser listado como responsável até o M14 chegar — comportamento esperado, não é bug.
+
+Build (`npm run build`) verificado: 0 erros, 0 warnings.
 
 ---
 
