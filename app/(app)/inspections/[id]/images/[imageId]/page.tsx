@@ -9,7 +9,7 @@ import { getAnalysisByImage } from '@/lib/ai-analyses/actions'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUser } from '@/lib/auth/get-current-user'
 import { hasRole } from '@/lib/auth/has-role'
-import { ALL_IMAGE_TYPE_LABELS } from '@/components/inspections/image-type-selector'
+import { ALL_IMAGE_TYPE_LABELS } from '@/components/inspections/image-types'
 import type { InspectionImage } from '@/types'
 
 interface Props {

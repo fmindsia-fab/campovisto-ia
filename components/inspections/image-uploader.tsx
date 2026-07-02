@@ -4,7 +4,8 @@ import { useRef, useState } from 'react'
 import { Upload, X, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createBrowserClient } from '@supabase/ssr'
-import { ImageTypeSelector, ALL_IMAGE_TYPE_LABELS } from './image-type-selector'
+import { ImageTypeSelector } from './image-type-selector'
+import { ALL_IMAGE_TYPE_LABELS } from './image-types'
 
 interface ImageUploaderProps {
   inspectionId: string

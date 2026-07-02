@@ -10,7 +10,7 @@ import { deleteImage, updateImageMeta } from '@/lib/inspection-images/actions'
 import type { AnalysisSummary } from '@/lib/ai-analyses/actions'
 import type { InspectionImage } from '@/types'
 
-import { ALL_IMAGE_TYPE_LABELS, RGB_TYPES, SPECTRAL_TYPES } from './image-type-selector'
+import { ALL_IMAGE_TYPE_LABELS, RGB_TYPES, SPECTRAL_TYPES } from './image-types'
 
 const IMAGE_TYPE_LABELS = ALL_IMAGE_TYPE_LABELS
 const SPECTRAL_VALUES = new Set(SPECTRAL_TYPES.map((t) => t.value))

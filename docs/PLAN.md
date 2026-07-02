@@ -322,6 +322,9 @@ Falha crítica identificada em análise de código — qualquer usuário autenti
 - `components/ai/analysis-result.tsx` + `app/(app)/inspections/[id]/images/[imageId]/page.tsx` — painel de revisão só aparece para quem tem permissão
 - Build (`npm run build`) verificado: 0 erros, 0 warnings
 
+### ✅ Correção aplicada (2026-07-02) — bug de exibição do tipo de imagem
+Testado em produção: o campo "Tipo" na página de detalhe da imagem mostrava o valor cru salvo no banco (ex. `pasture`) em vez do label em português (`Pastagem`). Causa raiz: `components/inspections/image-type-selector.tsx` tinha `'use client'` no topo e exportava, junto do componente interativo, as constantes `RGB_TYPES`/`SPECTRAL_TYPES`/`ALL_IMAGE_TYPE_LABELS`. Ao importar essas constantes num Server Component (`app/(app)/inspections/[id]/images/[imageId]/page.tsx`), o Next.js as trata como client reference, e o lookup falha silenciosamente, caindo no fallback do valor bruto. **Corrigido:** constantes extraídas para `components/inspections/image-types.ts` (sem `'use client'`); `image-type-selector.tsx` mantém só o componente interativo e reexporta as constantes para compatibilidade. Build verificado: 0 erros, 0 warnings (bundle da página de detalhe até reduziu de 6.88kB para 5.74kB).
+
 ---
 
 ## ✅ M7 — Relatórios & Exportação PDF — CONCLUÍDO
