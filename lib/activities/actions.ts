@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { createClient } from '@/lib/supabase/server'
+import { syncActivityEvent } from '@/lib/calendar/actions'
 import type { Activity, ActivityCategory, ActivityStatus, Priority } from '@/types'
 
 export interface ActivityWithRelations extends Activity {
@@ -77,11 +78,18 @@ export async function createActivity(input: ActivityInput) {
     .single()
 
   if (error) return { data: null, error: error.message }
+
+  if (input.due_date) {
+    await syncActivityEvent(data.id, input.title, input.due_date, user.id)
+  }
+
   return { data: data as Activity, error: null }
 }
 
 export async function updateActivity(id: string, input: ActivityInput) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
   const { error } = await (supabase as any)
     .from('activities')
     .update({
@@ -96,6 +104,11 @@ export async function updateActivity(id: string, input: ActivityInput) {
     .eq('id', id)
 
   if (error) return { error: error.message }
+
+  if (user) {
+    await syncActivityEvent(id, input.title, input.due_date ?? null, user.id)
+  }
+
   return { error: null }
 }
 

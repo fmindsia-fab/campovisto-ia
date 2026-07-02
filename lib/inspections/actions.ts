@@ -2,36 +2,61 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from '@/lib/supabase/server'
+import { syncInspectionEvent } from '@/lib/calendar/actions'
 
 export async function createInspection(formData: FormData) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Não autenticado' }
 
-  const { error } = await (supabase as any).from('inspections').insert({
-    property_id: formData.get('property_id'),
-    operator_id: user.id,
-    visit_date: formData.get('visit_date'),
-    objective: formData.get('objective') || null,
-    status: formData.get('status') || 'draft',
-    general_observations: formData.get('general_observations') || null,
-  })
+  const visitDate = formData.get('visit_date') as string
+
+  const { data, error } = await (supabase as any)
+    .from('inspections')
+    .insert({
+      property_id: formData.get('property_id'),
+      operator_id: user.id,
+      visit_date: visitDate,
+      objective: formData.get('objective') || null,
+      status: formData.get('status') || 'draft',
+      general_observations: formData.get('general_observations') || null,
+    })
+    .select('id, properties(name)')
+    .single()
 
   if (error) return { error: error.message }
+
+  const propertyName = (data as any)?.properties?.name ?? 'Vistoria'
+  await syncInspectionEvent(data.id, `Visita — ${propertyName}`, visitDate, user.id)
+
   return { success: true }
 }
 
 export async function updateInspection(id: string, formData: FormData) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
-  const { error } = await (supabase as any).from('inspections').update({
-    visit_date: formData.get('visit_date'),
-    objective: formData.get('objective') || null,
-    status: formData.get('status'),
-    general_observations: formData.get('general_observations') || null,
-  }).eq('id', id)
+  const visitDate = formData.get('visit_date') as string
+
+  const { data, error } = await (supabase as any)
+    .from('inspections')
+    .update({
+      visit_date: visitDate,
+      objective: formData.get('objective') || null,
+      status: formData.get('status'),
+      general_observations: formData.get('general_observations') || null,
+    })
+    .eq('id', id)
+    .select('id, properties(name)')
+    .single()
 
   if (error) return { error: error.message }
+
+  if (user) {
+    const propertyName = (data as any)?.properties?.name ?? 'Vistoria'
+    await syncInspectionEvent(id, `Visita — ${propertyName}`, visitDate, user.id)
+  }
+
   return { success: true }
 }
 

@@ -19,7 +19,7 @@
 | ~~M6~~ | ~~Análise de IA & Revisão Humana~~ | `main` | ✅ **Concluído** |
 | ~~M7~~ | ~~Relatórios & Exportação PDF~~ | `main` | ✅ **Concluído** |
 | ~~M8~~ | ~~Atividades & Kanban~~ | `main` | ✅ **Concluído** |
-| M9 | Calendário | `feat/calendar` | Visitas, prazos, eventos |
+| ~~M9~~ | ~~Calendário~~ | `main` | ✅ **Concluído** |
 | M10 | Dashboard & Notificações | `feat/dashboard` | Painel operacional, alertas |
 | M11 | Busca & Filtros | `feat/search` | Busca global, filtros por página |
 | M12 | Onboarding | `feat/onboarding` | Fluxo guiado para novos usuários |
@@ -411,37 +411,37 @@ Build (`npm run build`) verificado: 0 erros, 0 warnings.
 
 ---
 
-## M9 — Calendário
+## ✅ M9 — Calendário — CONCLUÍDO
 
-**Branch:** `feat/calendar`
+**Branch:** `main`
 
 **Objetivo:** Usuário visualiza em calendário visitas agendadas, prazos de relatórios, atividades e revisitas.
 
 ### Entregas
 
 **UI**
-- [ ] `app/(app)/calendar/page.tsx` — visão mensal e semanal
-- [ ] `components/calendar/calendar-view.tsx` — calendário com shadcn Calendar ou react-big-calendar
-- [ ] `components/calendar/event-chip.tsx` — chip colorido por tipo de evento
-- [ ] `components/calendar/event-popover.tsx` — detalhes ao clicar (título, tipo, entidade vinculada, link)
-- [ ] `components/calendar/event-form.tsx` — modal para criar/editar evento
-- [ ] Legenda de tipos: Visita (verde), Prazo de Relatório (roxo), Atividade (azul), Revisita (laranja)
-- [ ] Eventos vencidos destacados visualmente
+- [x] `app/(app)/calendar/page.tsx` — Server Component que busca eventos e renderiza o calendário
+- [x] `components/calendar/calendar-view.tsx` — calendário **construído do zero com Tailwind** (grade de mês + colunas de semana), em vez de shadcn Calendar (react-day-picker, focado em seleção de data única, não em grade de eventos) ou react-big-calendar (dependência pesada, fora do stack aprovado em `CLAUDE.md`)
+- [x] `components/calendar/event-chip.tsx` — chip colorido por tipo de evento
+- [x] `components/calendar/event-popover.tsx` — **implementado como Dialog** (mesmo padrão de `activity-detail.tsx`, já que o projeto não tem componente `popover` do shadcn instalado), com link pra entidade vinculada (vistoria/atividade/relatório)
+- [x] `components/calendar/event-form.tsx` — modal para criar/editar evento manual (`report_deadline`/`revisit`); eventos do tipo `visit`/`activity` são somente leitura aqui pois são gerados automaticamente
+- [x] Legenda de tipos: Visita (verde), Prazo de Relatório (roxo), Atividade (azul), Revisita (laranja)
+- [x] Eventos vencidos destacados visualmente (anel vermelho no chip) — aplicado a `report_deadline`/`activity`/`revisit`, não a `visit` (uma visita passada é histórico, não "atrasada")
 
 **Backend — Banco**
-- [ ] Migration `008_calendar.sql`:
-  - Tabela `calendar_events` (id, title, event_type, start_date, end_date, all_day, inspection_id, activity_id, report_id, created_by, created_at)
-- [ ] RLS
+- [x] Migration `013_calendar.sql` (numeração sequencial; `008` já usado por reports): tabela `calendar_events` com todos os campos planejados
+- [x] RLS seguindo o mesmo padrão das demais tabelas
+- [x] Backfill incluído na própria migration: gera eventos `visit`/`activity` para vistorias e atividades já existentes antes desta migration (senão só registros novos apareceriam no calendário)
 
 **Backend — Actions**
-- [ ] Server Action `calendar-events/create`, `update`, `delete`
-- [ ] Criação automática de evento ao criar vistoria (data da visita)
-- [ ] Criação automática de evento ao criar atividade com prazo
+- [x] `lib/calendar/actions.ts` — `createEvent`, `updateEvent`, `deleteEvent`, `getEvents`
+- [x] Criação automática de evento ao criar vistoria (`syncInspectionEvent`, chamado em `createInspection`) — **também sincroniza ao editar a data da visita** (`updateInspection`), não só na criação
+- [x] Criação automática de evento ao criar atividade com prazo (`syncActivityEvent`, chamado em `createActivity`) — **também sincroniza ao editar prazo/título** (`updateActivity`), incluindo remoção do evento se o prazo for removido
 
-### Commit final
-```
-feat: calendar — monthly/weekly view, event types, auto-create from inspections and activities
-```
+### Observação
+Diferente do padrão "interface primeiro, backend depois" do topo deste documento, aqui UI e backend foram entregues juntos no mesmo commit, seguindo o padrão real já observado nos milestones M6–M8 (a intenção original do projeto era interface-mock-primeiro, mas a execução real consolidou fatias verticais completas por milestone).
+
+Build (`npm run build`) verificado: 0 erros, 0 warnings.
 
 ---
 
