@@ -1,7 +1,7 @@
 'use client'
 
 import { useDraggable } from '@dnd-kit/core'
-import { CalendarDays, Building2 } from 'lucide-react'
+import { CalendarDays, CheckCircle2, Building2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import type { ActivityWithRelations } from '@/lib/activities/actions'
 
@@ -25,13 +25,9 @@ const STATUS_BADGE_CLASSES: Record<string, string> = {
   done: 'bg-green-100 text-green-700 border-green-200',
 }
 
-function getDueInfo(dueDate: string, status: string) {
+function getDueInfo(dueDate: string) {
   const due = new Date(dueDate + 'T00:00:00')
   const formatted = due.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
-
-  if (status === 'done') {
-    return { label: formatted, className: 'bg-muted text-muted-foreground border-border' }
-  }
 
   const today = new Date(new Date().toDateString())
   const diffDays = Math.round((due.getTime() - today.getTime()) / 86400000)
@@ -51,6 +47,11 @@ function getDueInfo(dueDate: string, status: string) {
   return { label: formatted, className: 'bg-muted text-muted-foreground border-border' }
 }
 
+function getDeliveryInfo(completedAt: string) {
+  const label = new Date(completedAt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+  return { label: `Entregue em ${label}`, className: 'bg-green-50 text-green-700 border-green-200' }
+}
+
 interface Props {
   activity: ActivityWithRelations
   onClick: () => void
@@ -62,7 +63,9 @@ export function ActivityCard({ activity, onClick }: Props) {
   })
 
   const property = activity.inspections?.properties
-  const dueInfo = activity.due_date ? getDueInfo(activity.due_date, activity.status) : null
+  const isDone = activity.status === 'done'
+  const deliveryInfo = isDone && activity.completed_at ? getDeliveryInfo(activity.completed_at) : null
+  const dueInfo = !isDone && activity.due_date ? getDueInfo(activity.due_date) : null
 
   const style = transform
     ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`, zIndex: 10 }
@@ -94,6 +97,12 @@ export function ActivityCard({ activity, onClick }: Props) {
 
       <div className="flex items-center gap-1.5 flex-wrap">
         <Badge variant="outline" className="text-[10px]">{PRIORITY_LABELS[activity.priority]}</Badge>
+        {deliveryInfo && (
+          <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${deliveryInfo.className}`}>
+            <CheckCircle2 className="h-3 w-3" />
+            {deliveryInfo.label}
+          </span>
+        )}
         {dueInfo && (
           <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${dueInfo.className}`}>
             <CalendarDays className="h-3 w-3" />

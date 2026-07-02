@@ -69,7 +69,10 @@ export function ActivitiesBoard({ initialActivities, profiles, properties, inspe
     const current = activities.find((a) => a.id === activityId)
     if (!current || current.status === newStatus) return
 
-    setActivities((prev) => prev.map((a) => (a.id === activityId ? { ...a, status: newStatus } : a)))
+    setActivities((prev) => prev.map((a) => (a.id === activityId
+      ? { ...a, status: newStatus, completed_at: newStatus === 'done' ? new Date().toISOString() : null }
+      : a
+    )))
     const result = await updateActivityStatus(activityId, newStatus)
     if (result.error) {
       alert(`Erro ao mover atividade: ${result.error}`)

@@ -75,6 +75,11 @@ export function ActivityDetail({ activity, onClose, onEdit }: Props) {
                 Prazo: {new Date(activity.due_date + 'T00:00:00').toLocaleDateString('pt-BR')}
               </Badge>
             )}
+            {activity.status === 'done' && activity.completed_at && (
+              <Badge className="bg-green-50 text-green-700 border-green-200 hover:bg-green-50">
+                Entregue em {new Date(activity.completed_at).toLocaleDateString('pt-BR')}
+              </Badge>
+            )}
           </div>
 
           {property && (
