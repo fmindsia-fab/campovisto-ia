@@ -25,6 +25,32 @@ const STATUS_BADGE_CLASSES: Record<string, string> = {
   done: 'bg-green-100 text-green-700 border-green-200',
 }
 
+function getDueInfo(dueDate: string, status: string) {
+  const due = new Date(dueDate + 'T00:00:00')
+  const formatted = due.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+
+  if (status === 'done') {
+    return { label: formatted, className: 'bg-muted text-muted-foreground border-border' }
+  }
+
+  const today = new Date(new Date().toDateString())
+  const diffDays = Math.round((due.getTime() - today.getTime()) / 86400000)
+
+  if (diffDays < 0) {
+    return {
+      label: `Atrasado há ${Math.abs(diffDays)} dia${Math.abs(diffDays) > 1 ? 's' : ''}`,
+      className: 'bg-red-50 text-red-700 border-red-200',
+    }
+  }
+  if (diffDays === 0) {
+    return { label: 'Vence hoje', className: 'bg-amber-50 text-amber-700 border-amber-200' }
+  }
+  if (diffDays <= 3) {
+    return { label: `Vence em ${diffDays} dia${diffDays > 1 ? 's' : ''}`, className: 'bg-amber-50 text-amber-700 border-amber-200' }
+  }
+  return { label: formatted, className: 'bg-muted text-muted-foreground border-border' }
+}
+
 interface Props {
   activity: ActivityWithRelations
   onClick: () => void
@@ -36,7 +62,7 @@ export function ActivityCard({ activity, onClick }: Props) {
   })
 
   const property = activity.inspections?.properties
-  const isOverdue = activity.due_date && activity.status !== 'done' && new Date(activity.due_date) < new Date(new Date().toDateString())
+  const dueInfo = activity.due_date ? getDueInfo(activity.due_date, activity.status) : null
 
   const style = transform
     ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`, zIndex: 10 }
@@ -66,12 +92,12 @@ export function ActivityCard({ activity, onClick }: Props) {
         </div>
       )}
 
-      <div className="flex items-center justify-between gap-2 flex-wrap">
+      <div className="flex items-center gap-1.5 flex-wrap">
         <Badge variant="outline" className="text-[10px]">{PRIORITY_LABELS[activity.priority]}</Badge>
-        {activity.due_date && (
-          <span className={`flex items-center gap-1 text-[10px] ${isOverdue ? 'text-destructive font-medium' : 'text-muted-foreground'}`}>
+        {dueInfo && (
+          <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${dueInfo.className}`}>
             <CalendarDays className="h-3 w-3" />
-            {new Date(activity.due_date + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+            {dueInfo.label}
           </span>
         )}
       </div>
