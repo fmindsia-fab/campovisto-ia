@@ -9,6 +9,7 @@ import { getInspections } from '@/lib/inspections/actions'
 import { getReports } from '@/lib/reports/actions'
 import { getActivities } from '@/lib/activities/actions'
 import { getPendingAnalyses } from '@/lib/ai-analyses/actions'
+import { addDaysISODate, todayISODate } from '@/lib/utils'
 
 export default async function DashboardPage() {
   const [clients, properties, inspections, reports, activities, pendingAnalyses] = await Promise.all([
@@ -27,13 +28,13 @@ export default async function DashboardPage() {
   const startedCount = activities.filter((a) => a.status === 'started').length
   const doneCount = activities.filter((a) => a.status === 'done').length
 
-  const todayISO = new Date().toDateString()
-  const in3days = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+  const todayISO = todayISODate()
+  const thresholdISO = addDaysISODate(3)
   const urgentActivities = activities
-    .filter((a) => a.due_date && a.status !== 'done' && new Date(a.due_date) <= in3days)
-    .sort((a, b) => new Date(a.due_date!).getTime() - new Date(b.due_date!).getTime())
+    .filter((a) => a.due_date && a.status !== 'done' && a.due_date <= thresholdISO)
+    .sort((a, b) => a.due_date!.localeCompare(b.due_date!))
     .slice(0, 5)
-  const overdueCount = activities.filter((a) => a.due_date && a.status !== 'done' && new Date(a.due_date) < new Date(todayISO)).length
+  const overdueCount = activities.filter((a) => a.due_date && a.status !== 'done' && a.due_date < todayISO).length
 
   return (
     <>
@@ -84,7 +85,7 @@ export default async function DashboardPage() {
           ) : (
             <div className="space-y-2">
               {urgentActivities.map((a) => {
-                const isOverdue = new Date(a.due_date!) < new Date(todayISO)
+                const isOverdue = a.due_date! < todayISO
                 return (
                   <Link key={a.id} href="/activities" className="block rounded-md p-2 -mx-2 hover:bg-muted/50 transition-colors">
                     <p className="text-xs font-medium truncate">{a.title}</p>

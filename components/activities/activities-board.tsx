@@ -12,6 +12,7 @@ import { KanbanColumn } from './kanban-column'
 import { ActivityForm } from './activity-form'
 import { ActivityDetail } from './activity-detail'
 import { updateActivityStatus, type ActivityWithRelations } from '@/lib/activities/actions'
+import { addDaysISODate, todayISODate } from '@/lib/utils'
 import type { ActivityStatus } from '@/types'
 
 const COLUMNS: { status: ActivityStatus; title: string }[] = [
@@ -47,14 +48,11 @@ export function ActivitiesBoard({ initialActivities, profiles, properties, inspe
       if (priorityFilter !== 'all' && a.priority !== priorityFilter) return false
       if (assignedFilter !== 'all' && a.assigned_to !== assignedFilter) return false
       if (periodFilter === 'overdue') {
-        if (!a.due_date || a.status === 'done' || new Date(a.due_date) >= new Date(new Date().toDateString())) return false
+        if (!a.due_date || a.status === 'done' || a.due_date >= todayISODate()) return false
       }
       if (periodFilter === 'week') {
         if (!a.due_date) return false
-        const due = new Date(a.due_date)
-        const now = new Date()
-        const in7days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-        if (due < now || due > in7days) return false
+        if (a.due_date < todayISODate() || a.due_date > addDaysISODate(7)) return false
       }
       if (periodFilter === 'no_date' && a.due_date) return false
       return true

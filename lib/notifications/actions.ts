@@ -4,6 +4,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUser } from '@/lib/auth/get-current-user'
 import { hasRole } from '@/lib/auth/has-role'
+import { todayISODate } from '@/lib/utils'
 import type { Notification, NotificationType } from '@/types'
 
 async function notifyUser(userId: string, type: NotificationType, title: string, body: string | null, link: string | null) {
@@ -36,7 +37,7 @@ async function syncSystemNotifications() {
   if (!current) return
 
   const supabase = await createClient()
-  const todayISO = new Date().toISOString().slice(0, 10)
+  const todayISO = todayISODate()
 
   const { data: overdueActivities } = await (supabase as any)
     .from('activities')
@@ -51,7 +52,7 @@ async function syncSystemNotifications() {
       'activity_overdue',
       'Atividade atrasada',
       `"${activity.title}" está com o prazo vencido.`,
-      `/activities`
+      `/activities?highlight=${activity.id}`
     )
   }
 

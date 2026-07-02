@@ -1,5 +1,6 @@
 'use client'
 
+import { todayISODate } from '@/lib/utils'
 import type { CalendarEventWithRelations } from '@/lib/calendar/actions'
 
 export const EVENT_TYPE_LABELS: Record<string, string> = {
@@ -29,8 +30,7 @@ interface Props {
 }
 
 export function EventChip({ event, onClick }: Props) {
-  const today = new Date(new Date().toDateString())
-  const isOverdue = event.event_type !== 'visit' && new Date(event.start_date) < today
+  const isOverdue = event.event_type !== 'visit' && event.start_date < todayISODate()
 
   return (
     <button

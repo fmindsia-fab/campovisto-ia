@@ -483,6 +483,31 @@ Build (`npm run build`) verificado: 0 erros, 0 warnings.
 
 ---
 
+## 🔍 Análise crítica pós-M8/M9/M10 (2026-07-02)
+
+Revisão de código feita antes de encerrar o dia, para garantir que M8–M10 estão sólidos antes de avançar. Três bugs reais encontrados e corrigidos:
+
+### ✅ Corrigido — notificação de atividade atrasada nunca disparava para a 2ª atividade em diante
+`syncSystemNotifications()` usava o mesmo `link` (`/activities`) para **todas** as notificações do tipo `activity_overdue`. A checagem de deduplicação em `notifyUser()` (`.eq('link', link)`) tratava a segunda atividade atrasada como duplicata da primeira e nunca criava a notificação dela — só a primeira atividade atrasada de cada usuário jamais geraria alerta. Corrigido: link agora inclui o id da atividade (`/activities?highlight=${activity.id}`), tornando cada notificação única.
+
+### ✅ Corrigido — bug sistemático de fuso horário em comparações de data
+Vários pontos comparavam datas "bare" (`YYYY-MM-DD`, colunas `date` do Postgres) usando `new Date(dataString)` (interpretado como UTC pelo JS) contra "hoje" calculado via `new Date().toDateString()` ou `new Date().toISOString()` (fuso local do runtime) — uma mistura inconsistente que causava marcações prematuras de "atrasado" horas antes do prazo real vencer, dependendo do horário do dia. Afetava: `lib/notifications/actions.ts`, `app/(app)/dashboard/page.tsx`, `components/calendar/event-chip.tsx`, `components/activities/activities-board.tsx` (filtro de período) e o valor padrão de data em `components/inspections/inspection-form.tsx`.
+
+Corrigido com duas camadas:
+1. Centralizado em `lib/utils.ts`: `todayISODate()` / `addDaysISODate(n)`, retornando string `YYYY-MM-DD`.
+2. **Fuso fixado explicitamente em `America/Sao_Paulo`** (via `Intl.DateTimeFormat`), em vez de depender do fuso "ambiente" do runtime — necessário porque Server Components/Server Actions rodam na infraestrutura serverless da Vercel, que por padrão executa em **UTC**, não no fuso do usuário brasileiro. Sem isso, a comparação ficaria consistente internamente mas ainda usaria o dia calendário errado (UTC) durante a noite no Brasil.
+3. Comparações de data passaram a ser feitas como comparação de **strings** (`'YYYY-MM-DD' < 'YYYY-MM-DD'`), que é equivalente à comparação cronológica e evita todo o problema de parsing de `Date` para datas sem hora.
+
+### ✅ Corrigido — cascade delete quebrado entre `activities` e `activity_comments`
+`activities` permite exclusão por `admin` OU `field_operator`, mas `activity_comments` (com FK `ON DELETE CASCADE` para `activities`) só permitia o autor do comentário ou um `admin`. Um `field_operator` excluindo uma atividade com comentário de outra pessoa (ex.: de um admin) fazia o cascade falhar a checagem de RLS da tabela filha, e o Postgres recusava a exclusão inteira. Migration `015_fix_cascade_delete_rls.sql` adiciona `field_operator` à policy de delete de `activity_comments`, alinhando com a policy de `activities`.
+
+**Verificado e descartado como bug:** o mesmo tipo de incompatibilidade foi checado para `inspections → reports` e `inspections → calendar_events` (ambos com FK cascade) — a policy de delete de `inspections` já é `admin`/`field_operator` (migration 004), igual às tabelas filhas. Nenhuma correção necessária aí.
+
+### Build final
+`npm run build` — 0 erros, 0 warnings. **Pendência: rodar a migration `015_fix_cascade_delete_rls.sql` no Supabase.**
+
+---
+
 ## M11 — Busca & Filtros
 
 **Branch:** `feat/search`

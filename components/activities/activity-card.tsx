@@ -3,6 +3,7 @@
 import { useDraggable } from '@dnd-kit/core'
 import { CalendarDays, CheckCircle2, Building2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { todayISODate } from '@/lib/utils'
 import type { ActivityWithRelations } from '@/lib/activities/actions'
 
 const PRIORITY_CLASSES: Record<string, string> = {
@@ -29,7 +30,7 @@ function getDueInfo(dueDate: string) {
   const due = new Date(dueDate + 'T00:00:00')
   const formatted = due.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
 
-  const today = new Date(new Date().toDateString())
+  const today = new Date(todayISODate() + 'T00:00:00')
   const diffDays = Math.round((due.getTime() - today.getTime()) / 86400000)
 
   if (diffDays < 0) {
