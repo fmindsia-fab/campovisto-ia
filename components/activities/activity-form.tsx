@@ -30,16 +30,21 @@ interface Props {
   onClose: () => void
   activity?: ActivityWithRelations
   profiles: { id: string; full_name: string | null }[]
+  inspections?: { id: string; label: string }[]
   initial?: Partial<ActivityInput>
 }
 
-export function ActivityForm({ open, onClose, activity, profiles, initial }: Props) {
+export function ActivityForm({ open, onClose, activity, profiles, inspections = [], initial }: Props) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [category, setCategory] = useState<string>(activity?.category ?? initial?.category ?? '')
   const [priority, setPriority] = useState<string>(activity?.priority ?? initial?.priority ?? 'medium')
   const [assignedTo, setAssignedTo] = useState<string>(activity?.assigned_to ?? initial?.assigned_to ?? '')
+  const [inspectionId, setInspectionId] = useState<string>(activity?.inspection_id ?? initial?.inspection_id ?? '')
+
+  // vínculo com vistoria fixo quando a atividade vem de um ponto de atenção do relatório
+  const inspectionLocked = !!initial?.inspection_id
 
   async function handleSubmit(formData: FormData) {
     setError(null)
@@ -52,7 +57,7 @@ export function ActivityForm({ open, onClose, activity, profiles, initial }: Pro
       priority: priority as Priority,
       assigned_to: assignedTo || null,
       due_date: (formData.get('due_date') as string) || null,
-      inspection_id: initial?.inspection_id ?? null,
+      inspection_id: inspectionLocked ? initial?.inspection_id ?? null : inspectionId || null,
       report_id: initial?.report_id ?? null,
       annotation_id: initial?.annotation_id ?? null,
     }
@@ -116,6 +121,22 @@ export function ActivityForm({ open, onClose, activity, profiles, initial }: Pro
               </Select>
             </div>
           </div>
+
+          {!inspectionLocked && (
+            <div className="space-y-1.5">
+              <Label>Propriedade / vistoria</Label>
+              <Select value={inspectionId} onValueChange={setInspectionId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Nenhuma (atividade avulsa)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {inspections.map((i) => (
+                    <SelectItem key={i.id} value={i.id}>{i.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">

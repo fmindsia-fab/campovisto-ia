@@ -91,6 +91,7 @@ export async function updateActivity(id: string, input: ActivityInput) {
       priority: input.priority,
       assigned_to: input.assigned_to || null,
       due_date: input.due_date || null,
+      inspection_id: input.inspection_id || null,
     })
     .eq('id', id)
 

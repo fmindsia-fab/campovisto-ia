@@ -24,9 +24,10 @@ interface Props {
   initialActivities: ActivityWithRelations[]
   profiles: { id: string; full_name: string | null }[]
   properties: { id: string; name: string }[]
+  inspections: { id: string; label: string }[]
 }
 
-export function ActivitiesBoard({ initialActivities, profiles, properties }: Props) {
+export function ActivitiesBoard({ initialActivities, profiles, properties, inspections }: Props) {
   const router = useRouter()
   const [activities, setActivities] = useState(initialActivities)
   const [creating, setCreating] = useState(false)
@@ -148,7 +149,7 @@ export function ActivitiesBoard({ initialActivities, profiles, properties }: Pro
       )}
 
       {creating && (
-        <ActivityForm open={creating} onClose={() => setCreating(false)} profiles={profiles} />
+        <ActivityForm open={creating} onClose={() => setCreating(false)} profiles={profiles} inspections={inspections} />
       )}
 
       {editing && (
@@ -157,6 +158,7 @@ export function ActivitiesBoard({ initialActivities, profiles, properties }: Pro
           onClose={() => setEditing(null)}
           activity={editing}
           profiles={profiles}
+          inspections={inspections}
         />
       )}
 
