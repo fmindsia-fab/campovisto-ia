@@ -1,5 +1,4 @@
-import { Bell, LogOut, Settings } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { LogOut, Settings } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -11,10 +10,13 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { createClient } from '@/lib/supabase/server'
 import { signOut } from '@/lib/auth/actions'
+import { getUnreadCount } from '@/lib/notifications/actions'
+import { NotificationDropdown } from './notification-dropdown'
 
 export async function Topbar() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  const unreadCount = await getUnreadCount()
 
   const initials = user?.user_metadata?.full_name
     ? user.user_metadata.full_name
@@ -39,9 +41,7 @@ export async function Topbar() {
 
       {/* Ações à direita */}
       <div className="flex items-center gap-1">
-        <Button variant="ghost" size="icon" className="relative h-9 w-9" aria-label="Notificações">
-          <Bell className="h-4 w-4" />
-        </Button>
+        <NotificationDropdown initialUnreadCount={unreadCount} />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { createClient } from '@/lib/supabase/server'
+import { notifyReportReady } from '@/lib/notifications/actions'
 import type { Report } from '@/types'
 
 export async function createReport(inspectionId: string, title: string) {
@@ -26,6 +27,9 @@ export async function createReport(inspectionId: string, title: string) {
     .single()
 
   if (error) return { data: null, error: error.message }
+
+  await notifyReportReady(user.id, data.id, title)
+
   return { data: data as Report, error: null }
 }
 

@@ -20,7 +20,7 @@
 | ~~M7~~ | ~~Relatórios & Exportação PDF~~ | `main` | ✅ **Concluído** |
 | ~~M8~~ | ~~Atividades & Kanban~~ | `main` | ✅ **Concluído** |
 | ~~M9~~ | ~~Calendário~~ | `main` | ✅ **Concluído** |
-| M10 | Dashboard & Notificações | `feat/dashboard` | Painel operacional, alertas |
+| ~~M10~~ | ~~Dashboard & Notificações~~ | `main` | ✅ **Concluído** |
 | M11 | Busca & Filtros | `feat/search` | Busca global, filtros por página |
 | M12 | Onboarding | `feat/onboarding` | Fluxo guiado para novos usuários |
 | M13 | Planos Free/Premium | `feat/plans` | Limites, upgrade, scaffold Stripe |
@@ -445,45 +445,41 @@ Build (`npm run build`) verificado: 0 erros, 0 warnings.
 
 ---
 
-## M10 — Dashboard & Notificações
+## ✅ M10 — Dashboard & Notificações — CONCLUÍDO
 
-**Branch:** `feat/dashboard`
+**Branch:** `main`
 
 **Objetivo:** Painel inicial com resumo operacional e sistema de notificações internas para alertas de prazo e pendências.
 
 ### Entregas
 
 **UI — Dashboard**
-- [ ] `app/(app)/dashboard/page.tsx` — página principal pós-login
-- [ ] Stat cards: total clientes, propriedades, vistorias em andamento, relatórios gerados
-- [ ] Stat cards de atividades: planejadas, iniciadas, finalizadas, atrasadas
-- [ ] Lista "Vistorias recentes" (últimas 5)
-- [ ] Lista "Atividades urgentes" (vencidas ou vencendo em 3 dias)
-- [ ] Lista "Análises pendentes de revisão"
+- [x] `app/(app)/dashboard/page.tsx` — página principal pós-login, queries via Server Component (sem `useEffect`)
+- [x] Stat cards: total clientes, propriedades, vistorias em andamento, relatórios gerados
+- [x] Stat cards de atividades: planejadas, iniciadas, finalizadas, atrasadas
+- [x] Lista "Vistorias recentes" (últimas 5)
+- [x] Lista "Atividades urgentes" (vencidas ou vencendo em 3 dias)
+- [x] Lista "Análises pendentes de revisão" — `getPendingAnalyses()` adicionado a `lib/ai-analyses/actions.ts`
 
 **UI — Notificações**
-- [ ] Ícone de sino na topbar com badge de contagem não lida
-- [ ] `components/shared/notification-dropdown.tsx` — dropdown com lista de notificações
-- [ ] `components/shared/notification-item.tsx` — item com ícone de tipo, texto, data, link
-- [ ] Marcar como lida (individual e todas)
+- [x] Ícone de sino na topbar com badge de contagem não lida — substituiu o sino estático de `topbar.tsx`
+- [x] `components/shared/notification-dropdown.tsx` — dropdown com lista de notificações, busca sob demanda ao abrir
+- [x] `components/shared/notification-item.tsx` — item com ícone de tipo, texto, data, link
+- [x] Marcar como lida (individual e todas)
 
 **Backend — Banco**
-- [ ] Migration `009_notifications.sql`:
-  - Tabela `notifications` (id, user_id, type, title, body, link, read_at, created_at)
-- [ ] RLS: usuário só lê as próprias notificações
+- [x] Migration `014_notifications.sql` (numeração sequencial; `009` já usado por spectral image types): tabela `notifications` com os 5 tipos previstos no `types/index.ts` (`activity_overdue`, `analysis_pending_review`, `report_ready`, `activity_due_soon`, `invite` — os dois últimos reservados para M14)
+- [x] RLS: usuário só lê/cria/atualiza/deleta as próprias notificações
 
 **Backend — Actions**
-- [ ] Queries do dashboard via Server Components (sem useEffect)
-- [ ] Server Action `notifications/mark-read`
-- [ ] Criação de notificação nos eventos críticos:
-  - Atividade vencida
-  - Análise de IA aguardando revisão há mais de 24h
-  - Relatório pronto para download
+- [x] `lib/notifications/actions.ts` — `getNotifications`, `getUnreadCount`, `markAsRead`, `markAllAsRead`
+- [x] Notificação de "Relatório pronto para download" — disparada imediatamente em `createReport`
+- [x] Notificação de "Atividade vencida" e "Análise de IA aguardando revisão há +24h" — geradas de forma **preguiçosa (lazy)** via `syncSystemNotifications()`, chamada toda vez que o usuário abre o dropdown ou carrega o dashboard, em vez de um cron job/trigger em background (não há infraestrutura de jobs agendados no MVP — Vercel serverless não roda processos persistentes)
 
-### Commit final
-```
-feat: dashboard — operational metrics, recent activity, internal notifications
-```
+### ⚠️ Simplificação de escopo: notificações são por usuário, não multi-destinatário
+O sistema notifica **o usuário logado sobre os próprios itens pendentes** (atividades atribuídas a ele, análises pendentes se ele tiver papel `human_reviewer`/`admin`), computado sob demanda. Ele **não** resolve "quem mais deveria ser avisado" (ex.: avisar todos os admins quando uma análise fica pendente), porque isso exigiria uma lista de destinatários por papel — funcionalidade que só faz sentido combinada à gestão de equipe do M14. Reavaliar notificações multi-destinatário (e envio por e-mail via Resend) quando o M14 chegar.
+
+Build (`npm run build`) verificado: 0 erros, 0 warnings.
 
 ---
 

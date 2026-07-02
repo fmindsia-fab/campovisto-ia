@@ -124,6 +124,27 @@ export async function getAnalysisSummariesByInspection(inspectionId: string): Pr
   return map
 }
 
+export async function getPendingAnalyses(limit = 5) {
+  const supabase = await createClient()
+  const { data, error } = await (supabase as any)
+    .from('ai_analyses')
+    .select('id, image_id, inspection_id, status, created_at, inspection_images(original_name), inspections(properties(name))')
+    .in('status', ['draft', 'review_pending'])
+    .order('created_at', { ascending: true })
+    .limit(limit)
+
+  if (error) return []
+  return data as {
+    id: string
+    image_id: string
+    inspection_id: string
+    status: string
+    created_at: string
+    inspection_images?: { original_name: string } | null
+    inspections?: { properties?: { name: string } | null } | null
+  }[]
+}
+
 export async function updateSuggestedText(analysisId: string, suggestedText: string) {
   const authError = await requireReviewer()
   if (authError) return { error: authError }
