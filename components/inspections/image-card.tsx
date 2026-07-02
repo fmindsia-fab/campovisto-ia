@@ -13,7 +13,6 @@ import type { InspectionImage } from '@/types'
 import { ALL_IMAGE_TYPE_LABELS, RGB_TYPES, SPECTRAL_TYPES } from './image-type-selector'
 
 const IMAGE_TYPE_LABELS = ALL_IMAGE_TYPE_LABELS
-const IMAGE_TYPES = [...RGB_TYPES, ...SPECTRAL_TYPES].map(({ value, label }) => ({ value, label }))
 const SPECTRAL_VALUES = new Set(SPECTRAL_TYPES.map((t) => t.value))
 
 const ANALYSIS_STATUS_CONFIG: Record<string, { label: string; className: string }> = {

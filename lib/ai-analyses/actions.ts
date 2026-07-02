@@ -2,6 +2,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/get-current-user'
+import { hasRole } from '@/lib/auth/has-role'
+
+async function requireReviewer() {
+  const current = await getCurrentUser()
+  if (!current) return 'Não autenticado'
+  if (!hasRole(current.roles, ['human_reviewer', 'admin'])) {
+    return 'Apenas um revisor humano pode aprovar ou rejeitar análises de IA'
+  }
+  return null
+}
 
 export async function getAnalysisByImage(imageId: string) {
   const supabase = await createClient()
@@ -31,6 +42,9 @@ export async function getAnalysisByImage(imageId: string) {
 }
 
 export async function approveAnalysis(analysisId: string, reviewerNotes?: string) {
+  const authError = await requireReviewer()
+  if (authError) return { error: authError }
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Não autenticado' }
@@ -51,6 +65,9 @@ export async function approveAnalysis(analysisId: string, reviewerNotes?: string
 }
 
 export async function rejectAnalysis(analysisId: string, reviewerNotes: string) {
+  const authError = await requireReviewer()
+  if (authError) return { error: authError }
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Não autenticado' }
@@ -108,6 +125,9 @@ export async function getAnalysisSummariesByInspection(inspectionId: string): Pr
 }
 
 export async function updateSuggestedText(analysisId: string, suggestedText: string) {
+  const authError = await requireReviewer()
+  if (authError) return { error: authError }
+
   const supabase = await createClient()
   const { error } = await (supabase as any)
     .from('ai_analyses')

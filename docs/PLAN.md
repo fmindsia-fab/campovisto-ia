@@ -16,8 +16,8 @@
 | ~~M3~~ | ~~Clientes & Propriedades~~ | `feat/clients-properties` | ✅ **Concluído** |
 | ~~M4~~ | ~~Vistorias & Upload de Imagens~~ | `feat/inspections` | ✅ **Concluído** |
 | ~~M5~~ | ~~Editor Visual de Anotações~~ | `feat/image-editor` | ✅ **Concluído** |
-| M6 | Análise de IA & Revisão Humana | `feat/ai-analysis` | Gemini/OpenAI + fluxo de aprovação |
-| M7 | Relatórios & Exportação PDF | `feat/reports` | Geração e exportação |
+| ~~M6~~ | ~~Análise de IA & Revisão Humana~~ | `main` | ✅ **Concluído** |
+| ~~M7~~ | ~~Relatórios & Exportação PDF~~ | `main` | ✅ **Concluído** |
 | M8 | Atividades & Kanban | `feat/activities` | Kanban Planejada/Iniciada/Finalizada |
 | M9 | Calendário | `feat/calendar` | Visitas, prazos, eventos |
 | M10 | Dashboard & Notificações | `feat/dashboard` | Painel operacional, alertas |
@@ -278,86 +278,98 @@ c957077  feat(M5): annotation editor — move to (editor) route group, fix Marke
 
 ---
 
-## M6 — Análise de IA & Revisão Humana
+## ✅ M6 — Análise de IA & Revisão Humana — CONCLUÍDO
 
-**Branch:** `feat/ai-analysis`
+**Branch:** `main` | **Commits:** `91e8936` + série `feat(M6)`/`fix(M6)`
 
-**Objetivo:** Usuário solicita análise preliminar via IA para uma imagem, visualiza o resultado como rascunho e o revisor humano aprova ou rejeita antes de entrar no relatório.
+**Build:** ✅ Deploy na Vercel — fluxo de análise e revisão verificado em produção
 
 ### Entregas
 
 **UI**
-- [ ] Botão "Solicitar análise por IA" na página de detalhe da imagem
-- [ ] `components/ai/analysis-loading.tsx` — estado de loading com mensagem de contexto
-- [ ] `components/ai/analysis-result.tsx` — exibe resultado draft: elementos visíveis, pontos de atenção, limitações, texto sugerido
-- [ ] Badge de status visível: `Rascunho IA` / `Revisão Pendente` / `Aprovado` / `Rejeitado`
-- [ ] `components/ai/human-review-panel.tsx` — interface para o revisor: aprovar, rejeitar, editar texto sugerido, adicionar observação
-- [ ] Bloqueio visual: se análise não aprovada, botão "Gerar Relatório" fica desabilitado com tooltip explicativo
+- [x] `components/ai/analysis-request-button.tsx` — botão "Solicitar análise por IA" (em vez de botão inline na página de detalhe)
+- [ ] `components/ai/analysis-loading.tsx` — não criado como componente isolado (loading tratado inline no botão/estado do client component)
+- [x] `components/ai/analysis-result.tsx` — exibe resultado: elementos visíveis, pontos de atenção, limitações, texto sugerido
+- [x] Badge de status visível: `Rascunho` / `Revisão Pendente` / `Aprovado` / `Rejeitado` (via `STATUS_CONFIG` em `analysis-result.tsx`)
+- [x] Revisão humana (aprovar/rejeitar/editar texto) — implementada dentro de `analysis-result.tsx`, não como `human-review-panel.tsx` separado
+- [x] Bloqueio do botão "Gerar Relatório" — `generate-report-button.tsx` só habilita com análise aprovada
 
 **Backend — Banco**
-- [ ] Migration `005_ai_analyses.sql`:
-  - Tabela `ai_analyses` (id, image_id, inspection_id, visible_elements jsonb, attention_points jsonb, limitations jsonb, suggested_text text, raw_response jsonb, status, reviewed_by, reviewed_at, reviewer_notes, created_at)
-- [ ] RLS: criação por `field_operator`/`drone_pilot`; aprovação apenas por `human_reviewer`/`admin`
+- [x] Migration `006_ai_analyses.sql` — tabela `ai_analyses` com todos os campos planejados (status inclui `review_pending` além de draft/approved/rejected)
+- [x] Migration `007_add_spectral_image_types.sql`, `009_annotations_spectral_categories.sql` — extensões (tipos de imagem multiespectral NDVI/NDRE/EVI/SAVI/NDWI, não previstas no plano original mas adicionadas ao escopo M6)
+- [x] RLS em `ai_analyses` — update restrito a `human_reviewer`/`admin` (migration `010_ai_analyses_reviewer_rls.sql`, corrigindo policy antiga que aceitava qualquer autenticado)
+- [x] Migration `011_grant_admin_existing_users.sql` — concede `admin` a usuários já existentes, já que a UI de gestão de papéis só chega no M14; sem isso ninguém conseguiria aprovar análises após a correção de RLS acima
 
 **Backend — API & Actions**
-- [ ] `app/api/ai/analyze-image/route.ts` — POST handler
-  - Recebe `imageUrl`, `fieldObservations`, `imageType`
-  - Chama Gemini API ou OpenAI Vision
-  - Retorna JSON estruturado
-  - Salva no banco com `status: draft`
-- [ ] `lib/ai/gemini.ts` ou `lib/ai/openai.ts` — cliente de IA com prompt padrão
-- [ ] Prompt de sistema: identifica elementos visíveis, pontos de atenção, limitações e texto para relatório
-- [ ] Server Action `ai-analyses/approve` — altera status para `approved`, registra revisor e data
-- [ ] Server Action `ai-analyses/reject` — altera status para `rejected` com nota
-- [ ] Server Action `ai-analyses/update-text` — revisor edita texto sugerido
+- [x] `app/api/ai/analyze-image/route.ts` — POST handler
+- [x] `lib/ai/openai.ts` — cliente OpenAI Vision (Gemini não usado — decisão de implementação)
+- [x] Prompt de sistema com suporte a contagem de gado/pecuária e tipos espectrais
+- [x] `lib/ai-analyses/actions.ts` — `approveAnalysis`, `rejectAnalysis`, `updateSuggestedText` (equivalentes a approve/reject/update-text do plano); todas agora chamam `requireReviewer()` — retornam erro se o usuário não tiver papel `human_reviewer`/`admin`
+- [x] `components/ai/analysis-result.tsx` — painel de revisão (aprovar/rejeitar/editar) só é exibido a quem tem papel de revisor (`canReview`); demais usuários veem "Aguardando revisão por um revisor humano ou administrador"
 
-### Commit final
+### Commits
 ```
-feat: AI analysis — Gemini/OpenAI Vision integration, draft/approve workflow, human review
+91e8936  feat(M6): AI analysis — OpenAI Vision, draft/approve workflow, human review
+977319e  feat(M6): add multiespectral image types (NDVI/NDRE/EVI/SAVI/NDWI)
++ demais fix(M6)/feat(M6) de ajuste de prompt, tradução e UI
 ```
+
+### ✅ Correção aplicada (2026-07-02)
+Falha crítica identificada em análise de código — qualquer usuário autenticado conseguia aprovar/rejeitar a própria análise de IA, sem checagem de papel `human_reviewer`/`admin` (nem no RLS, nem nas Server Actions). **Corrigido:**
+- Migration `010_ai_analyses_reviewer_rls.sql` — RLS de update em `ai_analyses` agora exige `has_role('human_reviewer')` ou `has_role('admin')`
+- Migration `011_grant_admin_existing_users.sql` — concede `admin` a usuários existentes (não há UI de papéis até M14)
+- `lib/ai-analyses/actions.ts` — `approveAnalysis`, `rejectAnalysis`, `updateSuggestedText` validam papel via `requireReviewer()` antes de tocar o banco
+- `components/ai/analysis-result.tsx` + `app/(app)/inspections/[id]/images/[imageId]/page.tsx` — painel de revisão só aparece para quem tem permissão
+- Build (`npm run build`) verificado: 0 erros, 0 warnings
 
 ---
 
-## M7 — Relatórios & Exportação PDF
+## ✅ M7 — Relatórios & Exportação PDF — CONCLUÍDO
 
-**Branch:** `feat/reports`
+**Branch:** `main` | **Commits:** `2b19355` + série `fix(M7)` de redesign/print + `828c2b8` (revisão de código M1–M7)
 
-**Objetivo:** Usuário gera um Relatório Visual de Vistoria Rural a partir de uma vistoria com análise aprovada, visualiza a prévia e exporta em PDF profissional.
+**Build:** ✅ Deploy na Vercel — preview e exportação PDF verificados em produção
 
 ### Entregas
 
 **UI — Preview do Relatório**
-- [ ] `app/(app)/reports/page.tsx` — lista de relatórios com filtros
-- [ ] `app/(app)/inspections/[id]/report/page.tsx` — prévia do relatório (modo leitura e edição)
-- [ ] `components/reports/report-cover.tsx` — capa com logo, propriedade, data, operador
-- [ ] `components/reports/report-section.tsx` — seção editável com título e corpo
-- [ ] `components/reports/report-image-grid.tsx` — grid de imagens anotadas com marcadores listados abaixo
-- [ ] `components/reports/attention-points-list.tsx` — lista de pontos com categoria, prioridade, descrição
-- [ ] `components/reports/report-disclaimer.tsx` — aviso obrigatório de análise preliminar revisada por humano
-- [ ] Botão "Exportar PDF" (só habilitado com análise aprovada)
+- [x] `app/(app)/reports/page.tsx` — lista de relatórios
+- [x] `app/(app)/reports/[id]/page.tsx` — prévia do relatório (em vez de rota aninhada em `inspections/[id]/report`)
+- [x] `app/(app)/inspections/[id]/generate-report-button.tsx` — geração do relatório a partir da vistoria
+- [x] `components/reports/report-preview.tsx` — componente único de preview cobrindo capa, seções e imagens (em vez de `report-cover.tsx`/`report-section.tsx`/`report-image-grid.tsx` separados)
+- [x] Pontos de atenção — substituídos por cards de resumo por categoria (`fix(M7): replace annotation table with category summary cards`), no lugar de `attention-points-list.tsx` em formato de lista
+- [x] Disclaimer de análise preliminar incluído no template de impressão (em vez de componente `report-disclaimer.tsx` isolado)
+- [x] Botão "Exportar PDF" — `app/(app)/reports/[id]/print-button.tsx` (bloqueio garantido no servidor: `createReport` só cria o relatório se houver análise aprovada — ver correção abaixo)
+- [x] Rota de impressão isolada `app/(print)/reports/[id]/print/page.tsx` — route group próprio para escapar do layout `(editor)` com `overflow-hidden` (ajuste não previsto no plano original)
 
 **Backend — Banco**
-- [ ] Migration `006_reports.sql`:
-  - Tabela `reports` (id, inspection_id, title, status, generated_by, approved_by, pdf_path, created_at, updated_at)
-  - Tabela `report_sections` (id, report_id, section_type, title, content, order_index)
-- [ ] RLS
+- [x] Migration `008_reports.sql` — tabela `reports` completa; **`report_sections` não foi criada** (conteúdo do relatório é montado a partir dos dados existentes — vistoria, imagens, anotações, análises — em vez de seções editáveis persistidas)
+- [x] RLS em `reports`
 
 **Backend — Geração de PDF**
-- [ ] `app/api/reports/generate-pdf/route.ts` — POST handler
-  - Monta HTML/CSS completo do relatório
-  - Chama Playwright/Puppeteer para gerar PDF
-  - Faz upload para bucket `report-pdfs`
-  - Atualiza `reports.pdf_path`
-  - Retorna URL de download assinada
-- [ ] `lib/pdf/report-template.ts` — template HTML do relatório com estilo inline
-- [ ] Server Action `reports/create` — cria relatório a partir de uma vistoria aprovada
-- [ ] Server Action `reports/update-section` — salva edições de seções
-- [ ] Server Action `reports/get-download-url` — gera URL temporária assinada
+- [x] Geração de PDF via impressão de página dedicada (rota `(print)` + botão de print do navegador/`window.print`), no lugar de endpoint `app/api/reports/generate-pdf` com Playwright/Puppeteer server-side
+- [x] `lib/reports/actions.ts` — `createReport`, `getReports`, `getReport`, `getReportFullData`, `getReportByInspection`, `deleteReport` (cobre `reports/create`; `update-section` e `get-download-url` não se aplicam pois não há seções editáveis nem PDF armazenado no Storage — download é feito via print-to-PDF do navegador). `createReport` agora valida no servidor se existe `ai_analyses.status = 'approved'` para a vistoria e grava `reports.status = 'approved'` na criação
+- [ ] Upload do PDF gerado para bucket `report-pdfs` — não implementado; PDF é gerado client-side via impressão, não persistido no Storage (`reports.pdf_path` existe na coluna mas nunca é preenchido)
 
-### Commit final
+### Commits
 ```
-feat: reports — preview, PDF generation with Playwright, Supabase Storage, download URL
+2b19355  feat(M7): add report generation, preview and PDF export
+9637587  fix(M7): redesign report layout + fix print sidebar + add strengths/weaknesses section
+172d6a7  fix(M7): fix print cutting to 1 page — remove overflow-hidden on print
+ffa8ddf  fix(M7): fix multi-page PDF + redesign cover + isolated print route
+fdbe029  fix(M7): replace annotation table with category summary cards
+f5ad28d  fix(M7): replace Georgia serif with system sans-serif font to fix ligature rendering in PDF
+33f470e  fix(M7): move print route to (print) group to escape (editor) overflow-hidden layout
+828c2b8  fix: resolve all bugs found in code review (M1-M7)
 ```
+
+> **Nota de arquitetura:** a abordagem de PDF diverge do planejado em `CLAUDE.md`/PRD (Playwright/Puppeteer server-side + bucket `report-pdfs`). Foi implementado via rota de impressão dedicada + print-to-PDF do navegador. **Decisão confirmada com o usuário em 2026-07-02: manter como está por ora — reavaliar em M15** se geração server-side com upload para Storage é necessária antes do deploy final.
+
+### ✅ Correções aplicadas (2026-07-02)
+Duas falhas identificadas em análise de código, ambas corrigidas:
+- **`createReport` sem validação server-side** — agora consulta `ai_analyses` e recusa a criação (`error: 'Vistoria sem nenhuma análise de IA aprovada — não é possível gerar relatório'`) se não houver nenhuma análise com `status = 'approved'` para a vistoria. Antes, o bloqueio existia só na renderização condicional do botão na UI.
+- **Badge de status sempre "Rascunho"** — `createReport` agora grava `status: 'approved'` na criação (coerente: um relatório só pode existir quando já há análise aprovada), então o badge em `app/(app)/reports/page.tsx` reflete a realidade.
+- Build (`npm run build`) verificado após as mudanças: 0 erros, 0 warnings.
 
 ---
 

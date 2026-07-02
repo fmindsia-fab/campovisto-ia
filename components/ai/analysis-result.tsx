@@ -65,9 +65,10 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 interface Props {
   analysis: Analysis
+  canReview: boolean
 }
 
-export function AnalysisResult({ analysis }: Props) {
+export function AnalysisResult({ analysis, canReview }: Props) {
   const router = useRouter()
   const [reviewerNotes, setReviewerNotes] = useState('')
   const [suggestedText, setSuggestedText] = useState(analysis.suggested_text ?? '')
@@ -192,7 +193,7 @@ export function AnalysisResult({ analysis }: Props) {
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
             Texto Sugerido para Relatório
           </p>
-          {!isLocked && (
+          {!isLocked && canReview && (
             <button
               className="text-xs text-primary hover:underline"
               onClick={() => setEditingText((v) => !v)}
@@ -241,7 +242,14 @@ export function AnalysisResult({ analysis }: Props) {
       )}
 
       {/* Painel de revisão */}
-      {!isLocked && (
+      {!isLocked && !canReview && (
+        <div className="border-t pt-4">
+          <p className="text-xs text-muted-foreground">
+            Aguardando revisão por um revisor humano ou administrador.
+          </p>
+        </div>
+      )}
+      {!isLocked && canReview && (
         <div className="space-y-3 border-t pt-4">
           <p className="text-xs font-semibold">Revisão Humana</p>
           <div className="space-y-1.5">

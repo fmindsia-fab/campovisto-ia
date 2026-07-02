@@ -129,10 +129,6 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
 
   const { strengths, weaknesses } = deriveInsights(images, analysisMap, annotations)
 
-  const highAnnotations = annotations.filter((a) => a.priority === 'high' && a.description)
-  const totalAnnotations = annotations.length
-  const imagesWithAnalysis = images.filter((img) => analysisMap[img.id]).length
-
   return (
     <div className="report-body bg-white text-gray-900" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
 

@@ -9,9 +9,19 @@ export async function createReport(inspectionId: string, title: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { data: null, error: 'Não autenticado' }
 
+  const { count } = await (supabase as any)
+    .from('ai_analyses')
+    .select('id', { count: 'exact', head: true })
+    .eq('inspection_id', inspectionId)
+    .eq('status', 'approved')
+
+  if (!count || count === 0) {
+    return { data: null, error: 'Vistoria sem nenhuma análise de IA aprovada — não é possível gerar relatório' }
+  }
+
   const { data, error } = await (supabase as any)
     .from('reports')
-    .insert({ inspection_id: inspectionId, title, generated_by: user.id })
+    .insert({ inspection_id: inspectionId, title, generated_by: user.id, status: 'approved' })
     .select()
     .single()
 

@@ -7,6 +7,8 @@ import { AnalysisRequestButton } from '@/components/ai/analysis-request-button'
 import { AnalysisResult } from '@/components/ai/analysis-result'
 import { getAnalysisByImage } from '@/lib/ai-analyses/actions'
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/get-current-user'
+import { hasRole } from '@/lib/auth/has-role'
 import { ALL_IMAGE_TYPE_LABELS } from '@/components/inspections/image-type-selector'
 import type { InspectionImage } from '@/types'
 
@@ -33,6 +35,8 @@ export default async function ImageDetailPage({ params }: Props) {
   const publicUrl = urlData?.publicUrl ?? ''
 
   const { data: analysis } = await getAnalysisByImage(imageId)
+  const currentUser = await getCurrentUser()
+  const canReview = !!currentUser && hasRole(currentUser.roles, ['human_reviewer', 'admin'])
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 space-y-6">
@@ -94,7 +98,7 @@ export default async function ImageDetailPage({ params }: Props) {
             <h2 className="text-sm font-semibold">Análise por IA</h2>
 
             {analysis ? (
-              <AnalysisResult analysis={analysis} />
+              <AnalysisResult analysis={analysis} canReview={canReview} />
             ) : (
               <div className="space-y-3">
                 <p className="text-xs text-muted-foreground leading-relaxed">

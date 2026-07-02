@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { FileText, CalendarDays, Building2 } from 'lucide-react'
 import { PageHeader } from '@/components/shared/page-header'
 import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/shared/empty-state'
 import { getReports } from '@/lib/reports/actions'
 
