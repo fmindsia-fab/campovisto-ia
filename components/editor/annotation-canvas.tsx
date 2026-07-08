@@ -87,6 +87,7 @@ export function AnnotationCanvas({
         scaleY={scale}
         draggable={panMode}
         onClick={handleStageClick}
+        onTap={handleStageClick}
       >
         <Layer>
           {img && (
@@ -108,6 +109,10 @@ export function AnnotationCanvas({
                 x={x}
                 y={y}
                 onClick={(e) => {
+                  e.cancelBubble = true
+                  onMarkerClick(marker)
+                }}
+                onTap={(e) => {
                   e.cancelBubble = true
                   onMarkerClick(marker)
                 }}

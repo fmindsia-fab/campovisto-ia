@@ -92,18 +92,18 @@ export function AnnotationEditor({ inspectionId, image, publicUrl, initialAnnota
   return (
     <div className="flex h-screen flex-col bg-background overflow-hidden">
       {/* Toolbar */}
-      <div className="flex h-14 shrink-0 items-center justify-between border-b bg-card px-4 gap-3">
-        <div className="flex items-center gap-3">
+      <div className="flex h-14 shrink-0 items-center justify-between border-b bg-card px-2 sm:px-4 gap-1 sm:gap-3 overflow-x-auto">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <Button variant="ghost" size="icon" onClick={() => router.push(`/inspections/${inspectionId}`)}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div className="hidden sm:block">
+          <div className="hidden lg:block">
             <p className="text-sm font-medium truncate max-w-xs">{image.original_name}</p>
             <p className="text-xs text-muted-foreground">{markers.length} marcador(es)</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           <Button
             variant="outline"
             size="icon"
@@ -112,7 +112,7 @@ export function AnnotationEditor({ inspectionId, image, publicUrl, initialAnnota
           >
             <ZoomOut className="h-4 w-4" />
           </Button>
-          <span className="text-xs text-muted-foreground w-12 text-center">{Math.round(scale * 100)}%</span>
+          <span className="hidden sm:inline text-xs text-muted-foreground w-12 text-center">{Math.round(scale * 100)}%</span>
           <Button
             variant="outline"
             size="icon"
@@ -136,21 +136,21 @@ export function AnnotationEditor({ inspectionId, image, publicUrl, initialAnnota
             size="sm"
             onClick={() => { setAddingMode((v) => !v); setPanMode(false); setSelectedMarker(null) }}
           >
-            <Plus className="h-4 w-4 mr-1.5" />
-            {addingMode ? 'Clique na imagem' : 'Adicionar marcador'}
+            <Plus className="h-4 w-4 sm:mr-1.5" />
+            <span className="hidden sm:inline">{addingMode ? 'Clique na imagem' : 'Adicionar marcador'}</span>
           </Button>
 
           <Button size="sm" onClick={handleSave} disabled={saving}>
-            <Save className="h-4 w-4 mr-1.5" />
-            {saving ? 'Salvando...' : 'Salvar'}
+            <Save className="h-4 w-4 sm:mr-1.5" />
+            <span className="hidden sm:inline">{saving ? 'Salvando...' : 'Salvar'}</span>
           </Button>
         </div>
       </div>
 
       {/* Body */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 flex-col md:flex-row overflow-hidden">
         {/* Canvas */}
-        <div className={`flex-1 bg-muted/30 flex items-center justify-center p-4 ${panMode ? 'overflow-hidden' : 'overflow-auto'}`}>
+        <div className={`flex-1 min-h-[45vh] bg-muted/30 flex items-center justify-center p-4 ${panMode ? 'overflow-hidden' : 'overflow-auto'}`}>
           <AnnotationCanvas
             imageUrl={publicUrl}
             markers={markers}
@@ -164,7 +164,7 @@ export function AnnotationEditor({ inspectionId, image, publicUrl, initialAnnota
         </div>
 
         {/* Painel lateral */}
-        <div className="w-80 shrink-0 border-l bg-card overflow-y-auto">
+        <div className="w-full md:w-80 shrink-0 border-t md:border-t-0 md:border-l bg-card overflow-y-auto max-h-[45vh] md:max-h-none">
           {selectedMarker ? (
             <MarkerForm
               marker={selectedMarker}
