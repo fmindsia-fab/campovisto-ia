@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
@@ -32,7 +33,7 @@ export function Sidebar() {
       {/* Logo */}
       <div className="flex h-16 items-center gap-3 border-b px-5">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-emerald-700 shadow-sm">
-          <span className="text-xs font-bold text-primary-foreground">CV</span>
+          <Image src="/logo.png" alt="CampoVisto.IA" width={20} height={20} />
         </div>
         <div className="leading-tight">
           <p className="text-sm font-semibold">CampoVisto.IA</p>

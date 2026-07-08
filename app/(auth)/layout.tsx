@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 const VALUE_PROPS = [
   'Relatórios prontos em horas, não semanas',
   'Análise por IA sempre revisada por humano',
@@ -28,7 +30,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
         <div className="relative flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 backdrop-blur-sm">
-            <span className="text-sm font-bold text-white">CV</span>
+            <Image src="/logo.png" alt="CampoVisto.IA" width={22} height={22} />
           </div>
           <div>
             <p className="text-base font-semibold text-white">CampoVisto.IA</p>
@@ -65,7 +67,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {/* Logo mobile */}
         <div className="mb-8 flex items-center gap-2.5 lg:hidden">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-emerald-700">
-            <span className="text-xs font-bold text-primary-foreground">CV</span>
+            <Image src="/logo.png" alt="CampoVisto.IA" width={20} height={20} />
           </div>
           <span className="text-base font-semibold">CampoVisto.IA</span>
         </div>

@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { LogOut, Settings } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
@@ -35,7 +36,7 @@ export async function Topbar() {
         <MobileNav />
         <div className="flex items-center gap-2.5">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-emerald-700">
-            <span className="text-[10px] font-bold text-primary-foreground">CV</span>
+            <Image src="/logo.png" alt="CampoVisto.IA" width={17} height={17} />
           </div>
           <span className="text-sm font-semibold">CampoVisto.IA</span>
         </div>

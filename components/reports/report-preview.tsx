@@ -158,7 +158,8 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               flexShrink: 0,
             }}>
-              <span style={{ color: 'white', fontSize: '12px', fontWeight: '800', fontFamily: 'sans-serif' }}>CV</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo.png" alt="CampoVisto.IA" width={20} height={20} />
             </div>
             <div>
               <p style={{ fontSize: '13px', fontWeight: '700', fontFamily: 'sans-serif', color: '#111827', margin: 0, lineHeight: 1 }}>CampoVisto.IA</p>
