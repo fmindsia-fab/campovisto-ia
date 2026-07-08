@@ -133,9 +133,13 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
     <div className="report-body bg-white text-gray-900" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
 
       {/* ════ CAPA ════ */}
+      {/* altura levemente abaixo de 297mm (1 página A4) — evita que um
+          arredondamento de subpixel derrube uma linha para uma página órfã */}
       <div style={{
         pageBreakAfter: 'always',
-        height: '297mm',
+        breakAfter: 'page',
+        height: '294mm',
+        maxHeight: '294mm',
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
@@ -326,7 +330,15 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
             const mediumCount = imgAnnotations.filter((a) => a.priority === 'medium').length
 
             return (
-              <div key={image.id} style={{ pageBreakInside: 'avoid' }}>
+              <div
+                key={image.id}
+                style={{
+                  pageBreakBefore: 'always',
+                  breakBefore: 'page',
+                  pageBreakInside: 'avoid',
+                  breakInside: 'avoid',
+                }}
+              >
                 {/* Cabeçalho da imagem */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', paddingBottom: '8px', borderBottom: '2px solid #e5e7eb' }}>
                   <div>
@@ -356,7 +368,7 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
 
                 {/* Imagem */}
                 {publicUrl && (
-                  <div style={{ width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: '6px', marginBottom: '12px', background: '#f3f4f6' }}>
+                  <div style={{ width: '100%', aspectRatio: '3/2', overflow: 'hidden', borderRadius: '6px', marginBottom: '12px', background: '#f3f4f6' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={publicUrl} alt={image.original_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
@@ -455,6 +467,7 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
 
       {/* ════ LIMITAÇÕES ════ */}
       {allLimitations.length > 0 && (
+        <div style={{ pageBreakBefore: 'always', breakBefore: 'page' }}>
         <ReportSection number="—" title="Limitações da Análise">
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {allLimitations.map((lim, i) => (
@@ -465,6 +478,7 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
             ))}
           </ul>
         </ReportSection>
+        </div>
       )}
 
       {/* ════ OBSERVAÇÕES GERAIS ════ */}
