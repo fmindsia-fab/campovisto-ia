@@ -36,8 +36,8 @@ export function EntityCard({
       <CardContent className="p-5">
         <div className="flex items-start gap-4">
           {Icon && (
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-              <Icon className="h-5 w-5 text-muted-foreground" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+              <Icon className="h-5 w-5 text-primary" />
             </div>
           )}
           <div className="min-w-0 flex-1">

@@ -11,7 +11,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="print:hidden">
           <Topbar />
         </div>
-        <main className="flex-1 overflow-y-auto bg-muted/30 p-6 print:overflow-visible print:p-0 print:bg-white print:block">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-muted p-4 sm:p-6 print:overflow-visible print:p-0 print:bg-white print:block">{children}</main>
       </div>
     </div>
   )

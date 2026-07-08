@@ -12,6 +12,7 @@ import { createClient } from '@/lib/supabase/server'
 import { signOut } from '@/lib/auth/actions'
 import { getUnreadCount } from '@/lib/notifications/actions'
 import { NotificationDropdown } from './notification-dropdown'
+import { MobileNav } from './mobile-nav'
 
 export async function Topbar() {
   const supabase = await createClient()
@@ -29,12 +30,15 @@ export async function Topbar() {
 
   return (
     <header className="flex h-16 shrink-0 items-center justify-between border-b bg-card px-6">
-      {/* Logo mobile */}
-      <div className="flex items-center gap-2.5 md:hidden">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary">
-          <span className="text-[10px] font-bold text-primary-foreground">CV</span>
+      {/* Menu e logo mobile */}
+      <div className="flex items-center gap-2 md:hidden">
+        <MobileNav />
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-emerald-700">
+            <span className="text-[10px] font-bold text-primary-foreground">CV</span>
+          </div>
+          <span className="text-sm font-semibold">CampoVisto.IA</span>
         </div>
-        <span className="text-sm font-semibold">CampoVisto.IA</span>
       </div>
 
       <div className="hidden md:block" />

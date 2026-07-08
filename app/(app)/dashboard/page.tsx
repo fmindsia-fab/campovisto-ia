@@ -44,17 +44,17 @@ export default async function DashboardPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-        <StatCard title="Clientes" value={clients.length} icon={Users} />
-        <StatCard title="Propriedades" value={properties.length} icon={MapPin} />
-        <StatCard title="Vistorias em andamento" value={inspectionsInProgress} icon={ClipboardList} />
-        <StatCard title="Relatórios gerados" value={reports.length} icon={FileText} />
+        <StatCard title="Clientes" value={clients.length} icon={Users} variant="blue" />
+        <StatCard title="Propriedades" value={properties.length} icon={MapPin} variant="purple" />
+        <StatCard title="Vistorias em andamento" value={inspectionsInProgress} icon={ClipboardList} variant="amber" />
+        <StatCard title="Relatórios gerados" value={reports.length} icon={FileText} variant="green" />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-        <StatCard title="Atividades planejadas" value={plannedCount} icon={Circle} iconClassName="bg-slate-100" />
-        <StatCard title="Atividades iniciadas" value={startedCount} icon={PlayCircle} iconClassName="bg-blue-100" />
-        <StatCard title="Atividades finalizadas" value={doneCount} icon={CheckCircle2} iconClassName="bg-green-100" />
-        <StatCard title="Atividades atrasadas" value={overdueCount} icon={AlertTriangle} iconClassName="bg-red-100" />
+        <StatCard title="Atividades planejadas" value={plannedCount} icon={Circle} variant="slate" />
+        <StatCard title="Atividades iniciadas" value={startedCount} icon={PlayCircle} variant="blue" />
+        <StatCard title="Atividades finalizadas" value={doneCount} icon={CheckCircle2} variant="green" />
+        <StatCard title="Atividades atrasadas" value={overdueCount} icon={AlertTriangle} variant="red" />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
