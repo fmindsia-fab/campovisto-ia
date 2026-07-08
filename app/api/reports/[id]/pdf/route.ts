@@ -11,6 +11,24 @@ interface Props {
   params: Promise<{ id: string }>
 }
 
+const DIACRITICS_REGEX = new RegExp('[̀-ͯ]', 'g')
+
+function slugifyFilename(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(DIACRITICS_REGEX, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+function buildDownloadFilename(propertyName: string | null, visitDate: string | null): string {
+  const namePart = slugifyFilename(propertyName || 'relatorio') || 'relatorio'
+  const datePart = visitDate
+    ? slugifyFilename(new Date(`${visitDate}T00:00:00`).toLocaleDateString('pt-BR'))
+    : ''
+  return `${[namePart, datePart].filter(Boolean).join('-')}.pdf`
+}
+
 export async function POST(request: NextRequest, { params }: Props) {
   try {
     const { id } = await params
@@ -23,7 +41,7 @@ export async function POST(request: NextRequest, { params }: Props) {
 
     const { data: report, error: reportError } = await (supabase as any)
       .from('reports')
-      .select('id, status')
+      .select('id, status, title, inspections(visit_date, properties(name))')
       .eq('id', id)
       .single()
 
@@ -58,9 +76,14 @@ export async function POST(request: NextRequest, { params }: Props) {
 
     await (supabase as any).from('reports').update({ pdf_path: path }).eq('id', id)
 
+    const downloadFilename = buildDownloadFilename(
+      report.inspections?.properties?.name ?? report.title ?? null,
+      report.inspections?.visit_date ?? null
+    )
+
     const { data: signedUrlData, error: signedUrlError } = await (supabase as any).storage
       .from('report-pdfs')
-      .createSignedUrl(path, 60 * 60)
+      .createSignedUrl(path, 60 * 60, { download: downloadFilename })
 
     if (signedUrlError || !signedUrlData) {
       return NextResponse.json({ error: 'PDF salvo, mas falha ao gerar link de download' }, { status: 500 })
