@@ -1,10 +1,5 @@
-import OpenAI from 'openai'
 import { SPECTRAL_IMAGE_TYPES } from '@/types'
 import type { ImageType } from '@/types'
-
-export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
 
 export interface AnalysisResult {
   visibleElements: string[]
@@ -200,7 +195,7 @@ Foque em: exposição de solo, degradação de pastagem em áreas de baixa cober
 TODOS os textos em PORTUGUÊS DO BRASIL.`,
 }
 
-function getPrompt(imageType: string | null): string {
+export function getPrompt(imageType: string | null): string {
   if (imageType === 'livestock') return LIVESTOCK_PROMPT
   if (imageType && imageType in SPECTRAL_PROMPTS) return SPECTRAL_PROMPTS[imageType]
   return RGB_PROMPT
@@ -211,14 +206,10 @@ export function isSpectralImage(imageType: string | null): boolean {
   return SPECTRAL_IMAGE_TYPES.includes(imageType as ImageType)
 }
 
-export async function analyzeImageWithOpenAI(
-  imageUrl: string,
-  imageType: string | null,
-  fieldObservations: string | null
-): Promise<AnalysisResult> {
+export function buildUserMessage(imageType: string | null, fieldObservations: string | null): string {
   const spectral = isSpectralImage(imageType)
 
-  const userMessage = [
+  return [
     imageType ? `Tipo de imagem: ${imageType.toUpperCase()}` : null,
     fieldObservations ? `Observações de campo do operador: ${fieldObservations}` : null,
     spectral
@@ -227,27 +218,4 @@ export async function analyzeImageWithOpenAI(
   ]
     .filter(Boolean)
     .join('\n')
-
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    max_tokens: 1500,
-    messages: [
-      { role: 'system', content: getPrompt(imageType) },
-      {
-        role: 'user',
-        content: [
-          { type: 'text', text: userMessage },
-          { type: 'image_url', image_url: { url: imageUrl, detail: 'high' } },
-        ],
-      },
-    ],
-  })
-
-  const raw = response.choices[0]?.message?.content ?? ''
-  const jsonMatch = raw.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) {
-    throw new Error('Resposta da IA não contém JSON válido')
-  }
-
-  return JSON.parse(jsonMatch[0]) as AnalysisResult
 }

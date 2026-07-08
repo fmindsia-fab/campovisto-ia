@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server'
-import { analyzeImageWithOpenAI } from '@/lib/ai/openai'
+import { analyzeImageWithGemini } from '@/lib/ai/gemini'
 import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Campos obrigatórios ausentes' }, { status: 400 })
     }
 
-    const result = await analyzeImageWithOpenAI(imageUrl, imageType, fieldObservations)
+    const result = await analyzeImageWithGemini(imageUrl, imageType, fieldObservations)
 
     const { data: analysis, error: dbError } = await (supabase as any)
       .from('ai_analyses')
