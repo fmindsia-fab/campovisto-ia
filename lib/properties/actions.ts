@@ -8,17 +8,17 @@ export async function createProperty(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Não autenticado' }
 
-  const { error } = await (supabase as any).from('properties').insert({
+  const { data, error } = await (supabase as any).from('properties').insert({
     client_id: formData.get('client_id'),
     name: formData.get('name'),
     location: formData.get('location') || null,
     activity_type: formData.get('activity_type') || null,
     notes: formData.get('notes') || null,
     created_by: user.id,
-  })
+  }).select().single()
 
   if (error) return { error: error.message }
-  return { success: true }
+  return { success: true, data }
 }
 
 export async function updateProperty(id: string, formData: FormData) {

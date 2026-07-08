@@ -29,7 +29,7 @@ export async function createInspection(formData: FormData) {
   const propertyName = (data as any)?.properties?.name ?? 'Vistoria'
   await syncInspectionEvent(data.id, `Visita — ${propertyName}`, visitDate, user.id)
 
-  return { success: true }
+  return { success: true, data }
 }
 
 export async function updateInspection(id: string, formData: FormData) {

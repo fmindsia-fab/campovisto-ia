@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/server'
 export async function signIn(formData: FormData) {
   const supabase = await createClient()
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email: formData.get('email') as string,
     password: formData.get('password') as string,
   })
@@ -15,7 +15,15 @@ export async function signIn(formData: FormData) {
   if (error) return { error: error.message }
 
   revalidatePath('/', 'layout')
-  redirect('/dashboard')
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: profile } = await (supabase as any)
+    .from('profiles')
+    .select('onboarding_completed_at')
+    .eq('id', data.user.id)
+    .single()
+
+  redirect(profile?.onboarding_completed_at ? '/dashboard' : '/onboarding')
 }
 
 export async function signUp(formData: FormData) {

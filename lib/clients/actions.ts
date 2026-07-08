@@ -8,7 +8,7 @@ export async function createClient_(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Não autenticado' }
 
-  const { error } = await (supabase as any).from('clients').insert({
+  const { data, error } = await (supabase as any).from('clients').insert({
     name: formData.get('name'),
     phone: formData.get('phone') || null,
     email: formData.get('email') || null,
@@ -16,10 +16,10 @@ export async function createClient_(formData: FormData) {
     notes: formData.get('notes') || null,
     responsible_user_id: user.id,
     created_by: user.id,
-  })
+  }).select().single()
 
   if (error) return { error: error.message }
-  return { success: true }
+  return { success: true, data }
 }
 
 export async function updateClient(id: string, formData: FormData) {

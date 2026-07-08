@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Users, MapPin, ClipboardList, FileText, Circle, PlayCircle, CheckCircle2, AlertTriangle, Eye } from 'lucide-react'
+import { Users, MapPin, ClipboardList, FileText, Circle, PlayCircle, CheckCircle2, AlertTriangle, Eye, Sprout, ArrowRight } from 'lucide-react'
 import { PageHeader } from '@/components/shared/page-header'
 import { StatCard } from '@/components/shared/stat-card'
 import { EmptyState } from '@/components/shared/empty-state'
@@ -9,17 +9,21 @@ import { getInspections } from '@/lib/inspections/actions'
 import { getReports } from '@/lib/reports/actions'
 import { getActivities } from '@/lib/activities/actions'
 import { getPendingAnalyses } from '@/lib/ai-analyses/actions'
+import { getCurrentUser } from '@/lib/auth/get-current-user'
 import { addDaysISODate, todayISODate } from '@/lib/utils'
 
 export default async function DashboardPage() {
-  const [clients, properties, inspections, reports, activities, pendingAnalyses] = await Promise.all([
+  const [clients, properties, inspections, reports, activities, pendingAnalyses, current] = await Promise.all([
     getClients(),
     getProperties(),
     getInspections(),
     getReports(),
     getActivities(),
     getPendingAnalyses(5),
+    getCurrentUser(),
   ])
+
+  const showOnboardingBanner = !current?.profile?.onboarding_completed_at
 
   const inspectionsInProgress = inspections.filter((i: { status: string }) => i.status === 'in_progress').length
   const recentInspections = inspections.slice(0, 5)
@@ -42,6 +46,24 @@ export default async function DashboardPage() {
         title="Dashboard"
         description="Visão geral das operações"
       />
+
+      {showOnboardingBanner && (
+        <Link
+          href="/onboarding"
+          className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 transition-colors hover:bg-primary/10"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Sprout className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">Continue seu onboarding</p>
+              <p className="text-xs text-muted-foreground">Termine de configurar sua primeira vistoria em poucos passos.</p>
+            </div>
+          </div>
+          <ArrowRight className="h-4 w-4 shrink-0 text-primary" />
+        </Link>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
         <StatCard title="Clientes" value={clients.length} icon={Users} variant="blue" />
