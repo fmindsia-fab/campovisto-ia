@@ -148,6 +148,18 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
           width: '6px', background: '#16a34a',
         }} />
 
+        {/* Selo decorativo — badge ilustrado, sangrando no canto superior direito */}
+        <div style={{
+          position: 'absolute', top: '-40px', right: '-40px',
+          width: '220px', height: '220px', borderRadius: '9999px',
+          background: 'linear-gradient(135deg, #16a34a, #065f46)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 8px 24px rgba(6,95,70,0.25)',
+        }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/badge-negative.png" alt="" width={130} height={130} />
+        </div>
+
         {/* Área de conteúdo com padding */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '48px 48px 40px 56px' }}>
 
