@@ -34,11 +34,13 @@ export function LocationMapPicker({ locationDefault = '', latDefault = null, lng
   )
   const [searching, setSearching] = useState(false)
   const [results, setResults] = useState<NominatimResult[]>([])
+  const [searched, setSearched] = useState(false)
 
   async function handleSearch() {
     if (!location.trim()) return
     setSearching(true)
     setResults([])
+    setSearched(false)
     try {
       const res = await fetch(`/api/geo/search?q=${encodeURIComponent(location)}`)
       const data = (await res.json()) as NominatimResult[]
@@ -47,6 +49,7 @@ export function LocationMapPicker({ locationDefault = '', latDefault = null, lng
       // busca falhou — usuário ainda pode marcar manualmente no mapa
     } finally {
       setSearching(false)
+      setSearched(true)
     }
   }
 
@@ -54,6 +57,7 @@ export function LocationMapPicker({ locationDefault = '', latDefault = null, lng
     setCoords({ lat: parseFloat(r.lat), lng: parseFloat(r.lon) })
     setLocation(r.display_name)
     setResults([])
+    setSearched(false)
   }
 
   const center = coords ? ([coords.lat, coords.lng] as [number, number]) : BRAZIL_CENTER
@@ -92,6 +96,12 @@ export function LocationMapPicker({ locationDefault = '', latDefault = null, lng
             </button>
           ))}
         </div>
+      )}
+
+      {searched && results.length === 0 && (
+        <p className="text-xs text-amber-600">
+          Nenhum endereço encontrado. Localize a propriedade visualmente na imagem de satélite abaixo e clique para marcar o pino.
+        </p>
       )}
 
       <LocationMap

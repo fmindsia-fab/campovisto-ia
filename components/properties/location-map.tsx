@@ -48,10 +48,13 @@ export default function LocationMap({ lat, lng, zoom, onPick }: Props) {
       zoom={zoom}
       style={{ height: '220px', width: '100%', borderRadius: '8px', zIndex: 0 }}
     >
+      {/* imagem de satélite — Esri World Imagery, gratuito e sem chave de API */}
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+        url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
       />
+      {/* sobreposição de estradas e nomes de lugares por cima do satélite */}
+      <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}" />
       <Marker position={[lat, lng]} icon={markerIcon} />
       <ClickHandler onPick={onPick} />
       <RecenterOnChange lat={lat} lng={lng} />
