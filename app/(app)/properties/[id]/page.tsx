@@ -46,8 +46,6 @@ export default async function PropertyDetailPage({ params }: Props) {
                 {property.latitude != null && property.longitude != null && (
                   <a
                     href={`https://www.google.com/maps?q=${property.latitude},${property.longitude}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="text-primary hover:underline"
                   >
                     ver no mapa

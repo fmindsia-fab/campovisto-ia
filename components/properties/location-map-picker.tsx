@@ -132,8 +132,6 @@ export function LocationMapPicker({ locationDefault = '', latDefault = null, lng
           </p>
           <a
             href={`https://www.google.com/maps?q=${coords.lat},${coords.lng}`}
-            target="_blank"
-            rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
           >
             Abrir no Google Maps
