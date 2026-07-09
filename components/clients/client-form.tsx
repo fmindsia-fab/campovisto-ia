@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { CityAutocomplete } from '@/components/shared/city-autocomplete'
 import { createClient_, updateClient } from '@/lib/clients/actions'
 import type { Client } from '@/types'
 
@@ -53,7 +54,7 @@ export function ClientForm({ open, onClose, client }: ClientFormProps) {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="city">Cidade</Label>
-              <Input id="city" name="city" defaultValue={client?.city ?? ''} />
+              <CityAutocomplete defaultValue={client?.city ?? ''} />
             </div>
           </div>
 

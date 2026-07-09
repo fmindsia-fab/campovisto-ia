@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ImageUploader } from '@/components/inspections/image-uploader'
+import { CityAutocomplete } from '@/components/shared/city-autocomplete'
+import { LocationMapPicker } from '@/components/properties/location-map-picker'
 import { OnboardingStepper } from './onboarding-stepper'
 import { createClient_ } from '@/lib/clients/actions'
 import { createProperty } from '@/lib/properties/actions'
@@ -193,7 +195,7 @@ function ClientStep({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="city">Cidade</Label>
-            <Input id="city" name="city" />
+            <CityAutocomplete />
           </div>
         </div>
         {error && <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
@@ -248,10 +250,7 @@ function PropertyStep({
           <Label htmlFor="name">Nome da propriedade *</Label>
           <Input id="name" name="name" required placeholder="Ex: Fazenda do Dino" />
         </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="location">Localização</Label>
-          <Input id="location" name="location" placeholder="Município, estado" />
-        </div>
+        <LocationMapPicker />
         <div className="space-y-1.5">
           <Label>Tipo de atividade</Label>
           <Select value={activityType} onValueChange={setActivityType}>

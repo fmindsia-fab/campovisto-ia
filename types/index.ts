@@ -99,6 +99,8 @@ export interface Property {
   client_id: UUID
   name: string
   location: string | null
+  latitude: number | null
+  longitude: number | null
   activity_type: string | null
   notes: string | null
   created_by: UUID

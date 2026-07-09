@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { LocationMapPicker } from './location-map-picker'
 import { createProperty, updateProperty } from '@/lib/properties/actions'
 import type { Property, Client } from '@/types'
 
@@ -52,7 +53,7 @@ export function PropertyForm({ open, onClose, property, clients, defaultClientId
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{property ? 'Editar propriedade' : 'Nova propriedade'}</DialogTitle>
         </DialogHeader>
@@ -81,10 +82,11 @@ export function PropertyForm({ open, onClose, property, clients, defaultClientId
             <Input id="name" name="name" required defaultValue={property?.name} />
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="location">Localização</Label>
-            <Input id="location" name="location" placeholder="Município, estado" defaultValue={property?.location ?? ''} />
-          </div>
+          <LocationMapPicker
+            locationDefault={property?.location ?? ''}
+            latDefault={property?.latitude ?? null}
+            lngDefault={property?.longitude ?? null}
+          />
 
           <div className="space-y-1.5">
             <Label>Tipo de atividade</Label>

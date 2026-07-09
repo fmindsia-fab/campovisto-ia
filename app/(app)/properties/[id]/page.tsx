@@ -43,6 +43,16 @@ export default async function PropertyDetailPage({ params }: Props) {
               <div className="flex items-center gap-2 text-sm">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
                 <span>{property.location}</span>
+                {property.latitude != null && property.longitude != null && (
+                  <a
+                    href={`https://www.google.com/maps?q=${property.latitude},${property.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    ver no mapa
+                  </a>
+                )}
               </div>
             )}
             {property.activity_type && (

@@ -3,6 +3,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from '@/lib/supabase/server'
 
+function parseCoord(value: FormDataEntryValue | null): number | null {
+  if (!value) return null
+  const n = Number(value)
+  return Number.isFinite(n) ? n : null
+}
+
 export async function createProperty(formData: FormData) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -12,6 +18,8 @@ export async function createProperty(formData: FormData) {
     client_id: formData.get('client_id'),
     name: formData.get('name'),
     location: formData.get('location') || null,
+    latitude: parseCoord(formData.get('latitude')),
+    longitude: parseCoord(formData.get('longitude')),
     activity_type: formData.get('activity_type') || null,
     notes: formData.get('notes') || null,
     created_by: user.id,
@@ -27,6 +35,8 @@ export async function updateProperty(id: string, formData: FormData) {
   const { error } = await (supabase as any).from('properties').update({
     name: formData.get('name'),
     location: formData.get('location') || null,
+    latitude: parseCoord(formData.get('latitude')),
+    longitude: parseCoord(formData.get('longitude')),
     activity_type: formData.get('activity_type') || null,
     notes: formData.get('notes') || null,
   }).eq('id', id)
