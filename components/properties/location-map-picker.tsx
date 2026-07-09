@@ -2,10 +2,11 @@
 
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
-import { Search, Loader2, MapPin } from 'lucide-react'
+import { Search, Loader2, MapPin, ClipboardPaste, ExternalLink } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { parseCoordinates } from '@/lib/geo/coordinates'
 
 const LocationMap = dynamic(() => import('./location-map'), {
   ssr: false,
@@ -35,6 +36,8 @@ export function LocationMapPicker({ locationDefault = '', latDefault = null, lng
   const [searching, setSearching] = useState(false)
   const [results, setResults] = useState<NominatimResult[]>([])
   const [searched, setSearched] = useState(false)
+  const [pasteValue, setPasteValue] = useState('')
+  const [pasteError, setPasteError] = useState<string | null>(null)
 
   async function handleSearch() {
     if (!location.trim()) return
@@ -58,6 +61,17 @@ export function LocationMapPicker({ locationDefault = '', latDefault = null, lng
     setLocation(r.display_name)
     setResults([])
     setSearched(false)
+  }
+
+  function handleApplyPaste() {
+    const parsed = parseCoordinates(pasteValue)
+    if (!parsed) {
+      setPasteError('Não reconheci essas coordenadas. Cole no formato "lat, lng" ou o formato copiado do Google Maps.')
+      return
+    }
+    setPasteError(null)
+    setCoords(parsed)
+    setPasteValue('')
   }
 
   const center = coords ? ([coords.lat, coords.lng] as [number, number]) : BRAZIL_CENTER
@@ -111,11 +125,43 @@ export function LocationMapPicker({ locationDefault = '', latDefault = null, lng
         onPick={(lat, lng) => setCoords({ lat, lng })}
       />
 
-      <p className="text-xs text-muted-foreground">
-        {coords
-          ? `Coordenadas: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)} — clique no mapa para ajustar`
-          : 'Busque um endereço acima ou clique no mapa para marcar a localização exata'}
-      </p>
+      {coords ? (
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-xs text-muted-foreground">
+            Coordenadas: {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)} — clique no mapa para ajustar
+          </p>
+          <a
+            href={`https://www.google.com/maps?q=${coords.lat},${coords.lng}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+          >
+            Abrir no Google Maps
+            <ExternalLink className="h-3 w-3" />
+          </a>
+        </div>
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          Busque um endereço acima ou clique no mapa para marcar a localização exata
+        </p>
+      )}
+
+      <div className="flex gap-2">
+        <Input
+          value={pasteValue}
+          autoComplete="off"
+          onChange={(e) => { setPasteValue(e.target.value); setPasteError(null) }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') { e.preventDefault(); handleApplyPaste() }
+          }}
+          placeholder='Colar coordenadas (ex: -23.42066, -51.17668)'
+          className="text-xs"
+        />
+        <Button type="button" variant="outline" size="icon" onClick={handleApplyPaste} title="Aplicar coordenadas coladas">
+          <ClipboardPaste className="h-4 w-4" />
+        </Button>
+      </div>
+      {pasteError && <p className="text-xs text-destructive">{pasteError}</p>}
 
       <input type="hidden" name="latitude" value={coords?.lat ?? ''} />
       <input type="hidden" name="longitude" value={coords?.lng ?? ''} />
