@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/shared/page-header'
 import { EmptyState } from '@/components/shared/empty-state'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { OpenInMapsLink } from '@/components/shared/open-in-maps-link'
+import { OpenInMapsLink, CopyCoordinatesButton } from '@/components/shared/open-in-maps-link'
 import { getProperty } from '@/lib/properties/actions'
 import { getInspections } from '@/lib/inspections/actions'
 import { AddInspectionButton } from './add-inspection-button'
@@ -45,13 +45,20 @@ export default async function PropertyDetailPage({ params }: Props) {
                 <MapPin className="h-4 w-4 text-muted-foreground" />
                 <span>{property.location}</span>
                 {property.latitude != null && property.longitude != null && (
-                  <OpenInMapsLink
-                    lat={property.latitude}
-                    lng={property.longitude}
-                    className="text-primary hover:underline"
-                  >
-                    ver no mapa
-                  </OpenInMapsLink>
+                  <>
+                    <OpenInMapsLink
+                      lat={property.latitude}
+                      lng={property.longitude}
+                      className="text-primary hover:underline"
+                    >
+                      ver no mapa
+                    </OpenInMapsLink>
+                    <CopyCoordinatesButton
+                      lat={property.latitude}
+                      lng={property.longitude}
+                      className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground hover:underline"
+                    />
+                  </>
                 )}
               </div>
             )}

@@ -6,7 +6,7 @@ import { Search, Loader2, MapPin, ClipboardPaste, ExternalLink } from 'lucide-re
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { OpenInMapsLink } from '@/components/shared/open-in-maps-link'
+import { OpenInMapsLink, CopyCoordinatesButton } from '@/components/shared/open-in-maps-link'
 import { parseCoordinates } from '@/lib/geo/coordinates'
 
 const LocationMap = dynamic(() => import('./location-map'), {
@@ -131,14 +131,21 @@ export function LocationMapPicker({ locationDefault = '', latDefault = null, lng
           <p className="text-xs text-muted-foreground">
             Coordenadas: {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)} — clique no mapa para ajustar
           </p>
-          <OpenInMapsLink
-            lat={coords.lat}
-            lng={coords.lng}
-            className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-          >
-            Abrir no Google Maps
-            <ExternalLink className="h-3 w-3" />
-          </OpenInMapsLink>
+          <div className="flex items-center gap-3">
+            <OpenInMapsLink
+              lat={coords.lat}
+              lng={coords.lng}
+              className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+            >
+              Abrir no Google Maps
+              <ExternalLink className="h-3 w-3" />
+            </OpenInMapsLink>
+            <CopyCoordinatesButton
+              lat={coords.lat}
+              lng={coords.lng}
+              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground hover:underline"
+            />
+          </div>
         </div>
       ) : (
         <p className="text-xs text-muted-foreground">
