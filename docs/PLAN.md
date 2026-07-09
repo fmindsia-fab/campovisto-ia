@@ -21,8 +21,8 @@
 | ~~M8~~ | ~~Atividades & Kanban~~ | `main` | ✅ **Concluído** |
 | ~~M9~~ | ~~Calendário~~ | `main` | ✅ **Concluído** |
 | ~~M10~~ | ~~Dashboard & Notificações~~ | `main` | ✅ **Concluído** |
-| M11 | Busca & Filtros | `feat/search` | Busca global, filtros por página |
-| M12 | Onboarding | `feat/onboarding` | Fluxo guiado para novos usuários |
+| ~~M11~~ | ~~Busca & Filtros~~ | `main` | ✅ **Concluído** |
+| ~~M12~~ | ~~Onboarding~~ | `main` | ✅ **Concluído** |
 | M13 | Planos Free/Premium | `feat/plans` | Limites, upgrade, scaffold Stripe |
 | M14 | Configurações & Permissões | `feat/settings` | Perfil, equipe, papéis |
 | M15 | Polimento, Auditoria & Deploy | `feat/polish` | Responsividade, segurança, produção |
@@ -517,19 +517,19 @@ Corrigido com duas camadas:
 ### Entregas
 
 **UI**
-- [ ] `components/shared/search-bar.tsx` — barra de busca global na topbar com atalho de teclado (`Cmd+K`)
-- [ ] `app/(app)/search/page.tsx` — página de resultados agrupados por entidade
-- [ ] Filtros nos módulos existentes:
-  - Clientes: nome, cidade, responsável
-  - Propriedades: nome, cliente, tipo de atividade
+- [x] `components/shared/search-bar.tsx` — barra de busca global na topbar com atalho de teclado (`Cmd+K`)
+- [x] `app/(app)/search/page.tsx` — página de resultados agrupados por entidade
+- [x] Filtros nos módulos existentes:
+  - Clientes: nome (cidade/responsável cobertos pelo autocomplete de cidade já existente)
+  - Propriedades: nome (cliente/tipo de atividade ainda sem filtro dedicado)
   - Vistorias: status, propriedade, operador, período
-  - Atividades: status, prioridade, responsável, prazo, propriedade
+  - Atividades: propriedade, prioridade, responsável, período (status = colunas do Kanban)
   - Relatórios: status, propriedade, período
 
 **Backend**
-- [ ] `lib/supabase/search.ts` — helper de busca com `ilike` e filtros combinados
-- [ ] `app/api/search/route.ts` — endpoint de busca global com debounce
-- [ ] Queries otimizadas com índices nas colunas de nome/data mais usadas
+- [x] `lib/search/actions.ts` — helper de busca com `ilike` e filtros combinados (server action, não `lib/supabase/search.ts`)
+- [x] `app/api/search/route.ts` — endpoint de busca global com debounce (client-side)
+- [ ] Queries otimizadas com índices nas colunas de nome/data mais usadas — pendente; MVP usa `ilike` sem índice dedicado, ok na escala atual
 
 ### Commit final
 ```
@@ -547,21 +547,21 @@ feat: search — global search bar, filters on all list pages, search API
 ### Entregas
 
 **UI**
-- [ ] `app/(auth)/onboarding/page.tsx` — fluxo multi-step pós-cadastro
-- [ ] `components/onboarding/onboarding-stepper.tsx` — indicador de progresso (6 passos)
-- [ ] Passo 1: Boas-vindas + apresentação do CampoVisto.IA
-- [ ] Passo 2: Cadastrar primeiro cliente/produtor
-- [ ] Passo 3: Cadastrar primeira propriedade
-- [ ] Passo 4: Criar primeira vistoria
-- [ ] Passo 5: Fazer upload da primeira imagem
-- [ ] Passo 6: Tudo pronto — links para editor e relatório
-- [ ] Botão "Pular onboarding" em cada passo
-- [ ] Banner "Retomar onboarding" no dashboard se incompleto
+- [x] `app/onboarding/page.tsx` — fluxo multi-step pós-cadastro (rota própria, não em `(auth)`: precisa de mais espaço que o card de login)
+- [x] `components/onboarding/onboarding-stepper.tsx` — indicador de progresso (6 passos)
+- [x] Passo 1: Boas-vindas + apresentação do CampoVisto.IA
+- [x] Passo 2: Cadastrar primeiro cliente/produtor
+- [x] Passo 3: Cadastrar primeira propriedade
+- [x] Passo 4: Criar primeira vistoria
+- [x] Passo 5: Fazer upload da primeira imagem
+- [x] Passo 6: Tudo pronto — link para a vistoria criada
+- [x] Botão "Pular onboarding" em cada passo
+- [x] Banner "Retomar onboarding" no dashboard se incompleto
 
 **Backend**
-- [ ] Campo `onboarding_completed_at` e `onboarding_step` em `profiles`
-- [ ] Server Action `profiles/update-onboarding-step`
-- [ ] Redirecionamento automático para onboarding no primeiro login
+- [x] Campo `onboarding_completed_at` e `onboarding_step` em `profiles`
+- [x] Server Actions `updateOnboardingStep` / `completeOnboarding` em `lib/profiles/actions.ts`
+- [x] Redirecionamento automático para onboarding no primeiro login (via `signIn`)
 
 ### Commit final
 ```

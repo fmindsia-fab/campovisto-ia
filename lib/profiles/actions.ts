@@ -3,6 +3,17 @@
 
 import { createClient } from '@/lib/supabase/server'
 
+export async function getProfiles(): Promise<{ id: string; full_name: string | null }[]> {
+  const supabase = await createClient()
+  const { data, error } = await (supabase as any)
+    .from('profiles')
+    .select('id, full_name')
+    .order('full_name')
+
+  if (error) return []
+  return data
+}
+
 export async function updateOnboardingStep(step: number) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

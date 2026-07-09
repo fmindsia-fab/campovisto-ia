@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { DndContext, type DragEndEvent } from '@dnd-kit/core'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -30,6 +30,7 @@ interface Props {
 
 export function ActivitiesBoard({ initialActivities, profiles, properties, inspections }: Props) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [activities, setActivities] = useState(initialActivities)
   const [creating, setCreating] = useState(false)
   const [editing, setEditing] = useState<ActivityWithRelations | null>(null)
@@ -41,6 +42,14 @@ export function ActivitiesBoard({ initialActivities, profiles, properties, inspe
   const [periodFilter, setPeriodFilter] = useState('all')
 
   useEffect(() => setActivities(initialActivities), [initialActivities])
+
+  // deep-link vindo da busca global (?open=id) — abre o detalhe direto
+  useEffect(() => {
+    const openId = searchParams.get('open')
+    if (!openId) return
+    const found = initialActivities.find((a) => a.id === openId)
+    if (found) setViewing(found)
+  }, [searchParams, initialActivities])
 
   const filtered = useMemo(() => {
     return activities.filter((a) => {

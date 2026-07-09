@@ -69,7 +69,7 @@ export async function deleteInspection(id: string) {
   return { success: true }
 }
 
-export async function getInspections(propertyId?: string, status?: string) {
+export async function getInspections(propertyId?: string, status?: string, operatorId?: string) {
   const supabase = await createClient()
 
   let query = (supabase as any)
@@ -79,6 +79,7 @@ export async function getInspections(propertyId?: string, status?: string) {
 
   if (propertyId) query = query.eq('property_id', propertyId)
   if (status) query = query.eq('status', status)
+  if (operatorId) query = query.eq('operator_id', operatorId)
 
   const { data, error } = await query
   if (error) return []

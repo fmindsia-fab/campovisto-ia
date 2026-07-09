@@ -14,6 +14,7 @@ import { signOut } from '@/lib/auth/actions'
 import { getUnreadCount } from '@/lib/notifications/actions'
 import { NotificationDropdown } from './notification-dropdown'
 import { MobileNav } from './mobile-nav'
+import { SearchBar } from './search-bar'
 
 export async function Topbar() {
   const supabase = await createClient()
@@ -42,7 +43,9 @@ export async function Topbar() {
         </div>
       </div>
 
-      <div className="hidden md:block" />
+      <div className="hidden md:block">
+        <SearchBar />
+      </div>
 
       {/* Ações à direita */}
       <div className="flex items-center gap-1">
