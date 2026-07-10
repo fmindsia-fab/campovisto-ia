@@ -5,6 +5,19 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+// Máscara de telefone BR — (DD) NNNN-NNNN (fixo) ou (DD) NNNNN-NNNN (celular),
+// formata progressivamente conforme os dígitos são digitados
+export function formatPhoneBR(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 11)
+  const len = digits.length
+
+  if (len === 0) return ''
+  if (len <= 2) return `(${digits}`
+  if (len <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
+  if (len <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
+}
+
 // Fuso fixo do Brasil (sem DST desde 2019) — não usar o fuso "local" do runtime:
 // em Server Components/Server Actions rodando na Vercel, o runtime opera em UTC
 // por padrão, o que faria "hoje" virar o dia seguinte durante a noite no Brasil.

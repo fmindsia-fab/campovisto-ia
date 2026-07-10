@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { CityAutocomplete } from '@/components/shared/city-autocomplete'
+import { PhoneInput } from '@/components/shared/phone-input'
 import { createClient_, updateClient } from '@/lib/clients/actions'
 import type { Client } from '@/types'
 
@@ -50,7 +51,7 @@ export function ClientForm({ open, onClose, client }: ClientFormProps) {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="phone">Telefone</Label>
-              <Input id="phone" name="phone" defaultValue={client?.phone ?? ''} />
+              <PhoneInput defaultValue={client?.phone ?? ''} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="city">Cidade</Label>

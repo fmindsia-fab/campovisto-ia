@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ImageUploader } from '@/components/inspections/image-uploader'
 import { CityAutocomplete } from '@/components/shared/city-autocomplete'
+import { PhoneInput } from '@/components/shared/phone-input'
 import { LocationMapPicker } from '@/components/properties/location-map-picker'
 import { OnboardingStepper } from './onboarding-stepper'
 import { createClient_ } from '@/lib/clients/actions'
@@ -191,7 +192,7 @@ function ClientStep({
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label htmlFor="phone">Telefone</Label>
-            <Input id="phone" name="phone" />
+            <PhoneInput />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="city">Cidade</Label>

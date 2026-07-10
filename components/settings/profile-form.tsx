@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { PhoneInput } from '@/components/shared/phone-input'
 import { updateProfile } from '@/lib/profiles/actions'
 
 interface Props {
@@ -35,7 +36,7 @@ export function ProfileForm({ fullName, phone }: Props) {
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="phone">Telefone</Label>
-          <Input id="phone" name="phone" defaultValue={phone ?? ''} />
+          <PhoneInput defaultValue={phone ?? ''} />
         </div>
       </div>
       <Button type="submit" disabled={loading}>
