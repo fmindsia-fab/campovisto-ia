@@ -679,14 +679,19 @@ feat: settings — profile, team management, role assignment, email invites via 
   - erro de upload no meio do lote só ia pro console, nunca aparecia pro usuário — agora usa toast + remove o arquivo órfão do storage se o insert falhar
   - `linkClientUser` não impedia sobrescrever silenciosamente o vínculo de outro usuário — agora retorna erro
 - [x] Variáveis de ambiente documentadas em `.env.example` — `NEXT_PUBLIC_SITE_URL` adicionada
-- [ ] `console.log`/`console.error` de debug ainda presentes em 6 arquivos (não vazam segredo, mas devem ser limpos)
+- [x] `console.error` revisado — os 6 usos existentes são log de erro legítimo (storage/IA/PDF), não debug esquecido; mantidos de propósito
 
 **Deploy & Verificação**
-- [ ] Build de produção sem erros: `npm run build`
-- [ ] Deploy na Vercel: `main` branch
-- [ ] Smoke test em produção: criar conta → onboarding → vistoria → análise → relatório → atividade
-- [ ] Domínio configurado (se disponível)
-- [ ] Limites de serverless validados para PDF e chamadas de IA
+- [x] Build de produção sem erros: `npm run build` — verificado repetidamente ao longo de toda a sessão
+- [x] Deploy na Vercel: `main` branch — já em produção (campovisto-ia.vercel.app), deploy automático a cada push
+- [x] Limites de serverless validados para PDF e chamadas de IA — testado pelo usuário em produção (export de PDF via Playwright/Sparticuz, análise via Gemini)
+- [ ] Smoke test completo em produção: criar conta → onboarding → vistoria → análise → relatório → atividade — testado em partes ao longo da sessão, não como fluxo único de ponta a ponta
+- [ ] Domínio próprio configurado — pendente, depende do usuário ter um domínio disponível
+
+**Pendente — precisa de sessão dedicada com navegador/dispositivo real:**
+- [ ] Audit de responsividade (375px/768px/desktop) tela por tela
+- [ ] Error boundaries nos módulos críticos (ainda não implementados)
+- [ ] Confirmar loading skeleton/empty state em toda lista (a maioria já tem, não foi auditado 100%)
 
 ### Commit final
 ```
