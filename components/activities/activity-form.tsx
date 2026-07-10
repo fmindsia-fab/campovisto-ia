@@ -93,7 +93,7 @@ export function ActivityForm({ open, onClose, activity, profiles, inspections = 
             <Textarea id="description" name="description" rows={3} defaultValue={activity?.description ?? initial?.description ?? ''} />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label>Categoria</Label>
               <Select value={category} onValueChange={setCategory}>
@@ -138,7 +138,7 @@ export function ActivityForm({ open, onClose, activity, profiles, inspections = 
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label>Responsável</Label>
               <Select value={assignedTo} onValueChange={setAssignedTo}>

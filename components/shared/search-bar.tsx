@@ -89,6 +89,17 @@ export function SearchBar() {
         <kbd className="rounded border bg-muted px-1.5 py-0.5 text-[10px] font-medium">⌘K</kbd>
       </button>
 
+      {/* abaixo do breakpoint md o botão acima fica hidden (não cabe na
+          topbar mobile) — sem isso a busca global ficava inacessível no
+          celular, já que o atalho ⌘K também não existe em teclado touch */}
+      <button
+        onClick={() => setOpen(true)}
+        className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-muted md:hidden"
+        aria-label="Buscar"
+      >
+        <Search className="h-5 w-5" />
+      </button>
+
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="max-w-lg p-0 gap-0 top-[20%] translate-y-0">
           <div className="flex items-center gap-2 border-b px-4 py-3">

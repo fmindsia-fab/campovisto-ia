@@ -45,9 +45,7 @@ export async function Topbar() {
         </div>
       </div>
 
-      <div className="hidden md:block">
-        <SearchBar />
-      </div>
+      <SearchBar />
 
       {/* Ações à direita */}
       <div className="flex items-center gap-1">
