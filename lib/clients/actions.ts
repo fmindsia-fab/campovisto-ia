@@ -2,6 +2,8 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/get-current-user'
+import { hasRole } from '@/lib/auth/has-role'
 
 export async function createClient_(formData: FormData) {
   const supabase = await createClient()
@@ -59,6 +61,47 @@ export async function getClients(search?: string) {
   const { data, error } = await query
   if (error) return []
   return data
+}
+
+export interface ClientOption { id: string; name: string; linked_user_id: string | null }
+
+// admin usa isso pra saber quais registros de cliente existem ao vincular
+// um usuário de papel `client` — precisa ver todos independente de vínculo
+export async function getClientOptions(): Promise<ClientOption[]> {
+  const current = await getCurrentUser()
+  if (!current || !hasRole(current.roles, 'admin')) return []
+
+  const supabase = await createClient()
+  const { data, error } = await (supabase as any)
+    .from('clients')
+    .select('id, name, linked_user_id')
+    .order('name')
+
+  if (error) return []
+  return data
+}
+
+// Vincula (ou desvincula, se clientId for null) um usuário a um registro de
+// cliente. Um usuário só pode estar vinculado a um cliente por vez — libera
+// qualquer vínculo anterior antes de aplicar o novo.
+export async function linkClientUser(clientId: string | null, userId: string) {
+  const current = await getCurrentUser()
+  if (!current || !hasRole(current.roles, 'admin')) return { error: 'Apenas administradores podem vincular clientes' }
+
+  const supabase = await createClient()
+
+  await (supabase as any).from('clients').update({ linked_user_id: null }).eq('linked_user_id', userId)
+
+  if (clientId) {
+    const { error } = await (supabase as any)
+      .from('clients')
+      .update({ linked_user_id: userId })
+      .eq('id', clientId)
+
+    if (error) return { error: error.message }
+  }
+
+  return { success: true }
 }
 
 export async function getClient(id: string) {

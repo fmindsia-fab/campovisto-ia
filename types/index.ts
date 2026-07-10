@@ -93,6 +93,7 @@ export interface Client {
   city: string | null
   notes: string | null
   responsible_user_id: UUID | null
+  linked_user_id: UUID | null
   created_by: UUID
   created_at: ISODateString
   updated_at: ISODateString

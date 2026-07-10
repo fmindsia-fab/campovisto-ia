@@ -663,14 +663,14 @@ feat: settings — profile, team management, role assignment, email invites via 
 - [ ] Error boundaries nos módulos críticos
 
 **Segurança & Qualidade**
-- [ ] Auditoria de segurança Supabase (`/supabase-security-audit`):
-  - RLS habilitado e testado em todas as tabelas
-  - Storage policies revisadas
-  - `service_role` não exposto no frontend
-  - Inputs sanitizados em todos os forms
-- [ ] Code review completo (`/code-review`)
-- [ ] Variáveis de ambiente documentadas em `.env.example`
-- [ ] `console.log` e código de debug removidos
+- [x] Auditoria de segurança Supabase (`/supabase-security-audit`) — feita, achados:
+  - [x] **Crítico corrigido**: papel `client` não tinha isolamento — qualquer autenticado via RLS `auth.role() = 'authenticated'` enxergava/editava clients/properties/inspections/reports/ai_analyses/annotations de todo mundo. Resolvido na migration `020_client_role_isolation.sql`: `clients.linked_user_id` + função `is_staff()` + policies reescritas (staff continua com acesso total; um usuário só-`client` só lê o que está ligado ao seu `linked_user_id`; activities/calendar/comments viram staff-only). UI de vínculo adicionada no dialog de papéis (Configurações → Equipe).
+  - [ ] Médio (ainda aberto): policies do bucket `avatars` não restringem por dono (qualquer autenticado sobrescreve avatar de qualquer um); limites de plano só são checados na aplicação, não no banco (bypassável via API direta); buckets `drone-images`/`field-photos` não estão em migration (criados manualmente, provável público via `getPublicUrl`)
+  - [x] `service_role` não exposto no frontend — confirmado, nunca usado no projeto
+  - [ ] RLS habilitado e testado em todas as tabelas — habilitado em todas; "testado com usuário de outro papel" ainda pendente de teste manual em produção
+- [ ] Code review completo (`/code-review`) — ainda não feito
+- [ ] Variáveis de ambiente documentadas em `.env.example` — falta `NEXT_PUBLIC_SITE_URL`
+- [ ] `console.log`/`console.error` de debug ainda presentes em 6 arquivos (não vazam segredo, mas devem ser limpos)
 
 **Deploy & Verificação**
 - [ ] Build de produção sem erros: `npm run build`
