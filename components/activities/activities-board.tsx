@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { DndContext, type DragEndEvent } from '@dnd-kit/core'
+import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -40,6 +40,16 @@ export function ActivitiesBoard({ initialActivities, profiles, properties, inspe
   const [priorityFilter, setPriorityFilter] = useState('all')
   const [assignedFilter, setAssignedFilter] = useState('all')
   const [periodFilter, setPeriodFilter] = useState('all')
+
+  // sem isso, o @dnd-kit usa só o PointerSensor padrão — no toque, o
+  // navegador interpreta o gesto como rolagem da página antes do drag
+  // conseguir começar. O delay no TouchSensor é o que distingue "arrastar"
+  // de "rolar a tela": um toque rápido que se move mais que a tolerância
+  // dentro do delay é tratado como scroll normal, não como início de drag.
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } })
+  )
 
   useEffect(() => setActivities(initialActivities), [initialActivities])
 
@@ -143,7 +153,7 @@ export function ActivitiesBoard({ initialActivities, profiles, properties, inspe
           action={<Button onClick={() => setCreating(true)}>Criar atividade</Button>}
         />
       ) : (
-        <DndContext onDragEnd={handleDragEnd}>
+        <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {COLUMNS.map((col) => (
               <KanbanColumn
