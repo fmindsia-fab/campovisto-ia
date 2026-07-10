@@ -9,7 +9,7 @@ export async function checkImageUploadAllowed(inspectionId: string, additionalCo
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { allowed: false, reason: 'Não autenticado' }
 
-  return checkCanUploadImage(user.id, inspectionId, additionalCount)
+  return checkCanUploadImage(inspectionId, additionalCount)
 }
 
 export async function saveImageRecord(data: {

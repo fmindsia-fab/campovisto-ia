@@ -40,19 +40,19 @@ export async function POST(request: NextRequest, { params }: Props) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
     }
 
-    const limitCheck = await checkCanExportPdf(user.id)
-    if (!limitCheck.allowed) {
-      return NextResponse.json({ error: limitCheck.reason, code: limitCheck.code }, { status: 403 })
-    }
-
     const { data: report, error: reportError } = await (supabase as any)
       .from('reports')
-      .select('id, status, title, inspections(visit_date, properties(name))')
+      .select('id, status, title, inspection_id, inspections(visit_date, properties(name))')
       .eq('id', id)
       .single()
 
     if (reportError || !report) {
       return NextResponse.json({ error: 'Relatório não encontrado' }, { status: 404 })
+    }
+
+    const limitCheck = await checkCanExportPdf(report.inspection_id)
+    if (!limitCheck.allowed) {
+      return NextResponse.json({ error: limitCheck.reason, code: limitCheck.code }, { status: 403 })
     }
 
     if (report.status !== 'approved' && report.status !== 'published') {

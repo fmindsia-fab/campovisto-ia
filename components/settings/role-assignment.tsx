@@ -43,7 +43,14 @@ export function RoleAssignment({ member, open, onClose, onUpdated }: Props) {
   }, [open, member.id])
 
   function toggle(role: RoleName, checked: boolean) {
-    setSelected((prev) => checked ? [...prev, role] : prev.filter((r) => r !== role))
+    setSelected((prev) => {
+      if (!checked) return prev.filter((r) => r !== role)
+
+      // client e papéis de staff são mutuamente exclusivos — marcar um
+      // desmarca todos os do outro grupo automaticamente
+      if (role === 'client') return ['client']
+      return [...prev.filter((r) => r !== 'client'), role]
+    })
   }
 
   async function handleSave() {

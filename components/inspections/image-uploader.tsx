@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { Upload, X, ChevronRight } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { createBrowserClient } from '@supabase/ssr'
 import { ImageTypeSelector } from './image-type-selector'
@@ -64,6 +65,7 @@ export function ImageUploader({ inspectionId, onUploaded }: ImageUploaderProps) 
     // captura snapshot dos arquivos antes do loop — evita bug de índice ao modificar estado
     const snapshot = [...files]
     let uploadedCount = 0
+    let failedCount = 0
 
     for (let i = 0; i < snapshot.length; i++) {
       const { file } = snapshot[i]
@@ -77,6 +79,7 @@ export function ImageUploader({ inspectionId, onUploaded }: ImageUploaderProps) 
 
       if (storageError) {
         console.error('Storage error:', storageError.message)
+        failedCount++
         continue
       }
 
@@ -93,10 +96,26 @@ export function ImageUploader({ inspectionId, onUploaded }: ImageUploaderProps) 
 
       if (dbError) {
         console.error('DB error:', dbError.message)
+        failedCount++
+        // desfaz o upload — sem isso o arquivo fica órfão no bucket, sem
+        // nenhuma linha em inspection_images apontando pra ele
+        await supabase.storage.from('drone-images').remove([path])
         continue
       }
 
       uploadedCount++
+    }
+
+    if (failedCount > 0) {
+      const message = uploadedCount > 0
+        ? `${uploadedCount} imagem(ns) enviada(s), mas ${failedCount} falhou(aram) — pode ser o limite do plano. Tente novamente ou verifique seu plano.`
+        : 'Nenhuma imagem foi enviada — pode ser o limite do plano ou uma falha de conexão. Tente novamente.'
+
+      // usa toast (não só o estado local) porque uploadedCount > 0 chama
+      // onUploaded() logo abaixo, que costuma fechar/desmontar esse
+      // componente — uma mensagem só em estado local nunca chegaria a aparecer
+      toast.error(message)
+      setLimitError(message)
     }
 
     if (uploadedCount > 0) {

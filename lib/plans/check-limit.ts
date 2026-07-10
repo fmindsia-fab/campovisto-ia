@@ -41,6 +41,24 @@ export async function getUserPlan(userId: string): Promise<Plan> {
   return (data?.plans as Plan) ?? FREE_PLAN_FALLBACK
 }
 
+// O plano que vale pra vistoria/imagem/relatório é o de quem É DONO do
+// registro (operator_id da vistoria), não o de quem está clicando no botão —
+// alinhado com os triggers de banco (enforce_image_limit etc., migration 022),
+// que checam a mesma coisa. Uma coisa só é evitar checagem da aplicação e
+// checagem do banco discordando quando um membro da equipe age sobre uma
+// vistoria de outro.
+async function getInspectionOwnerPlan(inspectionId: string): Promise<Plan> {
+  const supabase = await createClient()
+  const { data } = await (supabase as any)
+    .from('inspections')
+    .select('operator_id')
+    .eq('id', inspectionId)
+    .maybeSingle()
+
+  if (!data?.operator_id) return FREE_PLAN_FALLBACK
+  return getUserPlan(data.operator_id)
+}
+
 export async function checkCanCreateProperty(userId: string): Promise<LimitCheck> {
   const supabase = await createClient()
   const plan = await getUserPlan(userId)
@@ -81,9 +99,9 @@ export async function checkCanCreateInspection(userId: string): Promise<LimitChe
   return { allowed: true }
 }
 
-export async function checkCanUploadImage(userId: string, inspectionId: string, additionalCount = 1): Promise<LimitCheck> {
+export async function checkCanUploadImage(inspectionId: string, additionalCount = 1): Promise<LimitCheck> {
   const supabase = await createClient()
-  const plan = await getUserPlan(userId)
+  const plan = await getInspectionOwnerPlan(inspectionId)
   if (plan.max_images_per_inspection == null) return { allowed: true }
 
   const { count } = await (supabase as any)
@@ -101,8 +119,8 @@ export async function checkCanUploadImage(userId: string, inspectionId: string, 
   return { allowed: true }
 }
 
-export async function checkCanUseAI(userId: string): Promise<LimitCheck> {
-  const plan = await getUserPlan(userId)
+export async function checkCanUseAI(inspectionId: string): Promise<LimitCheck> {
+  const plan = await getInspectionOwnerPlan(inspectionId)
   if (!plan.ai_analysis) {
     return {
       allowed: false,
@@ -113,8 +131,8 @@ export async function checkCanUseAI(userId: string): Promise<LimitCheck> {
   return { allowed: true }
 }
 
-export async function checkCanExportPdf(userId: string): Promise<LimitCheck> {
-  const plan = await getUserPlan(userId)
+export async function checkCanExportPdf(inspectionId: string): Promise<LimitCheck> {
+  const plan = await getInspectionOwnerPlan(inspectionId)
   if (!plan.pdf_export) {
     return {
       allowed: false,

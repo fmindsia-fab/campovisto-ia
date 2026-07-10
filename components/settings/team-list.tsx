@@ -83,6 +83,7 @@ export function TeamList({ members: initialMembers, currentUserId }: Props) {
 
       {editing && (
         <RoleAssignment
+          key={editing.id}
           member={editing}
           open={!!editing}
           onClose={() => setEditing(null)}

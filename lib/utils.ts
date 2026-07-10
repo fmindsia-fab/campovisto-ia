@@ -5,8 +5,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// Máscara de telefone BR — (DD) NNNN-NNNN (fixo) ou (DD) NNNNN-NNNN (celular),
-// formata progressivamente conforme os dígitos são digitados
+// Não dá pra saber de antemão se o número vai ser fixo (10 dígitos) ou
+// celular (11) — por isso o corte do traço muda de posição dependendo de
+// quantos dígitos já foram digitados, em vez de um formato fixo.
 export function formatPhoneBR(value: string): string {
   const digits = value.replace(/\D/g, '').slice(0, 11)
   const len = digits.length

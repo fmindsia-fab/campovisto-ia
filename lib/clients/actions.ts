@@ -90,6 +90,18 @@ export async function linkClientUser(clientId: string | null, userId: string) {
 
   const supabase = await createClient()
 
+  if (clientId) {
+    const { data: target } = await (supabase as any)
+      .from('clients')
+      .select('linked_user_id')
+      .eq('id', clientId)
+      .maybeSingle()
+
+    if (target?.linked_user_id && target.linked_user_id !== userId) {
+      return { error: 'Esse cliente já está vinculado a outro usuário' }
+    }
+  }
+
   await (supabase as any).from('clients').update({ linked_user_id: null }).eq('linked_user_id', userId)
 
   if (clientId) {

@@ -671,7 +671,13 @@ feat: settings — profile, team management, role assignment, email invites via 
     - buckets `drone-images`/`field-photos` agora estão versionados em migration (antes só existiam manualmente no dashboard), mantidos públicos pra não quebrar o `getPublicUrl()` já usado em várias páginas
   - [x] `service_role` não exposto no frontend — confirmado, nunca usado no projeto
   - [ ] RLS habilitado e testado em todas as tabelas — habilitado em todas; "testado com usuário de outro papel" ainda pendente de teste manual em produção
-- [ ] Code review completo (`/code-review`) — ainda não feito
+- [x] Code review completo (`/code-review`, 8 agentes, medium effort sobre o diff de M13-M15) — 6 achados confirmados e corrigidos na migration `022_code_review_fixes.sql` + código:
+  - papel `client` e papéis de staff eram cumuláveis (novo usuário sempre nasce com `field_operator`; se o admin marcasse "Cliente" sem desmarcar o resto, `is_staff()` continuava true e a isolação da 020 virava letra morta) — agora mutuamente exclusivos na UI de atribuição de papéis
+  - buckets `drone-images`/`field-photos` aceitavam upload/delete de "qualquer autenticado", não só staff — corrigido pra `is_staff()`
+  - triggers de limite de plano (021) falhavam aberto (sem limite nenhum) se a linha de `subscriptions` não existisse — centralizado num `public.user_plan()` com fallback pro Free
+  - checagem de limite na aplicação (IA, PDF, upload de imagem) usava o plano de quem está clicando, mas o trigger do banco usa o plano do dono do registro — alinhados os dois pro dono
+  - erro de upload no meio do lote só ia pro console, nunca aparecia pro usuário — agora usa toast + remove o arquivo órfão do storage se o insert falhar
+  - `linkClientUser` não impedia sobrescrever silenciosamente o vínculo de outro usuário — agora retorna erro
 - [x] Variáveis de ambiente documentadas em `.env.example` — `NEXT_PUBLIC_SITE_URL` adicionada
 - [ ] `console.log`/`console.error` de debug ainda presentes em 6 arquivos (não vazam segredo, mas devem ser limpos)
 
