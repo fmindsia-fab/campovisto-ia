@@ -23,7 +23,7 @@
 | ~~M10~~ | ~~Dashboard & Notificações~~ | `main` | ✅ **Concluído** |
 | ~~M11~~ | ~~Busca & Filtros~~ | `main` | ✅ **Concluído** |
 | ~~M12~~ | ~~Onboarding~~ | `main` | ✅ **Concluído** |
-| M13 | Planos Free/Premium | `feat/plans` | Limites, upgrade, scaffold Stripe |
+| ~~M13~~ | ~~Planos Free/Premium~~ | `main` | ✅ **Concluído** (Stripe adiado de propósito) |
 | M14 | Configurações & Permissões | `feat/settings` | Perfil, equipe, papéis |
 | M15 | Polimento, Auditoria & Deploy | `feat/polish` | Responsividade, segurança, produção |
 
@@ -579,29 +579,28 @@ feat: onboarding — 6-step guided flow, skip option, resume from dashboard
 ### Entregas
 
 **UI**
-- [ ] `app/(app)/settings/plan/page.tsx` — página de plano atual com uso e limites
-- [ ] `components/plans/plan-comparison.tsx` — tabela Free vs Premium com features
-- [ ] `components/plans/upgrade-modal.tsx` — modal disparado ao atingir limite (com CTA de upgrade)
-- [ ] Badge de plano no avatar/topbar
-- [ ] Indicador de uso (ex: "2/3 vistorias usadas")
+- [x] `app/(app)/settings/plan/page.tsx` — página de plano atual com uso e limites
+- [x] `components/plans/plan-comparison.tsx` — tabela Free vs Premium com features
+- [x] `components/plans/upgrade-button.tsx` — CTA de upgrade (sem modal dedicado; erro de limite já aparece inline nos formulários/toasts existentes)
+- [x] Badge de plano no avatar/topbar
+- [x] Indicador de uso (barra "2/3 vistorias usadas")
 
 **Backend — Banco**
-- [ ] Migration `010_plans.sql`:
-  - Tabela `plans` (id, name, max_properties, max_inspections_per_month, max_images_per_inspection, ai_analysis, pdf_export, kanban, calendar, notifications, price_monthly)
-  - Tabela `subscriptions` (id, user_id, plan_id, status, stripe_customer_id, stripe_subscription_id, current_period_end)
-  - Tabela `usage_limits` (id, user_id, month, properties_count, inspections_count)
+- [x] Migration `018_plans.sql`:
+  - Tabela `plans` (id, name, max_properties, max_inspections, max_images_per_inspection, ai_analysis, pdf_export, price_monthly) — limites totais (não por mês), conforme especificado no CLAUDE.md
+  - Tabela `subscriptions` (user_id, plan_id, status, stripe_customer_id, stripe_subscription_id, current_period_end — colunas Stripe já modeladas, nullable, sem uso ainda)
+  - Sem tabela `usage_limits` dedicada — uso é calculado ao vivo via `COUNT` nas tabelas reais (properties/inspections), evita risco de contador dessincronizado
   - Seed: planos `free` e `premium`
-- [ ] RLS
+  - Trigger `handle_new_user` estendido para criar assinatura Free automaticamente
+- [x] RLS
 
 **Backend — Lógica de limites**
-- [ ] `lib/plans/check-limit.ts` — helper que checa se usuário pode executar ação
-- [ ] Guards nos Server Actions de criação de propriedade, vistoria, imagem, análise de IA e PDF
-- [ ] Retorno de erro tipado `PLAN_LIMIT_REACHED` para o frontend exibir o upgrade modal
+- [x] `lib/plans/check-limit.ts` — helper que checa se usuário pode executar ação
+- [x] Guards em: criar propriedade, criar vistoria, upload de imagem (client-side check antes do lote), análise de IA, export de PDF
+- [x] Retorno de erro tipado `PLAN_LIMIT_REACHED` — sem modal dedicado, reaproveita os estados de erro já existentes nos formulários/botões
 
 **Backend — Scaffold Stripe**
-- [ ] `lib/stripe/client.ts` — Stripe SDK configurado
-- [ ] `app/api/stripe/webhook/route.ts` — webhook handler (stub para `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`)
-- [ ] Server Action `stripe/create-checkout-session` — stub funcional
+- [ ] Adiado a pedido do usuário — fazer por último, depois de validar o restante do produto. Colunas `stripe_customer_id`/`stripe_subscription_id`/`current_period_end` já existem em `subscriptions` para quando for implementado.
 
 ### Commit final
 ```

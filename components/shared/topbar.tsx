@@ -12,6 +12,7 @@ import {
 import { createClient } from '@/lib/supabase/server'
 import { signOut } from '@/lib/auth/actions'
 import { getUnreadCount } from '@/lib/notifications/actions'
+import { getUserPlan } from '@/lib/plans/check-limit'
 import { NotificationDropdown } from './notification-dropdown'
 import { MobileNav } from './mobile-nav'
 import { SearchBar } from './search-bar'
@@ -20,6 +21,7 @@ export async function Topbar() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   const unreadCount = await getUnreadCount()
+  const plan = user ? await getUserPlan(user.id) : null
 
   const initials = user?.user_metadata?.full_name
     ? user.user_metadata.full_name
@@ -61,16 +63,23 @@ export async function Topbar() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel className="font-normal">
-              <p className="text-sm font-medium">
-                {user?.user_metadata?.full_name ?? 'Usuário'}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-medium">
+                  {user?.user_metadata?.full_name ?? 'Usuário'}
+                </p>
+                {plan && (
+                  <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${plan.id === 'free' ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary'}`}>
+                    {plan.name}
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <a href="/settings" className="flex items-center gap-2 cursor-pointer">
+              <a href="/settings/plan" className="flex items-center gap-2 cursor-pointer">
                 <Settings className="h-4 w-4" />
-                Configurações
+                Plano e configurações
               </a>
             </DropdownMenuItem>
             <DropdownMenuSeparator />

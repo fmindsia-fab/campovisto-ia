@@ -2,6 +2,15 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from '@/lib/supabase/server'
+import { checkCanUploadImage } from '@/lib/plans/check-limit'
+
+export async function checkImageUploadAllowed(inspectionId: string, additionalCount: number) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { allowed: false, reason: 'Não autenticado' }
+
+  return checkCanUploadImage(user.id, inspectionId, additionalCount)
+}
 
 export async function saveImageRecord(data: {
   inspectionId: string

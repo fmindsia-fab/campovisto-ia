@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { analyzeImageWithGemini } from '@/lib/ai/gemini'
 import { createClient } from '@/lib/supabase/server'
+import { checkCanUseAI } from '@/lib/plans/check-limit'
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,6 +11,11 @@ export async function POST(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+    }
+
+    const limitCheck = await checkCanUseAI(user.id)
+    if (!limitCheck.allowed) {
+      return NextResponse.json({ error: limitCheck.reason, code: limitCheck.code }, { status: 403 })
     }
 
     const body = await request.json() as {

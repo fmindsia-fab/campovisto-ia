@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { generateReportPdf } from '@/lib/pdf/generate-report-pdf'
+import { checkCanExportPdf } from '@/lib/plans/check-limit'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -37,6 +38,11 @@ export async function POST(request: NextRequest, { params }: Props) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+    }
+
+    const limitCheck = await checkCanExportPdf(user.id)
+    if (!limitCheck.allowed) {
+      return NextResponse.json({ error: limitCheck.reason, code: limitCheck.code }, { status: 403 })
     }
 
     const { data: report, error: reportError } = await (supabase as any)

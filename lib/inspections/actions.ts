@@ -3,11 +3,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from '@/lib/supabase/server'
 import { syncInspectionEvent } from '@/lib/calendar/actions'
+import { checkCanCreateInspection } from '@/lib/plans/check-limit'
 
 export async function createInspection(formData: FormData) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Não autenticado' }
+
+  const limitCheck = await checkCanCreateInspection(user.id)
+  if (!limitCheck.allowed) return { error: limitCheck.reason, code: limitCheck.code }
 
   const visitDate = formData.get('visit_date') as string
 

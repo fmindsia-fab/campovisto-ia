@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { createBrowserClient } from '@supabase/ssr'
 import { ImageTypeSelector } from './image-type-selector'
 import { ALL_IMAGE_TYPE_LABELS } from './image-types'
+import { checkImageUploadAllowed } from '@/lib/inspection-images/actions'
 
 interface ImageUploaderProps {
   inspectionId: string
@@ -26,6 +27,7 @@ export function ImageUploader({ inspectionId, onUploaded }: ImageUploaderProps) 
   const [files, setFiles] = useState<FilePreview[]>([])
   const [imageType, setImageType] = useState('')
   const [step, setStep] = useState<Step>('select-files')
+  const [limitError, setLimitError] = useState<string | null>(null)
 
   function addFiles(incoming: FileList | null) {
     if (!incoming) return
@@ -44,6 +46,14 @@ export function ImageUploader({ inspectionId, onUploaded }: ImageUploaderProps) 
 
   async function handleUploadWithType(type: string) {
     if (files.length === 0) return
+
+    setLimitError(null)
+    const limitCheck = await checkImageUploadAllowed(inspectionId, files.length)
+    if (!limitCheck.allowed) {
+      setLimitError(limitCheck.reason ?? 'Limite do plano atingido.')
+      return
+    }
+
     setStep('uploading')
 
     const supabase = createBrowserClient(
@@ -178,8 +188,12 @@ export function ImageUploader({ inspectionId, onUploaded }: ImageUploaderProps) 
 
         <ImageTypeSelector value={imageType} onChange={setImageType} />
 
+        {limitError && (
+          <p className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">{limitError}</p>
+        )}
+
         <div className="flex gap-2 pt-2 border-t">
-          <Button variant="outline" size="sm" onClick={() => { setImageType(''); setStep('uploading'); handleUploadWithType('') }} className="text-xs">
+          <Button variant="outline" size="sm" onClick={() => { setImageType(''); handleUploadWithType('') }} className="text-xs">
             Pular (sem tipo)
           </Button>
           <Button size="sm" onClick={() => handleUploadWithType(imageType)} disabled={!imageType} className="flex-1">

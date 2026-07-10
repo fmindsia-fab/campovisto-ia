@@ -2,6 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from '@/lib/supabase/server'
+import { checkCanCreateProperty } from '@/lib/plans/check-limit'
 
 function parseCoord(value: FormDataEntryValue | null): number | null {
   if (!value) return null
@@ -13,6 +14,9 @@ export async function createProperty(formData: FormData) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Não autenticado' }
+
+  const limitCheck = await checkCanCreateProperty(user.id)
+  if (!limitCheck.allowed) return { error: limitCheck.reason, code: limitCheck.code }
 
   const { data, error } = await (supabase as any).from('properties').insert({
     client_id: formData.get('client_id'),
