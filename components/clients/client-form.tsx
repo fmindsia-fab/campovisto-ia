@@ -45,7 +45,7 @@ export function ClientForm({ open, onClose, client }: ClientFormProps) {
         <form action={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="name">Nome *</Label>
-            <Input id="name" name="name" required defaultValue={client?.name} />
+            <Input id="name" name="name" required defaultValue={client?.name} placeholder="Ex: Dino da Silva Sauro" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -61,12 +61,12 @@ export function ClientForm({ open, onClose, client }: ClientFormProps) {
 
           <div className="space-y-1.5">
             <Label htmlFor="email">E-mail</Label>
-            <Input id="email" name="email" type="email" defaultValue={client?.email ?? ''} />
+            <Input id="email" name="email" type="email" defaultValue={client?.email ?? ''} placeholder="dino@fazenda.com.br" />
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="notes">Observações</Label>
-            <Textarea id="notes" name="notes" rows={3} defaultValue={client?.notes ?? ''} />
+            <Textarea id="notes" name="notes" rows={3} defaultValue={client?.notes ?? ''} placeholder="Ex: Prefere ser contatado por WhatsApp, propriedade de difícil acesso na época de chuva..." />
           </div>
 
           {error && (

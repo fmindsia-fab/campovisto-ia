@@ -32,7 +32,7 @@ export function ProfileForm({ fullName, phone }: Props) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="full_name">Nome completo</Label>
-          <Input id="full_name" name="full_name" defaultValue={fullName ?? ''} />
+          <Input id="full_name" name="full_name" defaultValue={fullName ?? ''} placeholder="Ex: Fabio Marcelo" />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="phone">Telefone</Label>

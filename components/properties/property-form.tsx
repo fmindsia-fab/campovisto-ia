@@ -79,7 +79,7 @@ export function PropertyForm({ open, onClose, property, clients, defaultClientId
 
           <div className="space-y-1.5">
             <Label htmlFor="name">Nome da propriedade *</Label>
-            <Input id="name" name="name" required defaultValue={property?.name} />
+            <Input id="name" name="name" required defaultValue={property?.name} placeholder="Ex: Fazenda do Dino" />
           </div>
 
           <LocationMapPicker
@@ -104,7 +104,7 @@ export function PropertyForm({ open, onClose, property, clients, defaultClientId
 
           <div className="space-y-1.5">
             <Label htmlFor="notes">Observações</Label>
-            <Textarea id="notes" name="notes" rows={3} defaultValue={property?.notes ?? ''} />
+            <Textarea id="notes" name="notes" rows={3} defaultValue={property?.notes ?? ''} placeholder="Ex: Acesso pela porteira principal, cerca elétrica na divisa com o vizinho..." />
           </div>
 
           {error && (
