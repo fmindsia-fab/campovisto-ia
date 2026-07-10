@@ -665,11 +665,14 @@ feat: settings — profile, team management, role assignment, email invites via 
 **Segurança & Qualidade**
 - [x] Auditoria de segurança Supabase (`/supabase-security-audit`) — feita, achados:
   - [x] **Crítico corrigido**: papel `client` não tinha isolamento — qualquer autenticado via RLS `auth.role() = 'authenticated'` enxergava/editava clients/properties/inspections/reports/ai_analyses/annotations de todo mundo. Resolvido na migration `020_client_role_isolation.sql`: `clients.linked_user_id` + função `is_staff()` + policies reescritas (staff continua com acesso total; um usuário só-`client` só lê o que está ligado ao seu `linked_user_id`; activities/calendar/comments viram staff-only). UI de vínculo adicionada no dialog de papéis (Configurações → Equipe).
-  - [ ] Médio (ainda aberto): policies do bucket `avatars` não restringem por dono (qualquer autenticado sobrescreve avatar de qualquer um); limites de plano só são checados na aplicação, não no banco (bypassável via API direta); buckets `drone-images`/`field-photos` não estão em migration (criados manualmente, provável público via `getPublicUrl`)
+  - [x] **Médios corrigidos** (`021_medium_findings.sql`):
+    - policy do bucket `avatars` agora exige que o 1º segmento do caminho bata com `auth.uid()` (antes qualquer autenticado sobrescrevia avatar de qualquer um)
+    - limites de plano ganharam um trigger de backstop no banco (`enforce_property_limit`/`enforce_inspection_limit`/`enforce_image_limit`/`enforce_ai_analysis_plan`/`enforce_pdf_export_plan`) — a checagem bonita na UI continua vindo de `lib/plans/check-limit.ts`, isso aqui é só a rede de segurança caso alguém chame a API direto
+    - buckets `drone-images`/`field-photos` agora estão versionados em migration (antes só existiam manualmente no dashboard), mantidos públicos pra não quebrar o `getPublicUrl()` já usado em várias páginas
   - [x] `service_role` não exposto no frontend — confirmado, nunca usado no projeto
   - [ ] RLS habilitado e testado em todas as tabelas — habilitado em todas; "testado com usuário de outro papel" ainda pendente de teste manual em produção
 - [ ] Code review completo (`/code-review`) — ainda não feito
-- [ ] Variáveis de ambiente documentadas em `.env.example` — falta `NEXT_PUBLIC_SITE_URL`
+- [x] Variáveis de ambiente documentadas em `.env.example` — `NEXT_PUBLIC_SITE_URL` adicionada
 - [ ] `console.log`/`console.error` de debug ainda presentes em 6 arquivos (não vazam segredo, mas devem ser limpos)
 
 **Deploy & Verificação**
