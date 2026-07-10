@@ -10,6 +10,14 @@ import type { Notification, NotificationType } from '@/types'
 async function notifyUser(userId: string, type: NotificationType, title: string, body: string | null, link: string | null) {
   const supabase = await createClient()
 
+  const { data: profile } = await (supabase as any)
+    .from('profiles')
+    .select('notification_preferences')
+    .eq('id', userId)
+    .maybeSingle()
+
+  if (profile?.notification_preferences?.[type] === false) return
+
   // evita duplicar a mesma notificação (mesmo usuário/tipo/link) enquanto a condição persistir
   const { data: existing } = await (supabase as any)
     .from('notifications')

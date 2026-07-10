@@ -66,6 +66,26 @@ export async function forgotPassword(formData: FormData) {
   return { success: 'Enviamos um link de recuperação para o seu e-mail.' }
 }
 
+export async function changePassword(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user?.email) return { error: 'Não autenticado' }
+
+  const currentPassword = formData.get('current_password') as string
+  const newPassword = formData.get('new_password') as string
+
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: currentPassword,
+  })
+  if (signInError) return { error: 'Senha atual incorreta' }
+
+  const { error } = await supabase.auth.updateUser({ password: newPassword })
+  if (error) return { error: error.message }
+
+  return { success: true }
+}
+
 export async function resetPassword(formData: FormData) {
   const supabase = await createClient()
 

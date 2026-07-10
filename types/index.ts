@@ -26,6 +26,12 @@ export interface Profile {
   full_name: string | null
   avatar_url: string | null
   phone: string | null
+  is_active: boolean
+  notification_preferences: {
+    report_ready: boolean
+    activity_overdue: boolean
+    analysis_pending_review: boolean
+  }
   onboarding_step: number
   onboarding_completed_at: ISODateString | null
   created_at: ISODateString

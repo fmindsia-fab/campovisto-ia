@@ -24,7 +24,7 @@
 | ~~M11~~ | ~~Busca & Filtros~~ | `main` | ✅ **Concluído** |
 | ~~M12~~ | ~~Onboarding~~ | `main` | ✅ **Concluído** |
 | ~~M13~~ | ~~Planos Free/Premium~~ | `main` | ✅ **Concluído** (Stripe adiado de propósito) |
-| M14 | Configurações & Permissões | `feat/settings` | Perfil, equipe, papéis |
+| ~~M14~~ | ~~Configurações & Permissões~~ | `main` | ✅ **Concluído** (convite por Resend adiado) |
 | M15 | Polimento, Auditoria & Deploy | `feat/polish` | Responsividade, segurança, produção |
 
 ---
@@ -618,22 +618,22 @@ feat: plans — Free/Premium limits, upgrade prompts, Stripe scaffold
 ### Entregas
 
 **UI**
-- [ ] `app/(app)/settings/page.tsx` — hub de configurações com abas
-- [ ] Aba Perfil: nome, telefone, avatar (upload), senha
-- [ ] Aba Notificações: preferências de alertas internos
-- [ ] Aba Equipe (admin only): lista de usuários com roles, convidar novo usuário por e-mail, desativar usuário
-- [ ] `components/settings/role-assignment.tsx` — checkboxes de roles por usuário
-- [ ] Convite por e-mail: form + envio via Resend
+- [x] `app/(app)/settings/page.tsx` — hub de configurações com abas
+- [x] Aba Perfil: nome, telefone, avatar (upload), senha
+- [x] Aba Notificações: preferências de alertas internos (report_ready, activity_overdue, analysis_pending_review)
+- [x] Aba Equipe (admin only): lista de usuários com roles, convidar novo usuário, ativar/desativar usuário
+- [x] `components/settings/role-assignment.tsx` — checkboxes de roles por usuário
+- [ ] Convite por e-mail via Resend — **adiado a pedido do usuário**, junto com o Stripe. Hoje o convite é um link de `/signup` pra copiar/compartilhar manualmente; a pessoa se cadastra e o admin atribui os papéis na aba Equipe depois
 
 **Backend**
-- [ ] Server Action `profiles/update` — nome, telefone, avatar
-- [ ] Server Action `auth/change-password`
-- [ ] Upload de avatar para bucket `avatars` (criar bucket)
-- [ ] Server Action `team/invite-user` — envia e-mail de convite via Resend
-- [ ] Server Action `team/update-user-roles`
-- [ ] Server Action `team/deactivate-user`
-- [ ] `lib/resend/templates/invite.tsx` — template de e-mail de convite
-- [ ] Guards de permissão: rotas de admin protegidas por role check
+- [x] Server Action `updateProfile` — nome, telefone
+- [x] Server Action `updateAvatar` — avatar (upload direto do browser pro bucket, action só grava a URL)
+- [x] Server Action `changePassword` (reautentica com a senha atual antes de trocar)
+- [x] Upload de avatar para bucket `avatars` (criado na migration, público para leitura)
+- [ ] Server Action `team/invite-user` via Resend — adiado (ver acima)
+- [x] Server Action `updateUserRoles`
+- [x] Server Action `toggleUserActive` — sem tocar em `auth.users` (não temos service role key ainda): usa uma coluna `is_active` em `profiles`, checada no middleware, que desloga e bloqueia o login
+- [x] Guards de permissão: `getTeamMembers`/`updateUserRoles`/`toggleUserActive` checam `hasRole(admin)` na app, e o RLS de `profiles`/`user_roles` também só libera pra admin — dupla proteção
 
 ### Commit final
 ```

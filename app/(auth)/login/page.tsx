@@ -1,7 +1,13 @@
 import Link from 'next/link'
 import { LoginForm } from './login-form'
 
-export default function LoginPage() {
+interface Props {
+  searchParams: Promise<{ deactivated?: string }>
+}
+
+export default async function LoginPage({ searchParams }: Props) {
+  const { deactivated } = await searchParams
+
   return (
     <div className="space-y-6">
       <div>
@@ -10,6 +16,12 @@ export default function LoginPage() {
           Use seu e-mail e senha para acessar
         </p>
       </div>
+
+      {deactivated && (
+        <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          Sua conta foi desativada. Fale com um administrador para reativá-la.
+        </p>
+      )}
 
       <LoginForm />
 

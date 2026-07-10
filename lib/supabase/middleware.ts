@@ -40,6 +40,23 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  if (user && !isPublicPath) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: profile } = await (supabase as any)
+      .from('profiles')
+      .select('is_active')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (profile?.is_active === false) {
+      await supabase.auth.signOut()
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      url.searchParams.set('deactivated', '1')
+      return NextResponse.redirect(url)
+    }
+  }
+
   if (user && isPublicPath) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
