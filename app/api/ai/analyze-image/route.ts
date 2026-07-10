@@ -13,6 +13,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
     }
 
+    const limitCheck = await checkCanUseAI(user.id)
+    if (!limitCheck.allowed) {
+      return NextResponse.json({ error: limitCheck.reason, code: limitCheck.code }, { status: 403 })
+    }
+
     const body = await request.json() as {
       imageId: string
       inspectionId: string
@@ -25,11 +30,6 @@ export async function POST(request: NextRequest) {
 
     if (!imageId || !inspectionId || !imageUrl) {
       return NextResponse.json({ error: 'Campos obrigatórios ausentes' }, { status: 400 })
-    }
-
-    const limitCheck = await checkCanUseAI(inspectionId)
-    if (!limitCheck.allowed) {
-      return NextResponse.json({ error: limitCheck.reason, code: limitCheck.code }, { status: 403 })
     }
 
     const result = await analyzeImageWithGemini(imageUrl, imageType, fieldObservations)
