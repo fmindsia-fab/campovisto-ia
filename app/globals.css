@@ -87,6 +87,47 @@
   }
 }
 
+/* ── Capa do relatório em tela pequena ──
+   A capa usa dimensões fixas de página A4 (mm/px) porque é isso que o
+   Playwright captura pra virar PDF. Só que essa mesma página também é
+   mostrada direto no app (/reports/[id]), fora do fluxo de impressão — e
+   aí, num celular, o badge de 220px e o título de 52px ficam gigantes e
+   desproporcionais. @media screen nunca é aplicado durante a geração do
+   PDF (o Chromium força media type "print" nesse processo), então essas
+   regras só valem pra quem está vendo a prévia no navegador. */
+@media screen and (max-width: 640px) {
+  .report-cover {
+    height: auto !important;
+    max-height: none !important;
+    min-height: auto !important;
+  }
+
+  .report-cover-badge {
+    width: 110px !important;
+    height: 110px !important;
+    top: -20px !important;
+    right: -20px !important;
+  }
+
+  .report-cover-badge-img {
+    width: 60px !important;
+    height: 60px !important;
+  }
+
+  .report-cover-content {
+    padding: 28px 20px !important;
+  }
+
+  .report-cover-title {
+    font-size: 32px !important;
+  }
+
+  .report-cover-meta {
+    flex-wrap: wrap !important;
+    gap: 20px !important;
+  }
+}
+
 @layer components {
   .report-section-title {
     @apply text-base font-bold text-green-800 border-b border-green-100 pb-1.5 mb-3;

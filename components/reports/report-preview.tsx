@@ -134,8 +134,12 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
 
       {/* ════ CAPA ════ */}
       {/* altura levemente abaixo de 297mm (1 página A4) — evita que um
-          arredondamento de subpixel derrube uma linha para uma página órfã */}
-      <div style={{
+          arredondamento de subpixel derrube uma linha para uma página órfã.
+          No celular (visualização em tela, não impressão) essas dimensões
+          fixas de A4 ficam desproporcionais — os overrides pra isso ficam
+          em globals.css sob @media screen, que nunca afeta o PDF (o
+          Chromium força media type "print" ao gerar o PDF via Playwright) */}
+      <div className="report-cover" style={{
         pageBreakAfter: 'always',
         breakAfter: 'page',
         height: '294mm',
@@ -153,7 +157,7 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
         }} />
 
         {/* Selo decorativo — badge ilustrado, sangrando no canto superior direito */}
-        <div style={{
+        <div className="report-cover-badge" style={{
           position: 'absolute', top: '-40px', right: '-40px',
           width: '220px', height: '220px', borderRadius: '9999px',
           background: 'linear-gradient(135deg, #16a34a, #065f46)',
@@ -161,11 +165,11 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
           boxShadow: '0 8px 24px rgba(6,95,70,0.25)',
         }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/badge-negative.png" alt="" width={130} height={130} />
+          <img className="report-cover-badge-img" src="/badge-negative.png" alt="" width={130} height={130} />
         </div>
 
         {/* Área de conteúdo com padding */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '48px 48px 40px 56px' }}>
+        <div className="report-cover-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '48px 48px 40px 56px' }}>
 
           {/* Logo topo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0' }}>
@@ -193,7 +197,7 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
               Relatório de Vistoria Aérea
             </p>
 
-            <h1 style={{
+            <h1 className="report-cover-title" style={{
               fontSize: '52px', fontWeight: '800', color: '#0f172a',
               lineHeight: '1.05', margin: '0 0 20px 0',
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -205,7 +209,7 @@ export function ReportPreview({ report, images, annotations, analysisMap, public
             <div style={{ width: '48px', height: '3px', background: '#16a34a', marginBottom: '24px' }} />
 
             {/* Cliente e data lado a lado */}
-            <div style={{ display: 'flex', gap: '48px', alignItems: 'flex-start' }}>
+            <div className="report-cover-meta" style={{ display: 'flex', gap: '48px', alignItems: 'flex-start' }}>
               <div>
                 <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#9ca3af', fontFamily: 'sans-serif', marginBottom: '4px' }}>Cliente / Produtor</p>
                 <p style={{ fontSize: '18px', fontWeight: '600', color: '#374151', fontFamily: 'sans-serif', margin: 0 }}>{client?.name ?? '—'}</p>
