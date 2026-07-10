@@ -8,6 +8,7 @@ import { getAssignableProfiles } from '@/lib/activities/actions'
 import { ReportPreview } from '@/components/reports/report-preview'
 import { QuickActivitiesPanel } from '@/components/reports/quick-activities-panel'
 import { PrintButton } from './print-button'
+import { ShareButton } from './share-button'
 import { createClient } from '@/lib/supabase/server'
 
 interface Props {
@@ -45,7 +46,7 @@ export default async function ReportDetailPage({ params }: Props) {
           title={report.title}
           description={report.inspections?.properties?.clients?.name ?? undefined}
           action={
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/reports">
                   <ArrowLeft className="h-4 w-4 mr-1.5" />
@@ -53,6 +54,7 @@ export default async function ReportDetailPage({ params }: Props) {
                 </Link>
               </Button>
               <PrintButton />
+              <ShareButton reportTitle={report.title} />
             </div>
           }
         />

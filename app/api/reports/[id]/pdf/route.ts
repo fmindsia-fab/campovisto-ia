@@ -95,7 +95,7 @@ export async function POST(request: NextRequest, { params }: Props) {
       return NextResponse.json({ error: 'PDF salvo, mas falha ao gerar link de download' }, { status: 500 })
     }
 
-    return NextResponse.json({ path, url: signedUrlData.signedUrl })
+    return NextResponse.json({ path, url: signedUrlData.signedUrl, filename: downloadFilename })
   } catch (err) {
     console.error('Erro ao gerar PDF do relatório:', err)
     return NextResponse.json(
